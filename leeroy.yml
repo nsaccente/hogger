@@ -1,0 +1,9 @@
+apiVersion: 1.0.1
+entities:
+  - type: OneHandedAxe
+    name: Silver Axe
+    description: "A sparkly axe."
+
+  - type: TwoHandedAxe 
+    name: Silver Axe
+    description: "An even sparklier axe."
