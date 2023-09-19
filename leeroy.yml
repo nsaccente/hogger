@@ -1,9 +1,17 @@
 apiVersion: 1.0.1
 entities:
   - type: OneHandedAxe
-    name: Silver Axe
+    name: 1-Handed Hatchet
     description: "A sparkly axe."
+    quality: Rare
+    displayID: 2334
+    buyPrice:
+      gold: 10
+      silver: 10
+      copper: 20
+    
 
-  - type: TwoHandedAxe 
-    name: Silver Axe
-    description: "An even sparklier axe."
+  # - type: TwoHandedAxe 
+  #   name: 2-Handed Axe
+  #   description: "An even sparklier axe."
+  #   quality: BoA

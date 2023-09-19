@@ -13,7 +13,7 @@ def apply(
 
     manifest = Manifest.from_file("./leeroy.yml")
     for entity in manifest.entities:
-        print("entity", entity, type(entity))
+        print("entity", entity)
     
     
     # connection = mysql.connector.connect(
