@@ -1,6 +1,7 @@
 import abc
-from pydantic import BaseModel, Field
 from typing import Literal
+
+from pydantic import BaseModel, Field
 
 from .item import Item
 
@@ -10,18 +11,16 @@ class Weapon(Item, abc.ABC):
 
 
 class OneHandedAxe(Weapon):
-    type: Literal['OneHandedAxe']
+    type: Literal["OneHandedAxe"]
     itemSubclass: int = Field(
         default=0,
         serialization_alias="subclass",
     )
-    equipAs: int = Field(
-        default=17
-    )
-    
+    equipAs: int = Field(default=17)
+
 
 class TwoHandedAxe(Weapon):
-    type: Literal['TwoHandedAxe']
+    type: Literal["TwoHandedAxe"]
     itemSubclass: int = Field(
         default=1,
         serialization_alias="subclass",
@@ -29,7 +28,7 @@ class TwoHandedAxe(Weapon):
 
 
 class Bow(Weapon):
-    type: Literal['Bow']
+    type: Literal["Bow"]
     itemSubclass: int = Field(
         default=2,
         serialization_alias="subclass",
@@ -37,7 +36,7 @@ class Bow(Weapon):
 
 
 class Gun(Weapon):
-    type: Literal['Gun']
+    type: Literal["Gun"]
     itemSubclass: int = Field(
         default=3,
         serialization_alias="subclass",
@@ -45,18 +44,16 @@ class Gun(Weapon):
 
 
 class OneHandedMace(Weapon):
-    type: Literal['OneHandedMace']
+    type: Literal["OneHandedMace"]
     itemSubclass: int = Field(
         default=4,
         serialization_alias="subclass",
     )
-    equipAs: int = Field(
-        default=17
-    )
+    equipAs: int = Field(default=17)
 
 
 class TwoHandedMace(Weapon):
-    type: Literal['TwoHandedMace']
+    type: Literal["TwoHandedMace"]
     itemSubclass: int = Field(
         default=5,
         serialization_alias="subclass",
@@ -64,7 +61,7 @@ class TwoHandedMace(Weapon):
 
 
 class Polearm(Weapon):
-    type: Literal['Polearm']
+    type: Literal["Polearm"]
     itemSubclass: int = Field(
         default=6,
         serialization_alias="subclass",
@@ -72,14 +69,15 @@ class Polearm(Weapon):
 
 
 class OneHandedSword(Weapon):
-    type: Literal['OneHandedSword']
+    type: Literal["OneHandedSword"]
     itemSubclass: int = Field(
         default=7,
         serialization_alias="subclass",
     )
 
+
 class TwoHandedSword(Weapon):
-    type: Literal['TwoHandedSword']
+    type: Literal["TwoHandedSword"]
     itemSubclass: int = Field(
         default=8,
         serialization_alias="subclass",
@@ -90,7 +88,7 @@ class TwoHandedSword(Weapon):
 
 
 class Staff(Weapon):
-    type: Literal['Staff']
+    type: Literal["Staff"]
     itemSubclass: int = Field(
         default=10,
         serialization_alias="subclass",
@@ -99,8 +97,9 @@ class Staff(Weapon):
 
 # 11 & 12 are "Exotic"
 
+
 class FistWeapon(Weapon):
-    type: Literal['FistWeapon']
+    type: Literal["FistWeapon"]
     itemSubclass: int = Field(
         default=13,
         serialization_alias="subclass",
@@ -109,7 +108,8 @@ class FistWeapon(Weapon):
 
 class Misc(Weapon):
     """Blacksmith Hammer, Mining Pick, etc."""
-    type: Literal['Misc']
+
+    type: Literal["Misc"]
     itemSubclass: int = Field(
         default=14,
         serialization_alias="subclass",
@@ -117,7 +117,7 @@ class Misc(Weapon):
 
 
 class Dagger(Weapon):
-    type: Literal['Dagger']
+    type: Literal["Dagger"]
     itemSubclass: int = Field(
         default=15,
         serialization_alias="subclass",
@@ -125,7 +125,7 @@ class Dagger(Weapon):
 
 
 class Thrown(Weapon):
-    type: Literal['Thrown']
+    type: Literal["Thrown"]
     itemSubclass: int = Field(
         default=16,
         serialization_alias="subclass",
@@ -133,7 +133,7 @@ class Thrown(Weapon):
 
 
 class Spear(Weapon):
-    type: Literal['Spear']
+    type: Literal["Spear"]
     itemSubclass: int = Field(
         default=17,
         serialization_alias="subclass",
@@ -141,7 +141,7 @@ class Spear(Weapon):
 
 
 class Crossbow(Weapon):
-    type: Literal['Crossbow']
+    type: Literal["Crossbow"]
     itemSubclass: int = Field(
         default=18,
         serialization_alias="subclass",
@@ -149,7 +149,7 @@ class Crossbow(Weapon):
 
 
 class Wand(Weapon):
-    type: Literal['Wand']
+    type: Literal["Wand"]
     itemSubclass: int = Field(
         default=19,
         serialization_alias="subclass",
@@ -157,7 +157,7 @@ class Wand(Weapon):
 
 
 class FishingPole(Weapon):
-    type: Literal['FishingPole']
+    type: Literal["FishingPole"]
     itemSubclass: int = Field(
         default=20,
         serialization_alias="subclass",

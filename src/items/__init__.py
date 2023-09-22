@@ -1,1 +1,1 @@
-from .weapon import TwoHandedAxe, OneHandedAxe
+from .weapon import OneHandedAxe, TwoHandedAxe

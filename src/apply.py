@@ -1,21 +1,20 @@
 import mysql.connector
+
 from src.manifest import Manifest
 
 
 def apply(
-        host: str,
-        port: (int | str),
-        database: str,
-        user: str,
-        password: str,
-        **kwargs,
+    host: str,
+    port: (int | str),
+    database: str,
+    user: str,
+    password: str,
+    **kwargs,
 ) -> None:
-
     manifest = Manifest.from_file("./leeroy.yml")
     for entity in manifest.entities:
         print("entity", entity)
-    
-    
+
     # connection = mysql.connector.connect(
     #     host=host,
     #     port=port,

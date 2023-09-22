@@ -9,9 +9,10 @@ entities:
       gold: 10
       silver: 10
       copper: 20
-    
+    inventoryType: Head
 
-  # - type: TwoHandedAxe 
+
+  # - type: TwoHandedAxe
   #   name: 2-Handed Axe
   #   description: "An even sparklier axe."
   #   quality: BoA
