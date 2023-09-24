@@ -1,6 +1,7 @@
 import abc
 
 from pydantic import BaseModel, Field, FieldValidationInfo, field_validator, field_serializer, SerializationInfo
+import typing
 
 from src.misc import Money, Duration
 
@@ -199,22 +200,59 @@ class Item(BaseModel, abc.ABC):
         description="Corresponds to an entry in disenchant_loot_template.",
         serialization_alias="DisenchantID",
     )
+    foodType: FoodType = Field(
+        default=FoodType.Undefined,
+        description=(
+            "Determines the category a fooditem falls into, if any. This is"
+            "primarily used to determine what items hunter pet's will eat."
+            "Defaults to \"Undefined\"."
+        ),
+        serialization_alias="FoodType",
+    )
+    minLootMoney: Money = Field(
+        default=Money(),
+        description=(
+            "Minimum amount of money contained in the item. If an item should"
+            "not contain money, use Money(gold=0, silver=0, copper=0), which "
+            "is the default for this field."
+        ),
+    )
+    maxLootMoney: Money = Field(
+        default=Money(),
+        description=(
+            "Max amount of money contained in the item. If an item should"
+            "not contain money, use Money(gold=0, silver=0, copper=0), which "
+            "is the default for this field."
+        ),
+    )
+    itemSet: int = Field(
+        default=0,
+        description=(
+            "The ID of the item set that this item belongs to."
+        ),
+        ge=0,
+        serialization_alias="itemset",
+    )
+    bonding: ItemBinding = Field(
+        default=ItemBinding.Never,
+        description=(
+            "Determines if the item binds to the character. Defaults to Never."
+        ),
+    )
 
-
-    @field_validator("inventoryType", mode="before")
-    def parse_inventory_type(cls, v: str, info: FieldValidationInfo) -> InventoryType:
-        print(info)
+    @field_validator("inventoryType", "material", "quality", "totemCategory", "foodType", "bonding", mode="before")
+    def parse_enum(cls, v: str, info: FieldValidationInfo) -> Enum:
+        field_enum = typing.get_type_hints(cls)[info.field_name]
         try:
-            return InventoryType[v]
+            return field_enum[v]
         except:
-            raise Exception(f'"{v}" is an invalid value for inventoryType')
+            raise Exception(
+                f'"{v}" is an invalid value for field "{field_enum.__name__}"',
+            )
 
-    @field_validator("quality", mode="before")
-    def parse_quality(cls, v: str, info: FieldValidationInfo) -> Quality:
-        try:
-            return Quality[v]
-        except:
-            raise Exception(f'"{v}" is an invalid value for quality')
+    @field_serializer("inventoryType", "material", "quality", "totemCategory", "foodType", "bonding")
+    def serialize_enum(self, v: Enum, _info: SerializationInfo) -> str:
+        return v.name
 
     @field_validator("bagFamily", mode="before")
     def parse_bag_family(cls, v: list[str], info: FieldValidationInfo) -> BagFamily:
@@ -226,16 +264,12 @@ class Item(BaseModel, abc.ABC):
             bf[item] = True
         return bf
 
-    @field_serializer("inventoryType", "material", "quality", "totemCategory")
-    def serialize_enum(self, v: Enum, _info: SerializationInfo) -> str:
-        return v.name
-
     @field_serializer("bagFamily")
     def serialize_bag_family(self, bf: BagFamily, _info: SerializationInfo) -> list[str]:
         families = []
         for family, value in vars(bf).items():
             if value:
                 families.append(family)
-        print(families)
 
         return families
+

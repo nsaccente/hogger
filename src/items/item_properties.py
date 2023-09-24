@@ -240,3 +240,14 @@ class ItemLimitCategory(BaseModel):
         validation_alias="IsGem"
     )
 
+
+class FoodType(Enum):
+    Undefined = 0
+    Meat = 1
+    Fish = 2
+    Cheese = 3
+    Bread = 4
+    Fungus = 5
+    Fruit = 6
+    RawMeat = 7
+    RawFish = 8
