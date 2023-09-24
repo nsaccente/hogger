@@ -10,6 +10,8 @@ entities:
       silver: 10
       copper: 20
     inventoryType: Head
+    bagFamily:
+    - Herbs
 
 
   # - type: TwoHandedAxe

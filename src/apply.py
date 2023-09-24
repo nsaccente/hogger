@@ -1,4 +1,5 @@
 import mysql.connector
+import yaml
 
 from src.manifest import Manifest
 
@@ -12,8 +13,12 @@ def apply(
     **kwargs,
 ) -> None:
     manifest = Manifest.from_file("./leeroy.yml")
-    for entity in manifest.entities:
-        print("entity", entity)
+    yml = yaml.dump(manifest.model_dump(by_alias=True), sort_keys=False)
+    print(yml)
+    # for entity in manifest.entities:
+    #     for k, v in entity.model_dump(by_alias=True).items():
+    #         print(f"{k}: {v}")
+    #     print()
 
     # connection = mysql.connector.connect(
     #     host=host,

@@ -4,9 +4,9 @@ from pydantic import BaseModel, Field
 
 
 class Money(BaseModel):
-    gold: Optional[int]
-    silver: Optional[int]
-    copper: Optional[int]
+    gold: int = Field(default=0, ge=0)
+    silver: int = Field(default=0, ge=0)
+    copper: int = Field(default=0, ge=0)
 
     def to_copper(self) -> int:
         return (self.copper) + (self.silver * 100) + (10000 * self.gold)
@@ -25,7 +25,7 @@ class Money(BaseModel):
 
 
 # Why is Time in `currency.py`? Because "Time is money, friend."
-class Time(BaseModel):
+class Duration(BaseModel):
     days: int = 0
     hours: int = 0
     minutes: int = 0

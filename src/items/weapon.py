@@ -16,8 +16,6 @@ class OneHandedAxe(Weapon):
         default=0,
         serialization_alias="subclass",
     )
-    equipAs: int = Field(default=17)
-
 
 class TwoHandedAxe(Weapon):
     type: Literal["TwoHandedAxe"]
@@ -49,7 +47,7 @@ class OneHandedMace(Weapon):
         default=4,
         serialization_alias="subclass",
     )
-    equipAs: int = Field(default=17)
+    inventoryType: int = Field(default=17)
 
 
 class TwoHandedMace(Weapon):
