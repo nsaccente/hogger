@@ -22,3 +22,26 @@ class Money(BaseModel):
             silver=silver,
             copper=copper,
         )
+
+
+# Why is Time in `currency.py`? Because "Time is money, friend."
+class Time(BaseModel):
+    days: int = 0
+    hours: int = 0
+    minutes: int = 0
+    seconds: int = 0
+
+    def __setitem__(self, key, value):
+        setattr(self, key, value)
+
+    def __getitem__(self, key):
+        return getattr(self, key)
+
+    def __int__(self) -> int:
+        return (
+            (self.days * 86400)
+            + (self.hours * 3600)
+            + (self.minutes * 60)
+            + (self.seconds)
+        )
+    

@@ -4,7 +4,7 @@ entities:
     name: 1-Handed Hatchet
     description: "A sparkly axe."
     quality: Rare
-    displayID: 2334
+    displayId: 2334
     buyPrice:
       gold: 10
       silver: 10
