@@ -7,7 +7,8 @@ from pydantic import (BaseModel, Field, FieldValidationInfo, SerializationInfo,
 
 from src.misc import Duration, Money
 
-from .item_properties import *
+from .enums import *
+from .bitmasks import *
 
 
 class Item(BaseModel, abc.ABC):
@@ -243,13 +244,17 @@ class Item(BaseModel, abc.ABC):
         description=("A collection of flags to modify the behavior of the item."),
     )
 
+    # TEXTS
+    # pageText: PageText
+
+
     @field_validator(
-        "inventoryType",
-        "material",
-        "quality",
-        "totemCategory",
-        "foodType",
         "bonding",
+        "foodType", 
+        "inventoryType", 
+        "material", 
+        "quality", 
+        "totemCategory", 
         mode="before",
     )
     def parse_enum(cls, v: str, info: FieldValidationInfo) -> Enum:
@@ -262,23 +267,37 @@ class Item(BaseModel, abc.ABC):
             )
 
     @field_serializer(
-        "inventoryType", "material", "quality", "totemCategory", "foodType", "bonding"
+        "bonding",
+        "foodType", 
+        "inventoryType", 
+        "material", 
+        "quality", 
+        "totemCategory", 
     )
-    def serialize_enum(self, v: Enum, _info: SerializationInfo) -> str:
+    def serialize_enum(self, v: Enum, info: SerializationInfo) -> str:
         return v.name
 
-    @field_validator("bagFamily", "flags", mode="before")
+    @field_validator(
+            "bagFamily", 
+            "flags", 
+            mode="before",
+    )
     def parse_bitmask(cls, items: list[str], info: FieldValidationInfo) -> Bitmask:
         field_type = typing.get_type_hints(cls)[info.field_name]
         field_domain = vars(field_type)["__annotations__"].keys()
         obj = field_type()
         for item in items:
             if item not in field_domain:
-                raise Exception(f'"{item}" not a valid value for bagFamily')
+                raise Exception(
+                    f'"{item}" not a valid value for "{field_type.__name__}'
+                )
             obj[item] = True
         return obj
 
-    @field_serializer("bagFamily", "flags")
+    @field_serializer(
+        "bagFamily", 
+        "flags",
+    )
     def serialize_bitmask(self, bitmask: Bitmask, info: SerializationInfo) -> list[str]:
         items = []
         for key, value in vars(bitmask).items():

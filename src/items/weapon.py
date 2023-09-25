@@ -161,3 +161,4 @@ class FishingPole(Weapon):
         default=20,
         serialization_alias="subclass",
     )
+
