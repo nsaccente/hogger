@@ -1,0 +1,22 @@
+apiVersion: 1.0.1
+entities:
+  - type: OneHandedAxe
+    name: 1-Handed Hatchet
+    description: "A sparkly axe."
+    quality: Rare
+    displayId: 2334
+    buyPrice:
+      gold: 10
+      silver: 10
+      copper: 20
+    inventoryType: Head
+    bagFamily:
+    - Herbs
+    - Arrows
+    bonding: OnEquip
+
+
+  # - type: TwoHandedAxe
+  #   name: 2-Handed Axe
+  #   description: "An even sparklier axe."
+  #   quality: BoA
