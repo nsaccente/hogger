@@ -14,6 +14,7 @@ def apply(
 ) -> None:
     manifest = Manifest.from_file("./leeroy.yml")
     yml = yaml.dump(manifest.model_dump(by_alias=True), sort_keys=False)
+    # yml = yaml.dump(vars(manifest), sort_keys=False)
     print(yml)
     # for entity in manifest.entities:
     #     for k, v in entity.model_dump(by_alias=True).items():

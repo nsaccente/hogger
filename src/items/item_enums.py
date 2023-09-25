@@ -182,23 +182,6 @@ class ItemStat(Enum):
     Block = 48
 
 
-
-
-class ItemLimitCategory(BaseModel):
-    id: int = Field(
-        default=0,
-        validation_alias="ID",
-    )
-    name: str = Field(
-        validation_alias="Name",
-    )
-    count: int = Field(
-        default=1,
-        validation_alias="Count",
-    )
-    isGem: bool = Field(default=False, validation_alias="IsGem")
-
-
 class FoodType(Enum):
     Undefined = 0
     Meat = 1
@@ -257,23 +240,3 @@ class PageMaterial(Enum):
     Bronze = 5
     Valentine = 6
     Illidan = 7
-
-class PageText(BaseModel):
-    id: int = Field(
-        default=0,
-        serialization_alias="ID",
-        ge=0,
-    )
-    text: str = Field(
-        default="",
-        serialization_alias="Text",
-    )
-    nextPageId: int = Field(
-        default=0,
-        serialization_alias="Next Page I D",
-        ge=0,
-    )
-    verifiedBuild: str = Field(
-        default=1,
-        serialization_alias="Verified Build",
-    )

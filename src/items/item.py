@@ -7,8 +7,8 @@ from pydantic import (BaseModel, Field, FieldValidationInfo, SerializationInfo,
 
 from src.misc import Duration, Money
 
-from .enums import *
-from .bitmasks import *
+from .item_enums import *
+from .item_bitmasks import *
 
 
 class Item(BaseModel, abc.ABC):
@@ -18,6 +18,9 @@ class Item(BaseModel, abc.ABC):
         description=(
             "Identifier for the item in the world database. Set to -1 to "
             "automagically use the first item id it finds. Default is -1."
+            "If the id is defined, the item definition in the database will "
+            "be pinned to the id defined, and will overwrite whatever entry "
+            "has that id."
         ),
         serialization_alias="entry",
     )
