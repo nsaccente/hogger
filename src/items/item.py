@@ -1,9 +1,11 @@
 import abc
-
-from pydantic import BaseModel, Field, FieldValidationInfo, field_validator, field_serializer, SerializationInfo
 import typing
+from typing import Any
 
-from src.misc import Money, Duration
+from pydantic import (BaseModel, Field, FieldValidationInfo, SerializationInfo,
+                      field_serializer, field_validator)
+
+from src.misc import Duration, Money
 
 from .item_properties import *
 
@@ -12,8 +14,7 @@ class Item(BaseModel, abc.ABC):
     # MISCELLANEOUS
     id: int = Field(
         default=-1,
-        description=
-        (
+        description=(
             "Identifier for the item in the world database. Set to -1 to "
             "automagically use the first item id it finds. Default is -1."
         ),
@@ -41,16 +42,14 @@ class Item(BaseModel, abc.ABC):
     scriptName: str = Field(
         default="",
         description=(
-            "The name of the script that the item should use. No script by "
-            "default."
+            "The name of the script that the item should use. No script by " "default."
         ),
         serialization_alias="ScriptName",
     )
     itemClass: ItemClass = Field(
         default=ItemClass.TradeGoods,
         description=(
-            "The category the item belongs to; e.g. consumable, weapon, "
-            "armor, etc."
+            "The category the item belongs to; e.g. consumable, weapon, " "armor, etc."
         ),
         serialization_alias="class",
     )
@@ -140,7 +139,7 @@ class Item(BaseModel, abc.ABC):
     # TODO: Create dedicated RandomProperty classes
     # Itemid with RandomProperty = 863
     randomProperty: int = Field(
-        default = 0,
+        default=0,
         description="",
         serialization_alias="RandomProperty",
         ge=0,
@@ -205,7 +204,7 @@ class Item(BaseModel, abc.ABC):
         description=(
             "Determines the category a fooditem falls into, if any. This is"
             "primarily used to determine what items hunter pet's will eat."
-            "Defaults to \"Undefined\"."
+            'Defaults to "Undefined".'
         ),
         serialization_alias="FoodType",
     )
@@ -227,9 +226,7 @@ class Item(BaseModel, abc.ABC):
     )
     itemSet: int = Field(
         default=0,
-        description=(
-            "The ID of the item set that this item belongs to."
-        ),
+        description=("The ID of the item set that this item belongs to."),
         ge=0,
         serialization_alias="itemset",
     )
@@ -240,36 +237,51 @@ class Item(BaseModel, abc.ABC):
         ),
     )
 
-    @field_validator("inventoryType", "material", "quality", "totemCategory", "foodType", "bonding", mode="before")
+    # FLAGS
+    flags: ItemFlags = Field(
+        default=ItemFlags(),
+        description=("A collection of flags to modify the behavior of the item."),
+    )
+
+    @field_validator(
+        "inventoryType",
+        "material",
+        "quality",
+        "totemCategory",
+        "foodType",
+        "bonding",
+        mode="before",
+    )
     def parse_enum(cls, v: str, info: FieldValidationInfo) -> Enum:
-        field_enum = typing.get_type_hints(cls)[info.field_name]
+        field_type = typing.get_type_hints(cls)[info.field_name]
         try:
-            return field_enum[v]
+            return field_type[v]
         except:
             raise Exception(
-                f'"{v}" is an invalid value for field "{field_enum.__name__}"',
+                f'"{v}" is an invalid value for field "{field_type.__name__}"',
             )
 
-    @field_serializer("inventoryType", "material", "quality", "totemCategory", "foodType", "bonding")
+    @field_serializer(
+        "inventoryType", "material", "quality", "totemCategory", "foodType", "bonding"
+    )
     def serialize_enum(self, v: Enum, _info: SerializationInfo) -> str:
         return v.name
 
-    @field_validator("bagFamily", mode="before")
-    def parse_bag_family(cls, v: list[str], info: FieldValidationInfo) -> BagFamily:
-        bag_families = vars(BagFamily)["__annotations__"].keys()
-        bf = BagFamily()
-        for item in v:
-            if not item in bag_families:
-                raise Exception(f'"{v}" not a valid value for bagFamily')
-            bf[item] = True
-        return bf
+    @field_validator("bagFamily", "flags", mode="before")
+    def parse_bitmask(cls, items: list[str], info: FieldValidationInfo) -> Bitmask:
+        field_type = typing.get_type_hints(cls)[info.field_name]
+        field_domain = vars(field_type)["__annotations__"].keys()
+        obj = field_type()
+        for item in items:
+            if item not in field_domain:
+                raise Exception(f'"{item}" not a valid value for bagFamily')
+            obj[item] = True
+        return obj
 
-    @field_serializer("bagFamily")
-    def serialize_bag_family(self, bf: BagFamily, _info: SerializationInfo) -> list[str]:
-        families = []
-        for family, value in vars(bf).items():
+    @field_serializer("bagFamily", "flags")
+    def serialize_bitmask(self, bitmask: Bitmask, info: SerializationInfo) -> list[str]:
+        items = []
+        for key, value in vars(bitmask).items():
             if value:
-                families.append(family)
-
-        return families
-
+                items.append(key)
+        return items

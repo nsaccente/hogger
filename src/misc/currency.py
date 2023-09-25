@@ -44,4 +44,3 @@ class Duration(BaseModel):
             + (self.minutes * 60)
             + (self.seconds)
         )
-    

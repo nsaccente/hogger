@@ -1,1 +1,1 @@
-from .currency import Money, Duration
+from .currency import Duration, Money

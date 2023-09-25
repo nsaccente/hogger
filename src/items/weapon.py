@@ -17,6 +17,7 @@ class OneHandedAxe(Weapon):
         serialization_alias="subclass",
     )
 
+
 class TwoHandedAxe(Weapon):
     type: Literal["TwoHandedAxe"]
     itemSubclass: int = Field(
