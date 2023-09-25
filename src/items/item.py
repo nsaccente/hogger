@@ -17,7 +17,7 @@ class Item(BaseModel, abc.ABC):
         default=-1,
         description=(
             "Identifier for the item in the world database. Set to -1 to "
-            "automagically use the first item id it finds. Default is -1."
+            "automagically use the first item id it finds. Default is -1. "
             "If the id is defined, the item definition in the database will "
             "be pinned to the id defined, and will overwrite whatever entry "
             "has that id."
@@ -46,14 +46,16 @@ class Item(BaseModel, abc.ABC):
     scriptName: str = Field(
         default="",
         description=(
-            "The name of the script that the item should use. No script by " "default."
+            "The name of the script that the item should use. No script by "
+            "default."
         ),
         serialization_alias="ScriptName",
     )
     itemClass: ItemClass = Field(
         default=ItemClass.TradeGoods,
         description=(
-            "The category the item belongs to; e.g. consumable, weapon, " "armor, etc."
+            "The category the item belongs to; e.g. consumable, weapon, armor,"
+            " etc."
         ),
         serialization_alias="class",
     )
@@ -206,8 +208,8 @@ class Item(BaseModel, abc.ABC):
     foodType: FoodType = Field(
         default=FoodType.Undefined,
         description=(
-            "Determines the category a fooditem falls into, if any. This is"
-            "primarily used to determine what items hunter pet's will eat."
+            "Determines the category a fooditem falls into, if any. This is "
+            "primarily used to determine what items hunter pet's will eat. "
             'Defaults to "Undefined".'
         ),
         serialization_alias="FoodType",
@@ -215,7 +217,7 @@ class Item(BaseModel, abc.ABC):
     minLootMoney: Money = Field(
         default=Money(),
         description=(
-            "Minimum amount of money contained in the item. If an item should"
+            "Minimum amount of money contained in the item. If an item should "
             "not contain money, use Money(gold=0, silver=0, copper=0), which "
             "is the default for this field."
         ),
@@ -223,7 +225,7 @@ class Item(BaseModel, abc.ABC):
     maxLootMoney: Money = Field(
         default=Money(),
         description=(
-            "Max amount of money contained in the item. If an item should"
+            "Max amount of money contained in the item. If an item should "
             "not contain money, use Money(gold=0, silver=0, copper=0), which "
             "is the default for this field."
         ),
