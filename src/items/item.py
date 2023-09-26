@@ -1,6 +1,5 @@
 import abc
 import typing
-from typing import Any
 
 from pydantic import (BaseModel, Field, FieldValidationInfo, SerializationInfo,
                       field_serializer, field_validator)
@@ -12,23 +11,29 @@ from .item_bitmasks import *
 
 
 class Item(BaseModel, abc.ABC):
+    class Config:
+        sql: bool = True
     # MISCELLANEOUS
     id: int = Field(
         default=-1,
         description=(
-            "Identifier for the item in the world database. Set to -1 to "
-            "automagically use the first item id it finds. Default is -1. "
-            "If the id is defined, the item definition in the database will "
-            "be pinned to the id defined, and will overwrite whatever entry "
-            "has that id."
+            """
+            Identifier for the item in the world database. Set to -1 to
+            automagically use the first item id it finds. Default is -1.
+            If the id is defined, the item definition in the database will
+            be pinned to the id defined, and will overwrite whatever entry
+            has that id.
+            """
         ),
         serialization_alias="entry",
     )
     id_offset: int = Field(
         default=60000,
         description=(
-            "Dictates the first id the item is allowed to use. This allows "
-            "separation of custom items and vanilla items."
+            """
+            Dictates the first id the item is allowed to use. This allows
+            separation of custom items and vanilla items.
+            """
         ),
         exclude=True,
         ge=0,
@@ -39,40 +44,50 @@ class Item(BaseModel, abc.ABC):
     description: str = Field(
         default="",
         description=(
-            "The description that appears in yellow letters at the bottom of "
-            "the item tooltip. No description by default."
+            """
+            The description that appears in yellow letters at the bottom of 
+            the item tooltip. No description by default.
+            """
         ),
     )
     scriptName: str = Field(
         default="",
         description=(
-            "The name of the script that the item should use. No script by "
-            "default."
+            """
+            The name of the script that the item should use. No script by 
+            default.
+            """
         ),
         serialization_alias="ScriptName",
     )
     itemClass: ItemClass = Field(
         default=ItemClass.TradeGoods,
         description=(
-            "The category the item belongs to; e.g. consumable, weapon, armor,"
-            " etc."
+            """
+            The category the item belongs to; e.g. consumable, weapon, armor,
+            etc.
+            """
         ),
         serialization_alias="class",
     )
     itemSubclass: int = Field(
         defalt=0,
         description=(
-            "The subcategory the item belongs to, and is dependent upon the "
-            "value of itemClass."
+            """
+            The subcategory the item belongs to, and is dependent upon the 
+            value of itemClass.
+            """
         ),
         serialization_alias="subclass",
     )
     soundOverride: int = Field(
         default=-1,
         description=(
-            "Each weapon type plays a unique sound on impact, which can be "
-            "overriden by the unique sound of a different weapon type. "
-            "Use -1 to use the default sound for the item. Default is -1."
+            """
+            Each weapon type plays a unique sound on impact, which can be
+            overriden by the unique sound of a different weapon type.
+            Use -1 to use the default sound for the item. Default is -1.
+            """
         ),
         serialization_alias="SoundOverride",
         ge=-1,
@@ -86,18 +101,22 @@ class Item(BaseModel, abc.ABC):
     quality: Quality = Field(
         default=Quality.Common,
         description=(
-            "The quality of the item; valid values are: Poor, Uncommon, "
-            "Common, Rare, Epic, Legendary, Artifact, BoA"
+            """
+            The quality of the item; valid values are: Poor, Uncommon, 
+            Common, Rare, Epic, Legendary, Artifact, BoA.
+            """
         ),
         serialization_alias="Quality",
     )
     buyCount: int = Field(
         default=1,
         description=(
-            "The size of the item stack when sold by vendors. If a vendor has "
-            "a limited number of this item available, the vendor's inventory "
-            "will increase by this number when the vendor list is refreshed "
-            "(see npc.vendor.incrtime)."
+            """
+            The size of the item stack when sold by vendors. If a vendor has 
+            a limited number of this item available, the vendor's inventory 
+            will increase by this number when the vendor list is refreshed 
+            (see npc.vendor.incrtime).
+            """
         ),
         serialization_alias="BuyCount",
         ge=1,
@@ -132,8 +151,10 @@ class Item(BaseModel, abc.ABC):
     startsQuest: int = Field(
         default=0,
         description=(
-            "The ID of the quest that this item will start if right-clicked. "
-            "See quest_template.id"
+            """
+            The ID of the quest that this item will start if right-clicked.
+            See quest_template.id.
+            """
         ),
         serialization_alias="startquest",
     )
@@ -174,28 +195,34 @@ class Item(BaseModel, abc.ABC):
     totemCategory: TotemCategory = Field(
         default=TotemCategory.Undefined,
         description=(
-            "Some items are required to complete certain tasks, such as a "
-            "shaman's totems, "
+            """
+            Some items are required to complete certain tasks, such as a
+            shaman's totems, blacksmithing hammers, or enchanting rods.
+            """
         ),
         serialization_alias="TotemCategory",
     )
     duration: Duration = Field(
         default=Duration(),
         description=(
-            "The amount of time an item will exist in a player's inventory "
-            "before disappearing; setting the duration to 0 seconds will "
-            "prevent the item from every disappearing"
+            """
+            The amount of time an item will exist in a player's inventory 
+            before disappearing; setting the duration to 0 seconds will 
+            prevent the item from every disappearing.
+            """
         ),
     )
     itemLimitCategory: int = Field(
         default=0,
         description=(
-            'defines if an item belongs to a "category", like "Mana Gems" or '
-            'Healthstone" and it defines how many items of the category you '
-            'can have in the bag (this is the "limit"). For example, for '
-            'Healthstone, there are several items like "Lesser Healthstone, '
-            'Greater Healthstone, etc." but you can have only one in your bag '
-            "(check as example value 3 or 4)."
+            """
+            Defines if an item belongs to a "category", like "Mana Gems" or 
+            Healthstone" and it defines how many items of the category you 
+            can have in the bag (this is the "limit"). For example, for 
+            Healthstone, there are several items like Lesser Healthstone, 
+            Greater Healthstone, etc. but you can have only one in your bag 
+            (check as example value 3 or 4).
+            """
         ),
         serialization_alias="ItemLimitCategory",
     )
@@ -208,26 +235,32 @@ class Item(BaseModel, abc.ABC):
     foodType: FoodType = Field(
         default=FoodType.Undefined,
         description=(
-            "Determines the category a fooditem falls into, if any. This is "
-            "primarily used to determine what items hunter pet's will eat. "
-            'Defaults to "Undefined".'
+            """
+            Determines the category a fooditem falls into, if any. This is
+            primarily used to determine what items hunter pet's will eat.
+            Defaults to "Undefined".
+            """
         ),
         serialization_alias="FoodType",
     )
     minLootMoney: Money = Field(
         default=Money(),
         description=(
-            "Minimum amount of money contained in the item. If an item should "
-            "not contain money, use Money(gold=0, silver=0, copper=0), which "
-            "is the default for this field."
+            """
+            Minimum amount of money contained in the item. If an item should 
+            not contain money, use Money(gold=0, silver=0, copper=0), which 
+            is the default for this field.
+            """
         ),
     )
     maxLootMoney: Money = Field(
         default=Money(),
         description=(
-            "Max amount of money contained in the item. If an item should "
-            "not contain money, use Money(gold=0, silver=0, copper=0), which "
-            "is the default for this field."
+            """
+            Max amount of money contained in the item. If an item should 
+            not contain money, use Money(gold=0, silver=0, copper=0), which 
+            is the default for this field.
+            """
         ),
     )
     itemSet: int = Field(
@@ -251,7 +284,6 @@ class Item(BaseModel, abc.ABC):
 
     # TEXTS
     # pageText: PageText
-
 
     @field_validator(
         "bonding",
@@ -278,6 +310,7 @@ class Item(BaseModel, abc.ABC):
         "material", 
         "quality", 
         "totemCategory", 
+        when_used="json-unless-none",
     )
     def serialize_enum(self, v: Enum, info: SerializationInfo) -> str:
         return v.name
@@ -302,6 +335,7 @@ class Item(BaseModel, abc.ABC):
     @field_serializer(
         "bagFamily", 
         "flags",
+        when_used="json-unless-none",
     )
     def serialize_bitmask(self, bitmask: Bitmask, info: SerializationInfo) -> list[str]:
         items = []

@@ -177,9 +177,9 @@ class ItemFlags(Bitmask):
 
     HordeOnly: bool = False
     AllianceOnly: bool = False
-    ExtendedVendorCost: bool = False
+    # honor points, emblems, armor tokens etc. defined in ItemExtendedCost.dbc
+    AdditionalCost: bool = False 
     NeedRollDisabled: bool = False
-    # There's potentially more flags
 
     GlobalDuration: bool = False
     IgnoreQuestStatus: bool = False
