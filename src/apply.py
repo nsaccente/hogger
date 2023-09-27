@@ -13,10 +13,11 @@ def apply(
     password: str,
     **kwargs,
 ) -> None:
+
+
     manifest = Manifest.from_file("./leeroy.yml")
     yml = yaml.dump(manifest.model_dump(by_alias=True), sort_keys=False)
-    # print("JSON")
-    print(manifest.yaml_dump())
+    # print(manifest.yaml_dump())
     # print()
     # print("===")
     # print()

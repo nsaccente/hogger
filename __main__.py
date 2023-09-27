@@ -1,4 +1,10 @@
-from src.main import main
+from src.misc import BitFlag
+from src.items import BagFamily
 
-if __name__ == "__main__":
-    main()
+ls = [
+    BagFamily.Arrows,
+    BagFamily.Herbs,
+    22,
+]
+
+

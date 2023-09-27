@@ -1,5 +1,6 @@
 import abc
 import typing
+from typing import Union
 
 from pydantic import (BaseModel, Field, FieldValidationInfo, SerializationInfo,
                       field_serializer, field_validator)
@@ -7,7 +8,7 @@ from pydantic import (BaseModel, Field, FieldValidationInfo, SerializationInfo,
 from src.misc import Duration, Money
 
 from .item_enums import *
-from .item_bitmasks import *
+from .item_flags import *
 
 
 class Item(BaseModel, abc.ABC):
@@ -180,8 +181,8 @@ class Item(BaseModel, abc.ABC):
         ge=0,
     )
     # min(RandomProperty, RandomSuffix) must equal 0.
-    bagFamily: BagFamily = Field(
-        default=BagFamily(),
+    bagFamily: list[Union[BagFamily, int]] = Field(
+        default=[],
         description="Dictates what kind of bags this item can be placed in.",
         serialization_alias="BagFamily",
     )
@@ -277,13 +278,17 @@ class Item(BaseModel, abc.ABC):
     )
 
     # FLAGS
-    flags: ItemFlags = Field(
-        default=ItemFlags(),
-        description=("A collection of flags to modify the behavior of the item."),
-    )
+    # flags: ItemFlags = Field(
+    #     default=ItemFlags(),
+    #     description=("A collection of flags to modify the behavior of the item."),
+    # )
 
     # TEXTS
-    # pageText: PageText
+    # pageText
+    # pageMaterial
+    # LanguageID
+
+    # REQUIREMENTS
 
     @field_validator(
         "bonding",
@@ -317,29 +322,39 @@ class Item(BaseModel, abc.ABC):
 
     @field_validator(
             "bagFamily", 
-            "flags", 
+            # "flags", 
             mode="before",
     )
-    def parse_bitmask(cls, items: list[str], info: FieldValidationInfo) -> Bitmask:
-        field_type = typing.get_type_hints(cls)[info.field_name]
-        field_domain = vars(field_type)["__annotations__"].keys()
-        obj = field_type()
-        for item in items:
-            if item not in field_domain:
-                raise Exception(
-                    f'"{item}" not a valid value for "{field_type.__name__}'
-                )
-            obj[item] = True
-        return obj
+    def parse_intflag(cls, items: list[Union[str, int]], info: FieldValidationInfo) -> list[Union[IntFlag, int]]:
+        field_types = typing.get_type_hints(cls)[info.field_name].__args__[0].__args__
+        # for field_type in field_types:
+        #     if isinstance(field_type)
 
-    @field_serializer(
-        "bagFamily", 
-        "flags",
-        when_used="json-unless-none",
-    )
-    def serialize_bitmask(self, bitmask: Bitmask, info: SerializationInfo) -> list[str]:
-        items = []
-        for key, value in vars(bitmask).items():
-            if value:
-                items.append(key)
-        return items
+        print(field_types)
+        for item in items:
+            print(item)
+        return []
+        # field_domain = vars(field_type)["__annotations__"].keys()
+        # obj = field_type()
+        # for item in items:
+        #     if item not in field_domain:
+        #         raise Exception(
+        #             f'"{item}" not a valid value for "{field_type.__name__}'
+        #         )
+        #     obj[item] = True
+        # return obj
+
+
+    # @field_serializer(
+    #     "bagFamily", 
+    #     # "flags",
+    #     when_used="json-unless-none",
+    # )
+    # def serialize_bitmask(self, bitmask: , info: SerializationInfo) -> list[str]:
+    #     items = []
+    #     for key, value in vars(bitmask).items():
+    #         if value:
+    #             items.append(key)
+    #     int(bitmask)
+    #     return items
+
