@@ -12,8 +12,8 @@ entities:
     inventoryType: Head
     bagFamily:
     - Herbs
-    - Arrows
-    - 28
+    - 3
+    - 13
     bonding: OnEquip
 
 

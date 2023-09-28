@@ -1,6 +1,5 @@
 import abc
 import typing
-from typing import Union
 
 from pydantic import (BaseModel, Field, FieldValidationInfo, SerializationInfo,
                       field_serializer, field_validator)
@@ -181,7 +180,7 @@ class Item(BaseModel, abc.ABC):
         ge=0,
     )
     # min(RandomProperty, RandomSuffix) must equal 0.
-    bagFamily: list[Union[BagFamily, int]] = Field(
+    bagFamily: list[BagFamily | int] = Field(
         default=[],
         description="Dictates what kind of bags this item can be placed in.",
         serialization_alias="BagFamily",
@@ -322,27 +321,44 @@ class Item(BaseModel, abc.ABC):
 
     @field_validator(
             "bagFamily", 
-            # "flags", 
             mode="before",
     )
-    def parse_intflag(cls, items: list[Union[str, int]], info: FieldValidationInfo) -> list[Union[IntFlag, int]]:
-        field_types = typing.get_type_hints(cls)[info.field_name].__args__[0].__args__
-        # for field_type in field_types:
-        #     if isinstance(field_type)
+    def parse_intflag(cls, items: list[str | int], info: FieldValidationInfo) -> list[IntFlag | int]:
+        intflag_type = (
+            list(
+                filter(
+                    lambda field_type: (issubclass(field_type, IntFlag)),
+                    (
+                        typing.get_type_hints(cls)[info.field_name]
+                        .__args__[0] # args passed to list[]
+                        .__args__ # args passed to Union[]
+                    ),
+                )
+            ) # convert the elements returned by filter to a list
+            [0] # grab the first element in the list.
+        )
 
-        print(field_types)
+        intflag_max = [i.value for i in intflag_type]
+        result = []
         for item in items:
-            print(item)
-        return []
-        # field_domain = vars(field_type)["__annotations__"].keys()
-        # obj = field_type()
-        # for item in items:
-        #     if item not in field_domain:
-        #         raise Exception(
-        #             f'"{item}" not a valid value for "{field_type.__name__}'
-        #         )
-        #     obj[item] = True
-        # return obj
+            if isinstance(item, str):
+                print(f"STRING{item}")
+                try:
+                    result.append(intflag_type[item])
+                except:
+                    raise Exception(
+                        f'"{item}" not a valid value for "{intflag_type.__name__}'
+                    )
+            elif isinstance(item, int):
+                flag = 2**item
+                if flag in intflag_max:
+                    result.append(intflag_type(int(2**item)))
+                else:
+                    result.append(int(item))
+            elif issubclass(IntFlag, item):
+                result.append(item)
+            
+        return result
 
 
     # @field_serializer(

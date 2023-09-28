@@ -1,81 +1,82 @@
-from enum import IntFlag
+from enum import IntFlag, auto
+from src.misc.intflags import IntFlagUtils
 
 
 class BagFamily(IntFlag):
-    Arrows: int = 0
-    Bullets: int = 1
-    SoulShards: int = 2
-    Leatherworking: int = 3
-    Inscription: int = 4
-    Herbs: int = 5
-    Enchanting: int = 6
-    Engineering: int = 7
-    Keys: int = 8
-    Gems: int = 9
-    Mining: int = 10
-    SoulboundEquipment: int = 11
-    VanityPets: int = 12
-    CurrencyTokens: int = 13
-    QuestItems: int = 14
+    Arrows: int = auto()
+    Bullets: int = auto()
+    SoulShards: int = auto()
+    Leatherworking: int = auto()
+    Inscription: int = auto()
+    Herbs: int = auto()
+    Enchanting: int = auto()
+    Engineering: int = auto()
+    Keys: int = auto()
+    Gems: int = auto()
+    Mining: int = auto()
+    SoulboundEquipment: int = auto()
+    VanityPets: int = auto()
+    CurrencyTokens: int = auto()
+    QuestItems: int = auto()
 
 
 class ItemFlag(IntFlag):
-    NoPickup: int = 0
-    Conjured: int = 1
-    HasLoot: int = 2
-    IsHeroic: int = 3
-    Deprecated: int = 4
-    NoUserDestroy: int = 5 
-    PlayerCast: int = 6
-    NoEquipCooldown: int = 7
-    MultiLootQuest: int = 8
-    IsWrapper: int = 9
-    UsesResources: int = 10
-    MultiDrop: int = 11
-    ItemPurchaseRecord: int = 12
-    Petition: int = 13
-    HasText: int = 14
-    NoDisenchant: int = 15
-    RealDuration: int = 16
-    NoCreator: int = 17
-    IsProspectable: int = 18
-    UniqueEquippable: int = 19
-    IgnoreForAuras: int = 20
-    IgnoreDefaultArenaRestrictions: int = 21
-    NoDurabilityLoss: int = 22
-    UseWhenShapeshifted: int = 23
-    HasQuestGlow: int = 24
-    HideUnusableRecipe: int  = 25
-    NotUsableInArena: int = 26
-    IsBoundToAccount: int = 27
-    NoReagentCost: int = 28
-    IsMillable: int = 29
-    ReportToGuildChat: int = 30
-    NoProgressiveLoot: int = 31
+    NoPickup: int = auto()
+    Conjured: int = auto()
+    HasLoot: int = auto()
+    IsHeroic: int = auto()
+    Deprecated: int = auto()
+    NoUserDestroy: int = auto()
+    PlayerCast: int = auto()
+    NoEquipCooldown: int = auto()
+    MultiLootQuest: int = auto()
+    IsWrapper: int = auto()
+    UsesResources: int = auto()
+    MultiDrop: int = auto()
+    ItemPurchaseRecord: int = auto()
+    Petition: int = auto()
+    HasText: int = auto()
+    NoDisenchant: int = auto()
+    RealDuration: int = auto()
+    NoCreator: int = auto()
+    IsProspectable: int = auto()
+    UniqueEquippable: int = auto()
+    IgnoreForAuras: int = auto()
+    IgnoreDefaultArenaRestrictions: int = auto()
+    NoDurabilityLoss: int = auto()
+    UseWhenShapeshifted: int = auto()
+    HasQuestGlow: int = auto()
+    HideUnusableRecipe: int = auto()
+    NotUsableInArena: int = auto()
+    IsBoundToAccount: int = auto()
+    NoReagentCost: int = auto()
+    IsMillable: int = auto()
+    ReportToGuildChat: int = auto()
+    NoProgressiveLoot: int = auto()
 
 
 class ItemFlagExtra(IntFlag):
-    HordeOnly: int = 0
-    AllianceOnly: int = 1
-    ExtendedVendorCost: int = 2
-    NeedRollDisabled: int = 4
+    HordeOnly: int = 1
+    AllianceOnly: int = 2
+    ExtendedVendorCost: int = 4
+    NeedRollDisabled: int = 16
 
 
 class ItemFlagCustom(IntFlag):
-    GlobalDuration: int = 0
-    IgnoreQuestStatus: int = 1
-    FollowLootRules: int = 2
+    GlobalDuration: int = auto()
+    IgnoreQuestStatus: int = auto()
+    FollowLootRules: int = auto()
 
 
 class AllowableClasses(IntFlag):
-    Warrior: int = 0
-    Paladin: int = 1
-    Hunter: int = 2
-    Rogue: int = 3
-    Priest: int = 4
-    DeathKnight: int = 5
-    Shaman: int = 6
-    Mage: int = 7
-    Warlock: int = 8
-    # UNDEFINED: int = 9
-    Druid: int = 10
+    Warrior: int = auto()
+    Paladin: int = auto()
+    Hunter: int = auto()
+    Rogue: int = auto()
+    Priest: int = auto()
+    DeathKnight: int = auto()
+    Shaman: int = auto()
+    Mage: int = auto()
+    Warlock: int = auto()
+    UNUSED: int = auto()
+    Druid: int = auto()

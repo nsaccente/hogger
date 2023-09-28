@@ -14,9 +14,13 @@ def apply(
     **kwargs,
 ) -> None:
 
-
+    from src.items.item_flags import BagFamily
     manifest = Manifest.from_file("./leeroy.yml")
-    yml = yaml.dump(manifest.model_dump(by_alias=True), sort_keys=False)
+
+    # manifest.entities[0].bagFamily.append(BagFamily.Leatherworking)
+    print(manifest.entities[0].bagFamily)
+    # yml = yaml.dump(manifest.model_dump(by_alias=True), sort_keys=False)
+
     # print(manifest.yaml_dump())
     # print()
     # print("===")

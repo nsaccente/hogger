@@ -1,2 +1,2 @@
 from .currency import *
-from .utils import IntFlagUtils
+from .intflags import IntFlagUtils
