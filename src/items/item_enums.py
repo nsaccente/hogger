@@ -1,7 +1,5 @@
 from enum import Enum
 
-from pydantic import BaseModel, Field
-
 
 class Quality(Enum):
     Poor = 0
@@ -182,18 +180,6 @@ class ItemStat(Enum):
     Block = 48
 
 
-class FoodType(Enum):
-    Undefined = 0
-    Meat = 1
-    Fish = 2
-    Cheese = 3
-    Bread = 4
-    Fungus = 5
-    Fruit = 6
-    RawMeat = 7
-    RawFish = 8
-
-
 class Language(Enum):
     Orcish = 1
     Darnassian = 2
@@ -240,3 +226,18 @@ class RequiredHonorRank(Enum):
     Marshal_General = 12
     FieldMarshal_Warlord = 13
     GrandMarshal_HighWarlord = 14
+
+
+class ItemResistance(Enum):
+    Holy = 0
+    Fire = 1
+    Nature = 2
+    Frost = 3
+    Shadow = 4
+    Arcane = 5
+
+
+class AmmoType(Enum):
+    Undefined = 0
+    Arrows = 2
+    Bullets = 3

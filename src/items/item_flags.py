@@ -1,5 +1,4 @@
 from enum import IntFlag, auto
-from src.misc.intflags import IntFlagUtils
 
 
 class BagFamily(IntFlag):

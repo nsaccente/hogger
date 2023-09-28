@@ -8,6 +8,7 @@ from src.misc import Duration, Money
 
 from .item_enums import *
 from .item_flags import *
+from .item_extras import *
 
 
 class Item(BaseModel, abc.ABC):
@@ -353,42 +354,109 @@ class Item(BaseModel, abc.ABC):
     # lock_id
 
     # RESISTANCE
-    holyResistance: int = Field(
+    resistances: dict[ItemResistance, int] = Field(
+        default = dict(),
+        description=(
+            """
+            Item resistances.
+            """
+        ),
+    )
+
+    # STATS
+    # ScalingStatDistribution: int
+    # ScalingStatValue: int
+    statCount: int = Field(
         default=0,
-        description="Holy resistance. Defaults to 0.",
-        serialization_alias="holy_res",
+        description=(
+            """
+            The total number of stats attached to this item. Defaults to 0.
+            """
+        ),
         ge=0,
     )
-    fireResistance: int = Field(
+    stats: dict[ItemStat, int] = Field(
+        default=dict(),
+        description=(
+            """
+            Stats applied to the item in key-value pairs.
+            """
+        )
+    )
+
+    # SOCKETS
+    # This is going to require some advanced querying
+
+    # WEAPON ARMOR
+    armor: int = Field(
         default=0,
-        description="Fire resistance. Defaults to 0.",
-        serialization_alias="fire_res",
+        description=(
+            """
+            The armor value of the item.
+            """
+        ),
+    )
+    armorDamageModifier: int = Field(
+        default=0,
+        description=(
+            """
+            This field is not well understood.
+            """
+        )
+    )
+    hitDelay: int = Field(
+        default=0,
+        description=(
+            """
+            The time in milliseconds between successive hits.
+            """
+        ),
         ge=0,
     )
-    natureResistance: int = Field(
+    ammoType: AmmoType = Field(
+        default=AmmoType.Undefined,
+        description=(
+            """
+            The type of ammunition the item uses.
+            """
+        ),
+    )
+    weaponRange: int = Field(
         default=0,
-        description="Nature resistance. Defaults to 0.",
-        serialization_alias="nature_res",
+        description=(
+            """
+            The range modifier for bows, crossbows, and guns.
+            All of Blizzard's ranged weapons have a default range of 100.
+            """
+        ),
         ge=0,
     )
-    frostResistance: int = Field(
+    block: int = Field(
         default=0,
-        description="Frost resistance. Defaults to 0.",
-        serialization_alias="frost_res",
-        ge=0,
+        description=(
+            """
+            If the item is a shield, this value will be the block chance of the
+            shield.
+            """
+        )
     )
-    shadowResistance: int = Field(
-        default=0,
-        description="Shadow resistance. Defaults to 0.",
-        serialization_alias="shadow_res",
-        ge=0,
+    durability: int = Field(
+        default=100,
+        description=(
+            """
+            The durability of the item. Defaults to 100.
+            """
+        )
     )
-    arcaneResistance: int = Field(
-        default=0,
-        description="Arcane resistance. Defaults to 0.",
-        serialization_alias="arcane_res",
-        ge=0,
+    damage: Damage = Field(
+        default=Damage(),
+        description="The damage values of the weapon.",
     )
+    
+
+
+# 833 735 1894
+# case # 60199307023
 
 
 
@@ -422,6 +490,7 @@ class Item(BaseModel, abc.ABC):
     def serialize_enum(self, v: Enum, info: SerializationInfo) -> str:
         return v.name
 
+
     @field_validator(
         "bagFamily", 
         "classes",
@@ -437,7 +506,8 @@ class Item(BaseModel, abc.ABC):
                 filter(
                     lambda field_type: (issubclass(field_type, IntFlag)),
                     (
-                        typing.get_type_hints(cls)[info.field_name]
+                        typing.get_type_hints(cls)
+                        [info.field_name]
                         .__args__[0] # args passed to list[]
                         .__args__ # args passed to Union[]
                     ),
@@ -446,7 +516,7 @@ class Item(BaseModel, abc.ABC):
             [0] # grab the first element in the list.
         )
 
-        intflag_max = [i.value for i in intflag_type]
+        intflags = [i.value for i in intflag_type]
         result = []
         for item in items:
             if isinstance(item, str):
@@ -458,7 +528,7 @@ class Item(BaseModel, abc.ABC):
                     )
             elif isinstance(item, int):
                 flag = 2**item
-                if flag in intflag_max:
+                if flag in intflags:
                     result.append(intflag_type(int(2**item)))
                 else:
                     result.append(int(item))
@@ -486,3 +556,33 @@ class Item(BaseModel, abc.ABC):
                 result.append(item)
         return result
 
+
+    @field_validator(
+        "resistances",
+        "stats",
+        mode="before",
+    )
+    def parse_enum_map(cls, dmap: dict[str, int], info: SerializationInfo) -> dict[Enum, int]:
+        enum_type = (
+            typing.get_type_hints(cls)
+            [info.field_name]
+            .__args__[0] 
+        )
+        if enum_type == ItemStat and len(dmap) > 10:
+            raise Exception(
+                f"Provided {len(dmap)} stats, cannot exceed 10.",
+            )
+        elif enum_type == ItemResistance and len(dmap) > 6:
+            raise Exception(
+                f"Provided {len(dmap)} resistances, cannot exceed 6.",
+            )
+        return {enum_type[k]: v for k, v in dmap.items()}
+
+
+    @field_serializer(
+        "resistances",
+        "stats", 
+        when_used="json-unless-none",
+    )
+    def serialize_enum_map(self, items: dict[Enum, int] , info: SerializationInfo) -> dict[str, int]:
+        return {str(k.name): v for k, v in items.items()}

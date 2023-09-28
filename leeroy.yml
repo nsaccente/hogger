@@ -28,6 +28,27 @@ entities:
     races:
     - BloodElf
     - 4
+    stats:
+      Agility: 10
+      Stamina: 25  
+      Mana: 25  
+      Health: 25  
+      Strength: 25  
+      Spirit: 10
+      BlockRating: 10
+      MeleeHitRating: 10
+      SpellHitRating: 10
+      SpellCritRating: 20
+    resistances:
+      Frost: 10
+    damage:
+      min1: 10
+      max1: 30
+      type1: Normal
+      min2: 10
+      max2: 30
+      type2: 4
+
 
 
   # - type: TwoHandedAxe
