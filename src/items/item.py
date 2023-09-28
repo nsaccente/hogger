@@ -277,10 +277,18 @@ class Item(BaseModel, abc.ABC):
     )
 
     # FLAGS
-    # flags: ItemFlags = Field(
-    #     default=ItemFlags(),
-    #     description=("A collection of flags to modify the behavior of the item."),
-    # )
+    flags: list[ItemFlag | int] = Field(
+        default=[],
+        description=("A collection of flags to modify the behavior of the item."),
+    )
+    flagsExtra: list[ItemFlagExtra | int] = Field(
+        default=[],
+        description=("A collection of flags to modify the behavior of the item."),
+    )
+    flagsCustom: list[ItemFlagExtra | int] = Field(
+        default=[],
+        description=("A collection of flags to modify the behavior of the item."),
+    )
 
     # TEXTS
     # pageText
@@ -321,6 +329,9 @@ class Item(BaseModel, abc.ABC):
 
     @field_validator(
             "bagFamily", 
+            "flags",
+            "flagsCustom",
+            "flagsExtra",
             mode="before",
     )
     def parse_intflag(cls, items: list[str | int], info: FieldValidationInfo) -> list[IntFlag | int]:
@@ -342,7 +353,6 @@ class Item(BaseModel, abc.ABC):
         result = []
         for item in items:
             if isinstance(item, str):
-                print(f"STRING{item}")
                 try:
                     result.append(intflag_type[item])
                 except:
@@ -361,16 +371,19 @@ class Item(BaseModel, abc.ABC):
         return result
 
 
-    # @field_serializer(
-    #     "bagFamily", 
-    #     # "flags",
-    #     when_used="json-unless-none",
-    # )
-    # def serialize_bitmask(self, bitmask: , info: SerializationInfo) -> list[str]:
-    #     items = []
-    #     for key, value in vars(bitmask).items():
-    #         if value:
-    #             items.append(key)
-    #     int(bitmask)
-    #     return items
+    @field_serializer(
+        "bagFamily", 
+        "flags",
+        "flagsCustom",
+        "flagsExtra",
+        when_used="json-unless-none",
+    )
+    def serialize_intflag(self, items: list[int | IntFlag] , info: SerializationInfo) -> list[str | int]:
+        result = []
+        for item in items:
+            if issubclass(type(item), IntFlag):
+                result.append(item.name)
+            else:
+                result.append(item)
+        return result
 

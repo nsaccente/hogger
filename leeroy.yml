@@ -14,7 +14,15 @@ entities:
     - Herbs
     - 3
     - 13
+    - 230
     bonding: OnEquip
+    flags:
+    - IsHeroic
+    - HasLoot
+    - 5
+    allowableClasses:
+    - warrior
+    - 3
 
 
   # - type: TwoHandedAxe

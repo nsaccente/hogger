@@ -80,3 +80,6 @@ class AllowableClasses(IntFlag):
     Warlock: int = auto()
     UNUSED: int = auto()
     Druid: int = auto()
+
+
+# class
