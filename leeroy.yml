@@ -12,8 +12,22 @@ entities:
     inventoryType: Head
     bagFamily:
     - Herbs
-    - Arrows
+    - 3
+    - 13
+    - 230
     bonding: OnEquip
+    flags:
+    - IsHeroic
+    - HasLoot
+    - 5
+    flagsExtra:
+    - AllianceOnly
+    classes:
+    - Warrior
+    - 3
+    races:
+    - BloodElf
+    - 4
 
 
   # - type: TwoHandedAxe

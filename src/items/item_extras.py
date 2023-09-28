@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 
-class PageText(BaseModel):
+
+class Page(BaseModel):
     id: int = Field(
         default=0,
         serialization_alias="ID",
@@ -24,21 +25,6 @@ class PageText(BaseModel):
 class ItemLimitCategory(BaseModel):
     id: int = Field(
         default=0,
-        validation_alias="ID",
-    )
-    name: str = Field(
-        validation_alias="Name",
-    )
-    count: int = Field(
-        default=1,
-        validation_alias="Count",
-    )
-    isGem: bool = Field(default=False, validation_alias="IsGem")
-
-
-class ItemLimitCategory(BaseModel):
-    id: int = Field(
-        default=0,
         serialization_alias="ID",
     )
     name: str = Field(
@@ -53,3 +39,20 @@ class ItemLimitCategory(BaseModel):
         serialization_alias="IsGem",
     )
 
+
+# class Skill(BaseModel):
+#     id: int = Field(
+#         default=0,
+#         serialization_alias="ID",
+#     )
+#     skillName: str = Field(
+#         default="",
+#         serialization_alias="Skill Name",
+#     )
+
+
+# class RequiredSkill(BaseModel):
+#     skill: Skill = Field(
+#         default=Skill(),
+#     )
+#     rank: 
