@@ -20,9 +20,14 @@ entities:
     - IsHeroic
     - HasLoot
     - 5
-    allowableClasses:
-    - warrior
+    flagsExtra:
+    - AllianceOnly
+    classes:
+    - Warrior
     - 3
+    races:
+    - BloodElf
+    - 4
 
 
   # - type: TwoHandedAxe

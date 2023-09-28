@@ -222,3 +222,21 @@ class PageMaterial(Enum):
     Bronze = 5
     Valentine = 6
     Illidan = 7
+
+
+class RequiredHonorRank(Enum):
+    Undefined = 0
+    Private_Scout = 1
+    Corporal_Grunt = 2
+    Sergeant_Sergeant = 3
+    MasterSergeant_SeniorSergeant = 4
+    SergeantMajor_FirstSergeant = 5
+    Knight_StoneGuard = 6
+    KnightLieutenant_BloodGuard = 7
+    KnightCaptain_Legionnare = 8
+    KnightChampion_Centurion = 9
+    LieutenantCommander_Champion = 10
+    Commander_LieutenantGeneral = 11
+    Marshal_General = 12
+    FieldMarshal_Warlord = 13
+    GrandMarshal_HighWarlord = 14

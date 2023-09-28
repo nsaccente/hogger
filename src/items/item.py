@@ -296,6 +296,101 @@ class Item(BaseModel, abc.ABC):
     # LanguageID
 
     # REQUIREMENTS
+    classes: list[AllowableClass | int] = Field(
+        default=[],
+        description="Classes permitted to use the item.",
+        serialization_alias="AllowableClass",
+    )
+    races: list[AllowableRace | int] = Field(
+        default=[],
+        description="Races permitted to use the item.",
+        serialization_alias="AllowableRace",
+    )
+    itemLevel: int = Field(
+        # TODO: Add automatic item level calculation as default.
+        default=0,
+        description="""
+            The level of the item, not to be confused with the item required to
+            equip or use the item.
+        """,
+        serialization_alias="ItemLevel",
+        ge=0,
+    )
+    requiredLevel: int = Field(
+        default=1,
+        descrption="The minimum player level required to equip the item.",
+        serialization_alias="RequiredLevel",
+        ge=1,
+    )
+    # requiredSkill: 
+    # requiredSkillRank: 
+    # RequiredSpell
+    requiredHonorRank: RequiredHonorRank = Field(
+        default=RequiredHonorRank.Undefined,
+        description="The required PvP rank required to use the item.",
+        serialization_alias="requiredhonorrank",
+    )
+    requiredCityRank: int = Field(
+        default=0,
+        description="Unused. All items have this set to 0.",
+        serialization_alias="RequiredCityRank",
+        ge=0,
+    )
+    #requiredRepFaction
+    #RequiredRepRank
+    disenchantSkill: int = Field(
+        default=-1,
+        description="""
+        The required skill proficiency in disenchanting that the player must
+        have in order to disenchant this item.
+        """,
+        serialization_alias="",
+        ge=-1,
+    )
+    # map
+    # area
+    # holiday
+    # lock_id
+
+    # RESISTANCE
+    holyResistance: int = Field(
+        default=0,
+        description="Holy resistance. Defaults to 0.",
+        serialization_alias="holy_res",
+        ge=0,
+    )
+    fireResistance: int = Field(
+        default=0,
+        description="Fire resistance. Defaults to 0.",
+        serialization_alias="fire_res",
+        ge=0,
+    )
+    natureResistance: int = Field(
+        default=0,
+        description="Nature resistance. Defaults to 0.",
+        serialization_alias="nature_res",
+        ge=0,
+    )
+    frostResistance: int = Field(
+        default=0,
+        description="Frost resistance. Defaults to 0.",
+        serialization_alias="frost_res",
+        ge=0,
+    )
+    shadowResistance: int = Field(
+        default=0,
+        description="Shadow resistance. Defaults to 0.",
+        serialization_alias="shadow_res",
+        ge=0,
+    )
+    arcaneResistance: int = Field(
+        default=0,
+        description="Arcane resistance. Defaults to 0.",
+        serialization_alias="arcane_res",
+        ge=0,
+    )
+
+
 
     @field_validator(
         "bonding",
@@ -328,11 +423,13 @@ class Item(BaseModel, abc.ABC):
         return v.name
 
     @field_validator(
-            "bagFamily", 
-            "flags",
-            "flagsCustom",
-            "flagsExtra",
-            mode="before",
+        "bagFamily", 
+        "classes",
+        "flags",
+        "flagsCustom",
+        "flagsExtra",
+        "races",
+        mode="before",
     )
     def parse_intflag(cls, items: list[str | int], info: FieldValidationInfo) -> list[IntFlag | int]:
         intflag_type = (
@@ -373,9 +470,11 @@ class Item(BaseModel, abc.ABC):
 
     @field_serializer(
         "bagFamily", 
+        "classes",
         "flags",
         "flagsCustom",
         "flagsExtra",
+        "races",
         when_used="json-unless-none",
     )
     def serialize_intflag(self, items: list[int | IntFlag] , info: SerializationInfo) -> list[str | int]:

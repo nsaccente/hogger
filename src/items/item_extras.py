@@ -39,3 +39,20 @@ class ItemLimitCategory(BaseModel):
         serialization_alias="IsGem",
     )
 
+
+# class Skill(BaseModel):
+#     id: int = Field(
+#         default=0,
+#         serialization_alias="ID",
+#     )
+#     skillName: str = Field(
+#         default="",
+#         serialization_alias="Skill Name",
+#     )
+
+
+# class RequiredSkill(BaseModel):
+#     skill: Skill = Field(
+#         default=Skill(),
+#     )
+#     rank: 

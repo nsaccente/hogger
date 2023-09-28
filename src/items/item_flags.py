@@ -68,7 +68,7 @@ class ItemFlagCustom(IntFlag):
     FollowLootRules: int = auto()
 
 
-class AllowableClasses(IntFlag):
+class AllowableClass(IntFlag):
     Warrior: int = auto()
     Paladin: int = auto()
     Hunter: int = auto()
@@ -83,3 +83,15 @@ class AllowableClasses(IntFlag):
 
 
 # class
+class AllowableRace(IntFlag):
+    Human: int = auto()
+    Orc: int = auto()
+    Dwarf: int = auto()
+    NightElf: int = auto()
+    Undead: int = auto()
+    Tauren: int = auto()
+    Gnome: int = auto()
+    Troll: int = auto()
+    Goblin: int = auto()
+    BloodElf: int = auto()
+    Draenei: int = auto()
