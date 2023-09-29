@@ -1,6 +1,7 @@
 from enum import IntFlag
 from math import log2
 
+
 class IntFlagUtils:
     def __setitem__(self, key, value):
         setattr(self, key, value)

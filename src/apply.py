@@ -1,6 +1,7 @@
+import json
+
 import mysql.connector
 import yaml
-import json
 
 from src.manifest import Manifest
 
@@ -13,8 +14,8 @@ def apply(
     password: str,
     **kwargs,
 ) -> None:
-
     from src.items.item_flags import BagFamily
+
     manifest = Manifest.from_file("./leeroy.yml")
     yml = yaml.dump(manifest.model_dump(by_alias=True), sort_keys=False)
     print(manifest.yaml_dump())

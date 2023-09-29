@@ -181,6 +181,7 @@ class ItemStat(Enum):
 
 
 class Language(Enum):
+    Universal = 0
     Orcish = 1
     Darnassian = 2
     Taurahe = 3

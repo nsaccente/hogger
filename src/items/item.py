@@ -7,13 +7,14 @@ from pydantic import (BaseModel, Field, FieldValidationInfo, SerializationInfo,
 from src.misc import Duration, Money
 
 from .item_enums import *
+from .item_damage import *
 from .item_flags import *
-from .item_extras import *
+from .item_sockets import *
+from src.misc.currency import LookupID
+
 
 
 class Item(BaseModel, abc.ABC):
-    class Config:
-        sql: bool = True
     # MISCELLANEOUS
     id: int = Field(
         default=-1,
@@ -46,7 +47,7 @@ class Item(BaseModel, abc.ABC):
         default="",
         description=(
             """
-            The description that appears in yellow letters at the bottom of 
+            The description that appears in yellow letters at the bottom of
             the item tooltip. No description by default.
             """
         ),
@@ -55,7 +56,7 @@ class Item(BaseModel, abc.ABC):
         default="",
         description=(
             """
-            The name of the script that the item should use. No script by 
+            The name of the script that the item should use. No script by
             default.
             """
         ),
@@ -75,7 +76,7 @@ class Item(BaseModel, abc.ABC):
         defalt=0,
         description=(
             """
-            The subcategory the item belongs to, and is dependent upon the 
+            The subcategory the item belongs to, and is dependent upon the
             value of itemClass.
             """
         ),
@@ -103,7 +104,7 @@ class Item(BaseModel, abc.ABC):
         default=Quality.Common,
         description=(
             """
-            The quality of the item; valid values are: Poor, Uncommon, 
+            The quality of the item; valid values are: Poor, Uncommon,
             Common, Rare, Epic, Legendary, Artifact, BoA.
             """
         ),
@@ -113,9 +114,9 @@ class Item(BaseModel, abc.ABC):
         default=1,
         description=(
             """
-            The size of the item stack when sold by vendors. If a vendor has 
-            a limited number of this item available, the vendor's inventory 
-            will increase by this number when the vendor list is refreshed 
+            The size of the item stack when sold by vendors. If a vendor has
+            a limited number of this item available, the vendor's inventory
+            will increase by this number when the vendor list is refreshed
             (see npc.vendor.incrtime).
             """
         ),
@@ -149,7 +150,7 @@ class Item(BaseModel, abc.ABC):
         serialization_alias="stackable",
         ge=1,
     )
-    startsQuest: int = Field(
+    startsQuest: LookupID = Field(
         default=0,
         description=(
             """
@@ -207,21 +208,21 @@ class Item(BaseModel, abc.ABC):
         default=Duration(),
         description=(
             """
-            The amount of time an item will exist in a player's inventory 
-            before disappearing; setting the duration to 0 seconds will 
+            The amount of time an item will exist in a player's inventory
+            before disappearing; setting the duration to 0 seconds will
             prevent the item from every disappearing.
             """
         ),
     )
-    itemLimitCategory: int = Field(
+    itemLimitCategory: LookupID = Field(
         default=0,
         description=(
             """
-            Defines if an item belongs to a "category", like "Mana Gems" or 
-            Healthstone" and it defines how many items of the category you 
-            can have in the bag (this is the "limit"). For example, for 
-            Healthstone, there are several items like Lesser Healthstone, 
-            Greater Healthstone, etc. but you can have only one in your bag 
+            Defines if an item belongs to a "category", like "Mana Gems" or
+            Healthstone" and it defines how many items of the category you
+            can have in the bag (this is the "limit"). For example, for
+            Healthstone, there are several items like Lesser Healthstone,
+            Greater Healthstone, etc. but you can have only one in your bag
             (check as example value 3 or 4).
             """
         ),
@@ -248,8 +249,8 @@ class Item(BaseModel, abc.ABC):
         default=Money(),
         description=(
             """
-            Minimum amount of money contained in the item. If an item should 
-            not contain money, use Money(gold=0, silver=0, copper=0), which 
+            Minimum amount of money contained in the item. If an item should
+            not contain money, use Money(gold=0, silver=0, copper=0), which
             is the default for this field.
             """
         ),
@@ -258,8 +259,8 @@ class Item(BaseModel, abc.ABC):
         default=Money(),
         description=(
             """
-            Max amount of money contained in the item. If an item should 
-            not contain money, use Money(gold=0, silver=0, copper=0), which 
+            Max amount of money contained in the item. If an item should
+            not contain money, use Money(gold=0, silver=0, copper=0), which
             is the default for this field.
             """
         ),
@@ -292,9 +293,37 @@ class Item(BaseModel, abc.ABC):
     )
 
     # TEXTS
-    # pageText
-    # pageMaterial
-    # LanguageID
+    pageText: LookupID = Field(
+        default=0,
+        description=(
+            """
+            The ID of the row in the `page_text` table corresponding to the text
+            that will be shown to the player.
+            """
+        ),
+        ge=0
+    )
+    pageMaterial: PageMaterial = Field(
+        default=PageMaterial.Parchment,
+        description=(
+            """
+            The material that the text will be displayed on to the player.
+            Defaults to parchment.
+            """
+        ),
+    )
+    language: Language = Field(
+        default=Language.Universal,
+        description=(
+            """
+            The RPG language that the document will be written in, requiring 
+            players to be fluent in the document's language in order to read
+            it correctly. Defaults to Universal, meaning all players will be
+            able to interpret it, with no language requirements.
+            """
+        )
+
+    )
 
     # REQUIREMENTS
     classes: list[AllowableClass | int] = Field(
@@ -323,8 +352,10 @@ class Item(BaseModel, abc.ABC):
         serialization_alias="RequiredLevel",
         ge=1,
     )
-    # requiredSkill: 
-    # requiredSkillRank: 
+    # requiredSkill: Lookup = Field(
+
+    # )
+    # requiredSkillRank:
     # RequiredSpell
     requiredHonorRank: RequiredHonorRank = Field(
         default=RequiredHonorRank.Undefined,
@@ -337,8 +368,8 @@ class Item(BaseModel, abc.ABC):
         serialization_alias="RequiredCityRank",
         ge=0,
     )
-    #requiredRepFaction
-    #RequiredRepRank
+    # requiredRepFaction
+    # RequiredRepRank
     disenchantSkill: int = Field(
         default=-1,
         description="""
@@ -350,12 +381,12 @@ class Item(BaseModel, abc.ABC):
     )
     # map
     # area
-    # holiday
+    # requiredHoliday
     # lock_id
 
     # RESISTANCE
     resistances: dict[ItemResistance, int] = Field(
-        default = dict(),
+        default=dict(),
         description=(
             """
             Item resistances.
@@ -381,11 +412,18 @@ class Item(BaseModel, abc.ABC):
             """
             Stats applied to the item in key-value pairs.
             """
-        )
+        ),
     )
 
     # SOCKETS
-    # This is going to require some advanced querying
+    sockets: ItemSockets = Field(
+        default=ItemSockets(),
+        description=(
+            """
+            Item socket details.
+            """
+        ),
+    )
 
     # WEAPON ARMOR
     armor: int = Field(
@@ -402,7 +440,7 @@ class Item(BaseModel, abc.ABC):
             """
             This field is not well understood.
             """
-        )
+        ),
     )
     hitDelay: int = Field(
         default=0,
@@ -438,7 +476,7 @@ class Item(BaseModel, abc.ABC):
             If the item is a shield, this value will be the block chance of the
             shield.
             """
-        )
+        ),
     )
     durability: int = Field(
         default=100,
@@ -446,27 +484,23 @@ class Item(BaseModel, abc.ABC):
             """
             The durability of the item. Defaults to 100.
             """
-        )
+        ),
     )
     damage: Damage = Field(
         default=Damage(),
         description="The damage values of the weapon.",
     )
-    
 
-
-# 833 735 1894
-# case # 60199307023
-
-
+    # ItemSpells
 
     @field_validator(
         "bonding",
-        "foodType", 
-        "inventoryType", 
-        "material", 
-        "quality", 
-        "totemCategory", 
+        "foodType",
+        "inventoryType",
+        "language",
+        "material",
+        "quality",
+        "totemCategory",
         mode="before",
     )
     def parse_enum(cls, v: str, info: FieldValidationInfo) -> Enum:
@@ -480,19 +514,19 @@ class Item(BaseModel, abc.ABC):
 
     @field_serializer(
         "bonding",
-        "foodType", 
-        "inventoryType", 
-        "material", 
-        "quality", 
-        "totemCategory", 
+        "foodType",
+        "inventoryType",
+        "language",
+        "material",
+        "quality",
+        "totemCategory",
         when_used="json-unless-none",
     )
     def serialize_enum(self, v: Enum, info: SerializationInfo) -> str:
         return v.name
 
-
     @field_validator(
-        "bagFamily", 
+        "bagFamily",
         "classes",
         "flags",
         "flagsCustom",
@@ -500,21 +534,21 @@ class Item(BaseModel, abc.ABC):
         "races",
         mode="before",
     )
-    def parse_intflag(cls, items: list[str | int], info: FieldValidationInfo) -> list[IntFlag | int]:
-        intflag_type = (
-            list(
-                filter(
-                    lambda field_type: (issubclass(field_type, IntFlag)),
-                    (
-                        typing.get_type_hints(cls)
-                        [info.field_name]
-                        .__args__[0] # args passed to list[]
-                        .__args__ # args passed to Union[]
-                    ),
-                )
-            ) # convert the elements returned by filter to a list
-            [0] # grab the first element in the list.
-        )
+    def parse_intflag(
+        cls, items: list[str | int], info: FieldValidationInfo
+    ) -> list[IntFlag | int]:
+        intflag_type = list(
+            filter(
+                lambda field_type: (issubclass(field_type, IntFlag)),
+                (
+                    typing.get_type_hints(cls)[info.field_name]
+                    .__args__[0]  # args passed to list[]
+                    .__args__  # args passed to Union[]
+                ),
+            )
+        )[  # convert the elements returned by filter to a list
+            0
+        ]  # grab the first element in the list.
 
         intflags = [i.value for i in intflag_type]
         result = []
@@ -534,12 +568,11 @@ class Item(BaseModel, abc.ABC):
                     result.append(int(item))
             elif issubclass(IntFlag, item):
                 result.append(item)
-            
+
         return result
 
-
     @field_serializer(
-        "bagFamily", 
+        "bagFamily",
         "classes",
         "flags",
         "flagsCustom",
@@ -547,7 +580,9 @@ class Item(BaseModel, abc.ABC):
         "races",
         when_used="json-unless-none",
     )
-    def serialize_intflag(self, items: list[int | IntFlag] , info: SerializationInfo) -> list[str | int]:
+    def serialize_intflag(
+        self, items: list[int | IntFlag], info: SerializationInfo
+    ) -> list[str | int]:
         result = []
         for item in items:
             if issubclass(type(item), IntFlag):
@@ -556,18 +591,15 @@ class Item(BaseModel, abc.ABC):
                 result.append(item)
         return result
 
-
     @field_validator(
         "resistances",
         "stats",
         mode="before",
     )
-    def parse_enum_map(cls, dmap: dict[str, int], info: SerializationInfo) -> dict[Enum, int]:
-        enum_type = (
-            typing.get_type_hints(cls)
-            [info.field_name]
-            .__args__[0] 
-        )
+    def parse_enum_map(
+        cls, dmap: dict[str, int], info: SerializationInfo
+    ) -> dict[Enum, int]:
+        enum_type = typing.get_type_hints(cls)[info.field_name].__args__[0]
         if enum_type == ItemStat and len(dmap) > 10:
             raise Exception(
                 f"Provided {len(dmap)} stats, cannot exceed 10.",
@@ -578,11 +610,12 @@ class Item(BaseModel, abc.ABC):
             )
         return {enum_type[k]: v for k, v in dmap.items()}
 
-
     @field_serializer(
         "resistances",
-        "stats", 
+        "stats",
         when_used="json-unless-none",
     )
-    def serialize_enum_map(self, items: dict[Enum, int] , info: SerializationInfo) -> dict[str, int]:
+    def serialize_enum_map(
+        self, items: dict[Enum, int], info: SerializationInfo
+    ) -> dict[str, int]:
         return {str(k.name): v for k, v in items.items()}

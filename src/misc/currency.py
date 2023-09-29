@@ -2,6 +2,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
+LookupID = int
 
 class Money(BaseModel):
     gold: int = Field(default=0, ge=0)

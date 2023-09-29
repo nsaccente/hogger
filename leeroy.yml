@@ -30,10 +30,10 @@ entities:
     - 4
     stats:
       Agility: 10
-      Stamina: 25  
-      Mana: 25  
-      Health: 25  
-      Strength: 25  
+      Stamina: 25
+      Mana: 25
+      Health: 25
+      Strength: 25
       Spirit: 10
       BlockRating: 10
       MeleeHitRating: 10
@@ -48,10 +48,3 @@ entities:
       min2: 10
       max2: 30
       type2: 4
-
-
-
-  # - type: TwoHandedAxe
-  #   name: 2-Handed Axe
-  #   description: "An even sparklier axe."
-  #   quality: BoA
