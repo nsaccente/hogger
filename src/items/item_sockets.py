@@ -36,7 +36,7 @@ class ItemSockets(BaseModel):
     )
 
 
+    # TODO 
     @model_validator(mode='before')
     def ensure_3_of_4_socket_colors(cls, data: Any) -> Any:
-        print(data)
         return data

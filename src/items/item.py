@@ -1,5 +1,6 @@
 import abc
 import typing
+from inspect import cleandoc
 
 from pydantic import (BaseModel, Field, FieldValidationInfo, SerializationInfo,
                       field_serializer, field_validator)
@@ -10,15 +11,15 @@ from .item_enums import *
 from .item_damage import *
 from .item_flags import *
 from .item_sockets import *
+from .item_randomstat import *
 from src.misc.currency import LookupID
-
 
 
 class Item(BaseModel, abc.ABC):
     # MISCELLANEOUS
     id: int = Field(
         default=-1,
-        description=(
+        description=cleandoc(
             """
             Identifier for the item in the world database. Set to -1 to
             automagically use the first item id it finds. Default is -1.
@@ -31,7 +32,7 @@ class Item(BaseModel, abc.ABC):
     )
     id_offset: int = Field(
         default=60000,
-        description=(
+        description=cleandoc(
             """
             Dictates the first id the item is allowed to use. This allows
             separation of custom items and vanilla items.
@@ -41,11 +42,15 @@ class Item(BaseModel, abc.ABC):
         ge=0,
     )
     name: str = Field(
-        description="The name of the item",
+        description=cleandoc(
+            """
+            The name of the item.
+            """
+        ),
     )
     description: str = Field(
         default="",
-        description=(
+        description=cleandoc(
             """
             The description that appears in yellow letters at the bottom of
             the item tooltip. No description by default.
@@ -54,7 +59,7 @@ class Item(BaseModel, abc.ABC):
     )
     scriptName: str = Field(
         default="",
-        description=(
+        description=cleandoc(
             """
             The name of the script that the item should use. No script by
             default.
@@ -64,7 +69,7 @@ class Item(BaseModel, abc.ABC):
     )
     itemClass: ItemClass = Field(
         default=ItemClass.TradeGoods,
-        description=(
+        description=cleandoc(
             """
             The category the item belongs to; e.g. consumable, weapon, armor,
             etc.
@@ -74,7 +79,7 @@ class Item(BaseModel, abc.ABC):
     )
     itemSubclass: int = Field(
         defalt=0,
-        description=(
+        description=cleandoc(
             """
             The subcategory the item belongs to, and is dependent upon the
             value of itemClass.
@@ -84,25 +89,29 @@ class Item(BaseModel, abc.ABC):
     )
     soundOverride: int = Field(
         default=-1,
-        description=(
+        description=cleandoc(
             """
             Each weapon type plays a unique sound on impact, which can be
             overriden by the unique sound of a different weapon type.
             Use -1 to use the default sound for the item. Default is -1.
             """
         ),
-        serialization_alias="SoundOverride",
+        serialization_alias="SoundOverrideSubclass",
         ge=-1,
     )
     displayId: int = Field(
         default=0,
-        description="Controls both the model appearance and icon.",
+        description=cleandoc(
+            """
+            Controls both the model appearance and icon.
+            """
+        ),
         serialization_alias="displayid",
         ge=0,
     )
     quality: Quality = Field(
         default=Quality.Common,
-        description=(
+        description=cleandoc(
             """
             The quality of the item; valid values are: Poor, Uncommon,
             Common, Rare, Epic, Legendary, Artifact, BoA.
@@ -112,7 +121,7 @@ class Item(BaseModel, abc.ABC):
     )
     buyCount: int = Field(
         default=1,
-        description=(
+        description=cleandoc(
             """
             The size of the item stack when sold by vendors. If a vendor has
             a limited number of this item available, the vendor's inventory
@@ -125,28 +134,49 @@ class Item(BaseModel, abc.ABC):
     )
     buyPrice: Money = Field(
         default=Money(gold=0, silver=0, copper=0),
-        description="The cost to purchase this item form a vendor",
+        description=cleandoc(
+            """
+            The cost to purchase this item form a vendor
+            """
+        ),
         serialization_alias="BuyPrice",
     )
+    #buyPriceExtra
     sellPrice: Money = Field(
         default=Money(gold=0, silver=0, copper=0),
-        description="The amount a vendor will purchase this item from you for",
+        description=cleandoc(
+            """
+            The amount a vendor will purchase this item from you for.
+            """
+        ),
         serialization_alias="SellPrice",
     )
     inventoryType: InventoryType = Field(
         default=InventoryType.NoEquip,
-        description="Is the item equippable? A quest item?",
+        description=cleandoc(
+            """
+            Is the item equippable? A quest item?
+            """
+        ),
         serialization_alias="InventoryType",
     )
     maxCount: int = Field(
         default=1,
-        description="The maximum amount that a player can have; use 0 for infinite",
+        description=cleandoc(
+            """
+            The maximum amount that a player can have; use 0 for infinite.
+            """
+        ),
         serialization_alias="maxcount",
         ge=0,
     )
     stackSize: int = Field(
         default=1,
-        description="The maximum size of a stack of this item.",
+        description=cleandoc(
+            """
+            The maximum size of a stack of this item.
+            """
+        ),
         serialization_alias="stackable",
         ge=1,
     )
@@ -162,41 +192,42 @@ class Item(BaseModel, abc.ABC):
     )
     material: Material = Field(
         default=Material.Undefined,
-        description="Controls the sound played when moving items in your inventory",
+        description=cleandoc(
+            """
+            Controls the sound played when moving items in your inventory.
+            """
+        ),
         serialization_alias="Material",
     )
-    # TODO: Create dedicated RandomProperty classes
-    # Itemid with RandomProperty = 863
-    randomProperty: int = Field(
-        default=0,
-        description="",
-        serialization_alias="RandomProperty",
-        ge=0,
+    randomStat: RandomStat = Field(
+        default = RandomStat(),
+        description=(
+            """
+            Adds a random stat bonus on the item.
+            """
+        ),
     )
-    # TODO: Create dedicated RandomSuffix classes
-    # Itemid with RandomSuffix = 24585
-    randomSuffix: int = Field(
-        default=0,
-        description="",
-        serialization_alias="RandomSuffix",
-        ge=0,
-    )
-    # min(RandomProperty, RandomSuffix) must equal 0.
     bagFamily: list[BagFamily | int] = Field(
         default=[],
-        description="Dictates what kind of bags this item can be placed in.",
+        description=cleandoc(
+            """
+            Dictates what kind of bags this item can be placed in.
+            """
+        ),
         serialization_alias="BagFamily",
     )
     containerSlots: int = Field(
         default=0,
-        description=(
-            "If this item is a bag, controls the number of slots it will have"
+        description=cleandoc(
+            """
+            If this item is a bag, controls the number of slots it will have
+            """
         ),
         serialization_alias="ContainerSlots",
     )
     totemCategory: TotemCategory = Field(
         default=TotemCategory.Undefined,
-        description=(
+        description=cleandoc(
             """
             Some items are required to complete certain tasks, such as a
             shaman's totems, blacksmithing hammers, or enchanting rods.
@@ -206,7 +237,7 @@ class Item(BaseModel, abc.ABC):
     )
     duration: Duration = Field(
         default=Duration(),
-        description=(
+        description=cleandoc(
             """
             The amount of time an item will exist in a player's inventory
             before disappearing; setting the duration to 0 seconds will
@@ -216,7 +247,7 @@ class Item(BaseModel, abc.ABC):
     )
     itemLimitCategory: LookupID = Field(
         default=0,
-        description=(
+        description=cleandoc(
             """
             Defines if an item belongs to a "category", like "Mana Gems" or
             Healthstone" and it defines how many items of the category you
@@ -228,15 +259,32 @@ class Item(BaseModel, abc.ABC):
         ),
         serialization_alias="ItemLimitCategory",
     )
+
+    # ENCHANTING ~~~~~~~~~~~~~~~~~
     # TODO: Create dedicated DisenchantID Class
-    disenchantId: int = Field(
+    disenchantId: LookupID = Field(
         default=0,
-        description="Corresponds to an entry in disenchant_loot_template.",
+        description=cleandoc(
+            """
+            Corresponds to an entry in disenchant_loot_template.
+            """
+        ),
         serialization_alias="DisenchantID",
+    )
+    disenchantSkill: int = Field(
+        default=-1,
+        description=cleandoc(
+            """
+            The required skill proficiency in disenchanting that the player must
+            have in order to disenchant this item.
+            """
+        ),
+        serialization_alias="",
+        ge=-1,
     )
     foodType: FoodType = Field(
         default=FoodType.Undefined,
-        description=(
+        description=cleandoc(
             """
             Determines the category a fooditem falls into, if any. This is
             primarily used to determine what items hunter pet's will eat.
@@ -245,9 +293,9 @@ class Item(BaseModel, abc.ABC):
         ),
         serialization_alias="FoodType",
     )
-    minLootMoney: Money = Field(
+    minMoneyLoot: Money = Field(
         default=Money(),
-        description=(
+        description=cleandoc(
             """
             Minimum amount of money contained in the item. If an item should
             not contain money, use Money(gold=0, silver=0, copper=0), which
@@ -255,9 +303,9 @@ class Item(BaseModel, abc.ABC):
             """
         ),
     )
-    maxLootMoney: Money = Field(
+    maxMoneyLoot: Money = Field(
         default=Money(),
-        description=(
+        description=cleandoc(
             """
             Max amount of money contained in the item. If an item should
             not contain money, use Money(gold=0, silver=0, copper=0), which
@@ -265,37 +313,55 @@ class Item(BaseModel, abc.ABC):
             """
         ),
     )
-    itemSet: int = Field(
+    itemSet: LookupID = Field(
         default=0,
-        description=("The ID of the item set that this item belongs to."),
+        description=cleandoc(
+            """
+            The ID of the item set that this item belongs to.
+            """
+        ),
         ge=0,
         serialization_alias="itemset",
     )
     bonding: ItemBinding = Field(
         default=ItemBinding.Never,
-        description=(
-            "Determines if the item binds to the character. Defaults to Never."
+        description=cleandoc(
+            """
+            Determines if the item binds to the character. Defaults to Never.
+            """
         ),
     )
 
     # FLAGS
     flags: list[ItemFlag | int] = Field(
         default=[],
-        description=("A collection of flags to modify the behavior of the item."),
+        description=cleandoc(
+            """
+            A collection of flags to modify the behavior of the item.
+            """
+        ),
     )
     flagsExtra: list[ItemFlagExtra | int] = Field(
         default=[],
-        description=("A collection of flags to modify the behavior of the item."),
+        description=cleandoc(
+            """
+            A collection of flags to modify the behavior of the item.
+            """
+        ),
     )
     flagsCustom: list[ItemFlagExtra | int] = Field(
         default=[],
-        description=("A collection of flags to modify the behavior of the item."),
+        description=cleandoc(
+            """
+            A collection of flags to modify the behavior of the item.
+            """
+        ),
     )
 
     # TEXTS
     pageText: LookupID = Field(
         default=0,
-        description=(
+        description=cleandoc(
             """
             The ID of the row in the `page_text` table corresponding to the text
             that will be shown to the player.
@@ -305,16 +371,16 @@ class Item(BaseModel, abc.ABC):
     )
     pageMaterial: PageMaterial = Field(
         default=PageMaterial.Parchment,
-        description=(
+        description=cleandoc(
             """
             The material that the text will be displayed on to the player.
             Defaults to parchment.
             """
         ),
     )
-    language: Language = Field(
+    language: (Language | LookupID) = Field(
         default=Language.Universal,
-        description=(
+        description=cleandoc(
             """
             The RPG language that the document will be written in, requiring 
             players to be fluent in the document's language in order to read
@@ -322,33 +388,46 @@ class Item(BaseModel, abc.ABC):
             able to interpret it, with no language requirements.
             """
         )
-
     )
 
     # REQUIREMENTS
     classes: list[AllowableClass | int] = Field(
         default=[],
-        description="Classes permitted to use the item.",
+        description=cleandoc(
+            """
+            Classes permitted to use the item.
+            """
+        ),
         serialization_alias="AllowableClass",
     )
     races: list[AllowableRace | int] = Field(
         default=[],
-        description="Races permitted to use the item.",
+        description=cleandoc(
+            """
+            Races permitted to use the item.
+            """
+        ),
         serialization_alias="AllowableRace",
     )
     itemLevel: int = Field(
         # TODO: Add automatic item level calculation as default.
         default=0,
-        description="""
+        description=cleandoc(
+            """
             The level of the item, not to be confused with the item required to
             equip or use the item.
-        """,
+            """
+        ),
         serialization_alias="ItemLevel",
         ge=0,
     )
     requiredLevel: int = Field(
         default=1,
-        descrption="The minimum player level required to equip the item.",
+        descrption=cleandoc(
+            """
+            The minimum player level required to equip the item.
+            """
+        ),
         serialization_alias="RequiredLevel",
         ge=1,
     )
@@ -359,26 +438,28 @@ class Item(BaseModel, abc.ABC):
     # RequiredSpell
     requiredHonorRank: RequiredHonorRank = Field(
         default=RequiredHonorRank.Undefined,
-        description="The required PvP rank required to use the item.",
-        serialization_alias="requiredhonorrank",
+        description=cleandoc(
+            """
+            The required PvP rank required to use the item.",
+            serialization_alias="requiredhonorrank",
+            """
+        ),
     )
     requiredCityRank: int = Field(
         default=0,
-        description="Unused. All items have this set to 0.",
+        description=cleandoc(
+            """
+            Unused. All items have this set to 0.
+            """
+        ),
         serialization_alias="RequiredCityRank",
         ge=0,
     )
+
+    # TODO: Composite object here.
     # requiredRepFaction
     # RequiredRepRank
-    disenchantSkill: int = Field(
-        default=-1,
-        description="""
-        The required skill proficiency in disenchanting that the player must
-        have in order to disenchant this item.
-        """,
-        serialization_alias="",
-        ge=-1,
-    )
+
     # map
     # area
     # requiredHoliday
@@ -387,7 +468,7 @@ class Item(BaseModel, abc.ABC):
     # RESISTANCE
     resistances: dict[ItemResistance, int] = Field(
         default=dict(),
-        description=(
+        description=cleandoc(
             """
             Item resistances.
             """
@@ -399,7 +480,7 @@ class Item(BaseModel, abc.ABC):
     # ScalingStatValue: int
     statCount: int = Field(
         default=0,
-        description=(
+        description=cleandoc(
             """
             The total number of stats attached to this item. Defaults to 0.
             """
@@ -408,7 +489,7 @@ class Item(BaseModel, abc.ABC):
     )
     stats: dict[ItemStat, int] = Field(
         default=dict(),
-        description=(
+        description=cleandoc(
             """
             Stats applied to the item in key-value pairs.
             """
@@ -418,7 +499,7 @@ class Item(BaseModel, abc.ABC):
     # SOCKETS
     sockets: ItemSockets = Field(
         default=ItemSockets(),
-        description=(
+        description=cleandoc(
             """
             Item socket details.
             """
@@ -428,7 +509,7 @@ class Item(BaseModel, abc.ABC):
     # WEAPON ARMOR
     armor: int = Field(
         default=0,
-        description=(
+        description=cleandoc(
             """
             The armor value of the item.
             """
@@ -436,7 +517,7 @@ class Item(BaseModel, abc.ABC):
     )
     armorDamageModifier: int = Field(
         default=0,
-        description=(
+        description=cleandoc(
             """
             This field is not well understood.
             """
@@ -444,7 +525,7 @@ class Item(BaseModel, abc.ABC):
     )
     hitDelay: int = Field(
         default=0,
-        description=(
+        description=cleandoc(
             """
             The time in milliseconds between successive hits.
             """
@@ -453,7 +534,7 @@ class Item(BaseModel, abc.ABC):
     )
     ammoType: AmmoType = Field(
         default=AmmoType.Undefined,
-        description=(
+        description=cleandoc(
             """
             The type of ammunition the item uses.
             """
@@ -461,7 +542,7 @@ class Item(BaseModel, abc.ABC):
     )
     weaponRange: int = Field(
         default=0,
-        description=(
+        description=cleandoc(
             """
             The range modifier for bows, crossbows, and guns.
             All of Blizzard's ranged weapons have a default range of 100.
@@ -471,7 +552,7 @@ class Item(BaseModel, abc.ABC):
     )
     block: int = Field(
         default=0,
-        description=(
+        description=cleandoc(
             """
             If the item is a shield, this value will be the block chance of the
             shield.
@@ -480,15 +561,20 @@ class Item(BaseModel, abc.ABC):
     )
     durability: int = Field(
         default=100,
-        description=(
+        description=cleandoc(
             """
             The durability of the item. Defaults to 100.
             """
         ),
+        ge=0,
     )
     damage: Damage = Field(
         default=Damage(),
-        description="The damage values of the weapon.",
+        description=cleandoc(
+            """
+            The damage values of the weapon.
+            """
+        ),
     )
 
     # ItemSpells
@@ -520,10 +606,12 @@ class Item(BaseModel, abc.ABC):
         "material",
         "quality",
         "totemCategory",
-        when_used="json-unless-none",
+        when_used="unless-none",
     )
     def serialize_enum(self, v: Enum, info: SerializationInfo) -> str:
-        return v.name
+        if isinstance(v, Enum):
+            return v.name
+        return v
 
     @field_validator(
         "bagFamily",
@@ -578,7 +666,7 @@ class Item(BaseModel, abc.ABC):
         "flagsCustom",
         "flagsExtra",
         "races",
-        when_used="json-unless-none",
+        when_used="unless-none",
     )
     def serialize_intflag(
         self, items: list[int | IntFlag], info: SerializationInfo
@@ -613,9 +701,32 @@ class Item(BaseModel, abc.ABC):
     @field_serializer(
         "resistances",
         "stats",
-        when_used="json-unless-none",
+        when_used="unless-none",
     )
     def serialize_enum_map(
         self, items: dict[Enum, int], info: SerializationInfo
     ) -> dict[str, int]:
         return {str(k.name): v for k, v in items.items()}
+
+
+#     def to_sql(self) -> str:
+#         m = self.model_dump(by_alias=True)
+#         sql_fields = cleandoc(
+#             f"""DELETE FROM `item_template` WHERE (`entry` = {m["entry"]});
+#                 INSERT INTO `item_template` (
+#             """
+#         )
+#         sql_values = ")\nVALUES ("
+
+#         for k, v in m.items():
+#             if isinstance(v, str):
+#                 v = f"'{v}'"
+#             # elif isinstance(v, Money):
+#             #     print(v)
+#                 # v = int(v)
+#             sql_fields += f"{k}, "
+#             sql_values += f"{v},"
+#         return f"{sql_fields}\n{sql_values})"
+#         DELETE FROM `item_template` WHERE (`entry` = 38);
+# INSERT INTO `item_template` (`entry`, `class`, `subclass`, `SoundOverrideSubclass`, `name`, `displayid`, `Quality`, `Flags`, `FlagsExtra`, `BuyCount`, `BuyPrice`, `SellPrice`, `InventoryType`, `AllowableClass`, `AllowableRace`, `ItemLevel`, `RequiredLevel`, `RequiredSkill`, `RequiredSkillRank`, `requiredspell`, `requiredhonorrank`, `RequiredCityRank`, `RequiredReputationFaction`, `RequiredReputationRank`, `maxcount`, `stackable`, `ContainerSlots`, `StatsCount`, `stat_type1`, `stat_value1`, `stat_type2`, `stat_value2`, `stat_type3`, `stat_value3`, `stat_type4`, `stat_value4`, `stat_type5`, `stat_value5`, `stat_type6`, `stat_value6`, `stat_type7`, `stat_value7`, `stat_type8`, `stat_value8`, `stat_type9`, `stat_value9`, `stat_type10`, `stat_value10`, `ScalingStatDistribution`, `ScalingStatValue`, `dmg_min1`, `dmg_max1`, `dmg_type1`, `dmg_min2`, `dmg_max2`, `dmg_type2`, `armor`, `holy_res`, `fire_res`, `nature_res`, `frost_res`, `shadow_res`, `arcane_res`, `delay`, `ammo_type`, `RangedModRange`, `spellid_1`, `spelltrigger_1`, `spellcharges_1`, `spellppmRate_1`, `spellcooldown_1`, `spellcategory_1`, `spellcategorycooldown_1`, `spellid_2`, `spelltrigger_2`, `spellcharges_2`, `spellppmRate_2`, `spellcooldown_2`, `spellcategory_2`, `spellcategorycooldown_2`, `spellid_3`, `spelltrigger_3`, `spellcharges_3`, `spellppmRate_3`, `spellcooldown_3`, `spellcategory_3`, `spellcategorycooldown_3`, `spellid_4`, `spelltrigger_4`, `spellcharges_4`, `spellppmRate_4`, `spellcooldown_4`, `spellcategory_4`, `spellcategorycooldown_4`, `spellid_5`, `spelltrigger_5`, `spellcharges_5`, `spellppmRate_5`, `spellcooldown_5`, `spellcategory_5`, `spellcategorycooldown_5`, `bonding`, `description`, `PageText`, `LanguageID`, `PageMaterial`, `startquest`, `lockid`, `Material`, `sheath`, `RandomProperty`, `RandomSuffix`, `block`, `itemset`, `MaxDurability`, `area`, `Map`, `BagFamily`, `TotemCategory`, `socketColor_1`, `socketContent_1`, `socketColor_2`, `socketContent_2`, `socketColor_3`, `socketContent_3`, `socketBonus`, `GemProperties`, `RequiredDisenchantSkill`, `ArmorDamageModifier`, `duration`, `ItemLimitCategory`, `HolidayId`, `ScriptName`, `DisenchantID`, `FoodType`, `minMoneyLoot`, `maxMoneyLoot`, `flagsCustom`, `VerifiedBuild`) VALUES
+# (38, 4, 0, -1, 'Recruit\'s Shirt', 9891, 1, 0, 0, 1, 1, 1, 4, -1, -1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, -1, 0, -1, 0, '', 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, '', 0, 0, 0, 0, 0, 12340);

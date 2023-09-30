@@ -21,12 +21,16 @@ class Manifest(BaseModel):
         with open(filepath, "r") as yaml_file:
             return Manifest(**yaml.safe_load(yaml_file))
 
-    def yaml_dump(self) -> str:
+    def yaml_dump(
+        self, 
+        by_alias: bool=False, 
+        exclude_defaults: bool=True,
+    ) -> str:
         return yaml.dump(
             json.loads(
                 self.model_dump_json(
-                    by_alias=False,
-                    exclude_defaults=True,
+                    by_alias=by_alias,
+                    exclude_defaults=exclude_defaults,
                 )
             ),
             indent=2,

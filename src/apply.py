@@ -17,20 +17,13 @@ def apply(
     from src.items.item_flags import BagFamily
 
     manifest = Manifest.from_file("./leeroy.yml")
-    yml = yaml.dump(manifest.model_dump(by_alias=True), sort_keys=False)
-    print(manifest.yaml_dump())
-    # print()
-    # print("===")
-    # print()
-    # print("DUMP")
-    # print(yaml.dump(manifest.model_dump(by_alias=False)))
-    # yml = yaml.dump(manifest.json(by_alias=True), sort_keys=False)
-    # yml = yaml.dump(vars(manifest), sort_keys=False)
-    # print(yml)
+    print(manifest.yaml_dump(exclude_defaults=False))
     # for entity in manifest.entities:
-    #     for k, v in entity.model_dump(by_alias=True).items():
-    #         print(f"{k}: {v}")
-    #     print()
+    #     print(entity.to_sql())
+
+    # print(manifest.yaml_dump())
+
+
 
     # connection = mysql.connector.connect(
     #     host=host,
