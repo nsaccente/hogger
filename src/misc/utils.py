@@ -126,7 +126,7 @@ class IntFlagUtils:
 
 class EnumMapUtils:
     @staticmethod
-    def parse(cls, dmap: dict[str, int], info: SerializationInfo) -> dict[(Enum | int), int]:
+    def parse(cls, dmap: dict[(str | int), int], info: SerializationInfo) -> dict[(Enum | int), int]:
         EnumKeyType = (
             list(
                 filter(
@@ -165,3 +165,14 @@ class EnumMapUtils:
                 actual=k,
                 suggestion=suggestion,
         )
+
+    def serialize(
+        self, items: dict[(Enum | int), int], info: SerializationInfo
+    ) -> dict[(str | int), int]:
+        result = {}
+        for k, v in items.items():
+            if isinstance(k, int):
+                result[k] = v
+            else:
+                result[k.name] = v
+        return result

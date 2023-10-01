@@ -1,5 +1,6 @@
 import abc
 from inspect import cleandoc
+from typing import Literal
 
 from pydantic import (
     BaseModel,
@@ -51,6 +52,7 @@ _enum_map_fields= [
 
 
 class Item(BaseModel, abc.ABC):
+    type: Literal["Item"]
     # MISCELLANEOUS
     id: int = Field(
         default=-1,
@@ -737,16 +739,11 @@ class Item(BaseModel, abc.ABC):
     ) -> dict[Enum, int]:
         return EnumMapUtils.parse(cls, dmap, info)
 
-#     @field_serializer(
-#         "resistances",
-#         "stats",
-#         when_used="unless-none",
-#     )
-#     def serialize_enum_map(
-#         self, items: dict[Enum, int], info: SerializationInfo
-#     ) -> dict[str, int]:
-#         return {str(k.name): v for k, v in items.items()}
-
+    @field_serializer(*_enum_map_fields, when_used="unless-none")
+    def serialize_enum_map(
+        self, items: dict[(Enum | int), int], info: SerializationInfo
+    ) -> dict[(str | int), int]:
+        return EnumMapUtils.serialize(self, items, info)
 
 # #     def to_sql(self) -> str:
 # #         m = self.model_dump(by_alias=True)
