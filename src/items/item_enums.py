@@ -256,6 +256,7 @@ class ReputationRank(Enum):
 
 
 class Sheath(Enum):
+    Undefined = 0
     TwoHanded = 1
     Staff = 2
     OneHanded = 3

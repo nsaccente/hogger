@@ -1,4 +1,5 @@
 from enum import Enum
+from inspect import cleandoc
 
 from pydantic import (
     BaseModel,
@@ -23,7 +24,7 @@ class DamageType(Enum):
 class Damage(BaseModel):
     min1: int = Field(
         default=0,
-        description=(
+        description=cleandoc(
             """
             The minimum, primary damage of the item.
             """
@@ -32,7 +33,7 @@ class Damage(BaseModel):
     )
     max1: int = Field(
         default=0,
-        description=(
+        description=cleandoc(
             """
             The maximum, primary damage of the item.
             """
@@ -41,7 +42,7 @@ class Damage(BaseModel):
     )
     type1: DamageType = Field(
         default=DamageType.Normal,
-        description=(
+        description=cleandoc(
             """
             The type of primary damage inflicted.
             """
@@ -49,7 +50,7 @@ class Damage(BaseModel):
     )
     min2: int = Field(
         default=0,
-        description=(
+        description=cleandoc(
             """
             The minimum, secondary damage of the item.
             """
@@ -58,7 +59,7 @@ class Damage(BaseModel):
     )
     max2: int = Field(
         default=0,
-        description=(
+        description=cleandoc(
             """
             The maximum, secondary damage of the item.
             """
@@ -67,7 +68,7 @@ class Damage(BaseModel):
     )
     type2: DamageType = Field(
         default=DamageType.Normal,
-        description=(
+        description=cleandoc(
             """
             The type of secondary damage inflicted.
             """

@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 
 LookupID = int
 
+
 class Money(BaseModel):
     gold: int = Field(default=0, ge=0)
     silver: int = Field(default=0, ge=0)
@@ -31,8 +32,7 @@ class Duration(BaseModel):
     hours: int = 0
     minutes: int = 0
     seconds: int = 0
-    milli: int = 0   
-
+    milli: int = 0
 
     def __setitem__(self, key, value):
         setattr(self, key, value)
@@ -41,19 +41,17 @@ class Duration(BaseModel):
         return getattr(self, key)
 
     def to_seconds(self) -> int:
-        return sum([
-            (self.days * 86400),
-            (self.hours * 3600),
-            (self.minutes * 60),
-            (self.seconds),
-        ])
-        
+        return sum(
+            [
+                (self.days * 86400),
+                (self.hours * 3600),
+                (self.minutes * 60),
+                (self.seconds),
+            ]
+        )
+
     def to_milli(self) -> int:
-        return sum([
-            (self.to_seconds * 1000),
-            self.milli
-        ])
-        
+        return sum([(self.to_seconds * 1000), self.milli])
 
     # def __int__(self) -> int:
     #     return (

@@ -1,3 +1,4 @@
+from inspect import cleandoc
 from typing import Any
 
 from pydantic import BaseModel, Field, model_validator
@@ -10,22 +11,38 @@ class ItemSockets(BaseModel):
     properties: LookupID = Field(default=0, ge=0)
     meta: int = Field(
         default=0,
-        description="The number of meta sockets. Default is 0.",
+        description=cleandoc(
+            """
+            The number of meta sockets. Default is 0.
+            """
+        ),
         ge=0,
     )
     blue: int = Field(
         default=0,
-        description="The number of blue sockets. Default is 0.",
+        description=cleandoc(
+            """
+            The number of blue sockets. Default is 0.
+            """
+        ),
         ge=0,
     )
     yellow: int = Field(
         default=0,
-        description="The number of yellow sockets. Default is 0.",
+        description=(
+            """
+            The number of yellow sockets. Default is 0.
+            """
+        ),
         ge=0,
     )
     red: int = Field(
         default=0,
-        description="The number of red sockets. Default is 0.",
+        description=cleandoc(
+            """
+            The number of red sockets. Default is 0.
+            """
+        ),
         ge=0,
     )
 
