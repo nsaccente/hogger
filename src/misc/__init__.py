@@ -1,2 +1,2 @@
 from .misc import Money, Duration
-from .utils import IntFlagUtils, EnumUtils
+from .utils import EnumUtils, EnumMapUtils, IntFlagUtils

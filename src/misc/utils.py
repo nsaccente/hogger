@@ -1,30 +1,13 @@
 from enum import IntFlag
-from math import log2
 from pydantic import FieldValidationInfo, FieldSerializationInfo, SerializationInfo
 from typing import Any, get_args, get_type_hints
 from difflib import SequenceMatcher
 
-from inspect import cleandoc
 from enum import Enum
+from .errors import InvalidValueException
 
 
 class EnumUtils:
-    class InvalidEnumValue(Exception):
-        def __init__(
-            self, 
-            field_name: str,
-            expected_values: list[str],
-            actual: Any, 
-            suggestion: Any = None,
-        ) -> None:
-            e = (
-                f"Invalid value for Enum field '{field_name}'; valid values are " 
-                f"{expected_values}, or an integer, got '{actual}'"
-            )
-            if suggestion is not None:
-                e += f".\n\nDid you mean '{suggestion}' for field '{field_name}'?"
-            super().__init__(e)
-
     @staticmethod
     def parse(cls, v: (str | int), info: FieldValidationInfo) -> Enum | int:
         EnumType = list(
@@ -51,9 +34,10 @@ class EnumUtils:
                         suggestion = k
                         break
 
-        raise EnumUtils.InvalidEnumValue(
+        raise InvalidValueException(
             field_name=info.field_name,
             expected_values=list(domain.keys()),
+            FieldType=Enum,
             actual=v,
             suggestion=suggestion,
         )
@@ -98,30 +82,35 @@ class IntFlagUtils:
         )[0]
         domain = {i.name: i.value for i in IntFlagType}
         result = []
-        for item in items:
-            if isinstance(item, IntFlagType):
-                result.append(item)
-            elif isinstance(item, int):
-                flag = 2**item
-                if flag in domain.values():
-                    result.append(IntFlagType(flag))
-                else:
+        suggestion = None
+        try:
+            for item in items:
+                if isinstance(item, IntFlagType):
                     result.append(item)
-            elif isinstance(item, str):
-                if item in domain:
-                    result.append(IntFlagType[item])
-                else:
-                    # Attempt to find the nearest valid Enum value
-                    for k in domain.keys():
-                        if SequenceMatcher(None, item, k).ratio() >= 0.7:
-                            suggestion = k
-                    raise IntFlagUtils.InvalidIntFlagValue(
-                        field_name=info.field_name,
-                        expected_values=list(domain.keys()),
-                        actual=item,
-                        suggestion=suggestion,
-                    )
-        return list(set(result))
+                elif isinstance(item, int):
+                    flag = 2**item
+                    if flag in domain.values():
+                        result.append(IntFlagType(flag))
+                    else:
+                        result.append(item)
+                elif isinstance(item, str):
+                    if item in domain:
+                        result.append(IntFlagType[item])
+                    else:
+                        # Attempt to find the nearest valid Enum value
+                        for k in domain.keys():
+                            if SequenceMatcher(None, item, k).ratio() >= 0.7:
+                                suggestion = k
+                                raise
+            return list(set(result))
+        except:
+            raise InvalidValueException(
+                field_name=info.field_name,
+                expected_values=list(domain.keys()),
+                FieldType=IntFlag,
+                actual=item,
+                suggestion=suggestion,
+            )
 
     def serialize(
         self, items: list[int | IntFlag], info: SerializationInfo
@@ -133,3 +122,46 @@ class IntFlagUtils:
             else:
                 result.append(item)
         return result
+
+
+class EnumMapUtils:
+    @staticmethod
+    def parse(cls, dmap: dict[str, int], info: SerializationInfo) -> dict[(Enum | int), int]:
+        EnumKeyType = (
+            list(
+                filter(
+                    lambda field_type: (issubclass(field_type, Enum)),
+                    get_args(get_args(get_type_hints(cls)[info.field_name])[0])
+                )
+            )
+        )[0]
+
+        domain = {i.name: i.value for i in EnumKeyType}
+        suggestion = None
+        result = {}
+        try:
+            for k, v in dmap.items():
+                if isinstance(k, EnumKeyType):
+                    result[k] = v
+                elif isinstance(k, int):
+                    if k in domain.values():
+                        result[EnumKeyType(k)] = v
+                    else:
+                        result[k] = v
+                elif isinstance(k, str):
+                    if k in domain:
+                        result[EnumKeyType[k]] = v
+                    else:
+                        for dk in domain.keys():
+                            if SequenceMatcher(None, dk, k).ratio() >= 0.7:
+                                suggestion = dk
+                        raise
+            return result
+        except:
+            raise InvalidValueException(
+                field_name=info.field_name,
+                expected_values=list(domain.keys()),
+                FieldType=EnumKeyType,
+                actual=k,
+                suggestion=suggestion,
+        )
