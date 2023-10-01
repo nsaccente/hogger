@@ -1,7 +1,5 @@
 import abc
-import typing
 from inspect import cleandoc
-from typing import Union
 
 from pydantic import (
     BaseModel,
@@ -21,17 +19,16 @@ from .item_flags import *
 from .item_randomstat import *
 from .item_sockets import *
 from .item_spells import *
-from src.misc import EnumUtils
+from src.misc import EnumUtils, IntFlagUtils
 
-_enum_or_int_fields = [
+_enum_fields = [
     # "ammoType",
     # "bonding",
     # "foodType",
-    # "inventoryType",
+    "inventoryType",
     "itemClass",
-    # "material",
-    # "quality",
-    # "randomStat",
+    "material",
+    "quality",
     # "requiredHonorRank",
     # "requiredReputationRank",
     # "sheath",
@@ -40,16 +37,16 @@ _enum_or_int_fields = [
 
 _intflag_fields = [
     "bagFamily",
-    "classes",
-    "flags",
-    "flagsCustom",
-    "flagsExtra",
-    "races",
+    # "classes",
+    # "flags",
+    # "flagsCustom",
+    # "flagsExtra",
+    # "races",
 ]
 
-_enum_map_fields = [
-    "resistances",
-    "stats",
+_map_fields= [
+    # "resistances",
+    # "stats",
 ]
 
 
@@ -95,8 +92,7 @@ class Item(BaseModel, abc.ABC):
         serialization_alias="ScriptName",
     )
     itemClass: (ItemClass | int) = Field(
-        # default=ItemClass.TradeGoods,
-        default="ASDF",
+        default=ItemClass.TradeGoods,
         description=cleandoc(
             """
             The category the item belongs to; e.g. consumable, weapon, armor,
@@ -105,145 +101,145 @@ class Item(BaseModel, abc.ABC):
         ),
         serialization_alias="class",
     )
-    # itemSubclass: int = Field(
-    #     defalt=0,
-    #     description=cleandoc(
-    #         """
-    #         The subcategory the item belongs to, and is dependent upon the
-    #         value of itemClass.
-    #         """
-    #     ),
-    #     serialization_alias="subclass",
-    # )
-    # soundOverride: int = Field(
-    #     default=-1,
-    #     description=cleandoc(
-    #         """
-    #         Each weapon type plays a unique sound on impact, which can be
-    #         overriden by the unique sound of a different weapon type.
-    #         Use -1 to use the default sound for the item. Default is -1.
-    #         """
-    #     ),
-    #     serialization_alias="SoundOverrideSubclass",
-    #     ge=-1,
-    # )
-    # displayId: int = Field(
-    #     default=0,
-    #     description=cleandoc(
-    #         """
-    #         Controls both the model appearance and icon.
-    #         """
-    #     ),
-    #     serialization_alias="displayid",
-    #     ge=0,
-    # )
-    # quality: (Quality | int) = Field(
-    #     default=Quality.Common,
-    #     description=cleandoc(
-    #         """
-    #         The quality of the item; valid values are: Poor, Uncommon,
-    #         Common, Rare, Epic, Legendary, Artifact, BoA.
-    #         """
-    #     ),
-    #     serialization_alias="Quality",
-    # )
-    # buyCount: int = Field(
-    #     default=1,
-    #     description=cleandoc(
-    #         """
-    #         The size of the item stack when sold by vendors. If a vendor has
-    #         a limited number of this item available, the vendor's inventory
-    #         will increase by this number when the vendor list is refreshed
-    #         (see npc.vendor.incrtime).
-    #         """
-    #     ),
-    #     serialization_alias="BuyCount",
-    #     ge=1,
-    # )
-    # buyPrice: Money = Field(
-    #     default=Money(gold=0, silver=0, copper=0),
-    #     description=cleandoc(
-    #         """
-    #         The cost to purchase this item form a vendor
-    #         """
-    #     ),
-    #     serialization_alias="BuyPrice",
-    # )
+    itemSubclass: int = Field(
+        defalt=0,
+        description=cleandoc(
+            """
+            The subcategory the item belongs to, and is dependent upon the
+            value of itemClass.
+            """
+        ),
+        serialization_alias="subclass",
+    )
+    soundOverride: int = Field(
+        default=-1,
+        description=cleandoc(
+            """
+            Each weapon type plays a unique sound on impact, which can be
+            overriden by the unique sound of a different weapon type.
+            Use -1 to use the default sound for the item. Default is -1.
+            """
+        ),
+        serialization_alias="SoundOverrideSubclass",
+        ge=-1,
+    )
+    displayId: int = Field(
+        default=0,
+        description=cleandoc(
+            """
+            Controls both the model appearance and icon.
+            """
+        ),
+        serialization_alias="displayid",
+        ge=0,
+    )
+    quality: (Quality | int) = Field(
+        default=Quality.Common,
+        description=cleandoc(
+            """
+            The quality of the item; valid values are: Poor, Uncommon,
+            Common, Rare, Epic, Legendary, Artifact, BoA.
+            """
+        ),
+        serialization_alias="Quality",
+    )
+    buyCount: int = Field(
+        default=1,
+        description=cleandoc(
+            """
+            The size of the item stack when sold by vendors. If a vendor has
+            a limited number of this item available, the vendor's inventory
+            will increase by this number when the vendor list is refreshed
+            (see npc.vendor.incrtime).
+            """
+        ),
+        serialization_alias="BuyCount",
+        ge=1,
+    )
+    buyPrice: Money = Field(
+        default=Money(gold=0, silver=0, copper=0),
+        description=cleandoc(
+            """
+            The cost to purchase this item form a vendor
+            """
+        ),
+        serialization_alias="BuyPrice",
+    )
     # # buyPriceExtra
-    # sellPrice: Money = Field(
-    #     default=Money(gold=0, silver=0, copper=0),
-    #     description=cleandoc(
-    #         """
-    #         The amount a vendor will purchase this item from you for.
-    #         """
-    #     ),
-    #     serialization_alias="SellPrice",
-    # )
-    # inventoryType: (InventoryType | int) = Field(
-    #     default=InventoryType.NoEquip,
-    #     description=cleandoc(
-    #         """
-    #         Is the item equippable? A quest item?
-    #         """
-    #     ),
-    #     serialization_alias="InventoryType",
-    # )
-    # maxCount: int = Field(
-    #     default=1,
-    #     description=cleandoc(
-    #         """
-    #         The maximum amount that a player can have; use 0 for infinite.
-    #         """
-    #     ),
-    #     serialization_alias="maxcount",
-    #     ge=0,
-    # )
-    # stackSize: int = Field(
-    #     default=1,
-    #     description=cleandoc(
-    #         """
-    #         The maximum size of a stack of this item.
-    #         """
-    #     ),
-    #     serialization_alias="stackable",
-    #     ge=1,
-    # )
-    # startsQuest: LookupID = Field(
-    #     default=0,
-    #     description=cleandoc(
-    #         """
-    #         The ID of the quest that this item will start if right-clicked.
-    #         See quest_template.id.
-    #         """
-    #     ),
-    #     serialization_alias="startquest",
-    # )
-    # material: (Material | int) = Field(
-    #     default=Material.Undefined,
-    #     description=cleandoc(
-    #         """
-    #         Controls the sound played when moving items in your inventory.
-    #         """
-    #     ),
-    #     serialization_alias="Material",
-    # )
-    # randomStat: (RandomStat | int) = Field(
-    #     default=RandomStat(),
-    #     description=cleandoc(
-    #         """
-    #         Adds a random stat bonus on the item.
-    #         """
-    #     ),
-    # )
-    # bagFamily: list[BagFamily | int] = Field(
-    #     default=[],
-    #     description=cleandoc(
-    #         """
-    #         Dictates what kind of bags this item can be placed in.
-    #         """
-    #     ),
-    #     serialization_alias="BagFamily",
-    # )
+    sellPrice: Money = Field(
+        default=Money(gold=0, silver=0, copper=0),
+        description=cleandoc(
+            """
+            The amount a vendor will purchase this item from you for.
+            """
+        ),
+        serialization_alias="SellPrice",
+    )
+    inventoryType: (InventoryType | int) = Field(
+        default=InventoryType.NoEquip,
+        description=cleandoc(
+            """
+            Is the item equippable? A quest item?
+            """
+        ),
+        serialization_alias="InventoryType",
+    )
+    maxCount: int = Field(
+        default=1,
+        description=cleandoc(
+            """
+            The maximum amount that a player can have; use 0 for infinite.
+            """
+        ),
+        serialization_alias="maxcount",
+        ge=0,
+    )
+    stackSize: int = Field(
+        default=1,
+        description=cleandoc(
+            """
+            The maximum size of a stack of this item.
+            """
+        ),
+        serialization_alias="stackable",
+        ge=1,
+    )
+    startsQuest: LookupID = Field(
+        default=0,
+        description=cleandoc(
+            """
+            The ID of the quest that this item will start if right-clicked.
+            See quest_template.id.
+            """
+        ),
+        serialization_alias="startquest",
+    )
+    material: (Material | int) = Field(
+        default=Material.Undefined,
+        description=cleandoc(
+            """
+            Controls the sound played when moving items in your inventory.
+            """
+        ),
+        serialization_alias="Material",
+    )
+    randomStat: RandomStat = Field(
+        default=RandomStat(),
+        description=cleandoc(
+            """
+            Adds a random stat bonus on the item.
+            """
+        ),
+    )
+    bagFamily: list[BagFamily | int] = Field(
+        default=[],
+        description=cleandoc(
+            """
+            Dictates what kind of bags this item can be placed in.
+            """
+        ),
+        serialization_alias="BagFamily",
+    )
     # containerSlots: int = Field(
     #     default=0,
     #     description=cleandoc(
@@ -717,88 +713,23 @@ class Item(BaseModel, abc.ABC):
     #     ),
     # )
 
-    @field_validator(
-        "itemClass",
-        # *_enum_or_int_fields,
-        mode="before",
-    )
+    @field_validator(*_enum_fields, mode="before")
     def parse_enum(cls, v: (str | int), info: FieldValidationInfo) -> Enum | int:
-        return EnumUtils.parse_enum(cls, v, info)
+        return EnumUtils.parse(cls, v, info)
 
-    # @field_serializer(
-    #     *_enum_or_int_fields,
-    #     # when_used="unless-none",
-    # )
-    # def serialize_enum(self, v: (Enum | int), info: SerializationInfo) -> (str | int):
-    #     print("ASDF")
-    #     return 1
-    #     if isinstance(v, Enum):
-    #         return v.name
-    #     return v
+    @field_serializer(*_enum_fields, when_used="unless-none")
+    def serialize_enum(self, v: (Enum | int), info: SerializationInfo) -> (str | int):
+        return EnumUtils.serialize(self, v, info)
 
-    # @field_validator(
-    #     *_intflag_fields,
-    #     mode="before",
-    # )
-    # def parse_intflag(
-    #     cls,
-    #     items: list[str | int],
-    #     info: FieldValidationInfo,
-    # ) -> list[IntFlag | int]:
-    #     return []
-    #     intflag_type = list(
-    #         filter(
-    #             lambda field_type: (issubclass(field_type, IntFlag)),
-    #             (
-    #                 typing.get_type_hints(cls)[info.field_name]
-    #                 .__args__[0]  # args passed to list[]
-    #                 .__args__  # args passed to Union[]
-    #             ),
-    #         )
-    #     )  # convert the elements returned by filter to a list
-    #     [0]  # grab the first element in the list.
+    @field_validator(*_intflag_fields, mode="before")
+    def parse_intflag(cls, items: list[str | int], info: FieldValidationInfo) -> list[IntFlag | int]:
+        return IntFlagUtils.parse(cls, items, info)
 
-    #     intflags = [i.value for i in intflag_type]
-    #     result = []
-    #     for item in items:
-    #         if isinstance(item, str):
-    #             try:
-    #                 result.append(intflag_type[item])
-    #             except:
-    #                 raise Exception(
-    #                     f'"{item}" not a valid value for "{intflag_type.__name__}'
-    #                 )
-    #         elif isinstance(item, int):
-    #             flag = 2**item
-    #             if flag in intflags:
-    #                 result.append(intflag_type(int(2**item)))
-    #             else:
-    #                 result.append(int(item))
-    #         elif issubclass(IntFlag, item):
-    #             result.append(item)
-
-
-#         # return result
-
-#     @field_serializer(
-#         "bagFamily",
-#         "classes",
-#         "flags",
-#         "flagsCustom",
-#         "flagsExtra",
-#         "races",
-#         when_used="unless-none",
-#     )
-#     def serialize_intflag(
-#         self, items: list[int | IntFlag], info: SerializationInfo
-#     ) -> list[str | int]:
-#         result = []
-#         for item in items:
-#             if issubclass(type(item), IntFlag):
-#                 result.append(item.name)
-#             else:
-#                 result.append(item)
-#         return result
+    @field_serializer(*_intflag_fields, when_used="unless-none")
+    def serialize_intflag(
+        self, items: list[int | IntFlag], info: SerializationInfo
+    ) -> list[str | int]:
+        return IntFlagUtils.serialize(self, items, info)
 
 # @field_validator(
 #     *_enum_map_fields,

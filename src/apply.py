@@ -17,7 +17,7 @@ def apply(
     from src.items.item_flags import BagFamily
 
     manifest = Manifest.from_file("./leeroy.yml")
-    # print(manifest.yaml_dump(exclude_defaults=False))
+    print(manifest.yaml_dump(exclude_defaults=False))
     # for entity in manifest.entities:
     #     print(entity.to_sql())
 
