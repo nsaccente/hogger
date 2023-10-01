@@ -22,9 +22,9 @@ class Manifest(BaseModel):
             return Manifest(**yaml.safe_load(yaml_file))
 
     def yaml_dump(
-        self, 
-        by_alias: bool=False, 
-        exclude_defaults: bool=True,
+        self,
+        by_alias: bool = False,
+        exclude_defaults: bool = True,
     ) -> str:
         return yaml.dump(
             json.loads(

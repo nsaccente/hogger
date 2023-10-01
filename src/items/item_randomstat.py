@@ -1,6 +1,6 @@
-from pydantic import Field, BaseModel
+from pydantic import BaseModel, Field
 
-from src.misc.currency import LookupID
+from src.misc.misc import LookupID
 
 
 class RandomStat(BaseModel):

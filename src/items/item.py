@@ -2,17 +2,24 @@ import abc
 import typing
 from inspect import cleandoc
 
-from pydantic import (BaseModel, Field, FieldValidationInfo, SerializationInfo,
-                      field_serializer, field_validator)
+from pydantic import (
+    BaseModel,
+    Field,
+    FieldValidationInfo,
+    SerializationInfo,
+    field_serializer,
+    field_validator,
+)
 
 from src.misc import Duration, Money
+from src.misc.misc import LookupID
 
-from .item_enums import *
 from .item_damage import *
+from .item_enums import *
 from .item_flags import *
-from .item_sockets import *
 from .item_randomstat import *
-from src.misc.currency import LookupID
+from .item_sockets import *
+from .item_spells import *
 
 
 class Item(BaseModel, abc.ABC):
@@ -29,17 +36,6 @@ class Item(BaseModel, abc.ABC):
             """
         ),
         serialization_alias="entry",
-    )
-    id_offset: int = Field(
-        default=60000,
-        description=cleandoc(
-            """
-            Dictates the first id the item is allowed to use. This allows
-            separation of custom items and vanilla items.
-            """
-        ),
-        exclude=True,
-        ge=0,
     )
     name: str = Field(
         description=cleandoc(
@@ -141,7 +137,7 @@ class Item(BaseModel, abc.ABC):
         ),
         serialization_alias="BuyPrice",
     )
-    #buyPriceExtra
+    # buyPriceExtra
     sellPrice: Money = Field(
         default=Money(gold=0, silver=0, copper=0),
         description=cleandoc(
@@ -182,7 +178,7 @@ class Item(BaseModel, abc.ABC):
     )
     startsQuest: LookupID = Field(
         default=0,
-        description=(
+        description=cleandoc(
             """
             The ID of the quest that this item will start if right-clicked.
             See quest_template.id.
@@ -200,8 +196,8 @@ class Item(BaseModel, abc.ABC):
         serialization_alias="Material",
     )
     randomStat: RandomStat = Field(
-        default = RandomStat(),
-        description=(
+        default=RandomStat(),
+        description=cleandoc(
             """
             Adds a random stat bonus on the item.
             """
@@ -259,9 +255,6 @@ class Item(BaseModel, abc.ABC):
         ),
         serialization_alias="ItemLimitCategory",
     )
-
-    # ENCHANTING ~~~~~~~~~~~~~~~~~
-    # TODO: Create dedicated DisenchantID Class
     disenchantId: LookupID = Field(
         default=0,
         description=cleandoc(
@@ -270,17 +263,6 @@ class Item(BaseModel, abc.ABC):
             """
         ),
         serialization_alias="DisenchantID",
-    )
-    disenchantSkill: int = Field(
-        default=-1,
-        description=cleandoc(
-            """
-            The required skill proficiency in disenchanting that the player must
-            have in order to disenchant this item.
-            """
-        ),
-        serialization_alias="",
-        ge=-1,
     )
     foodType: FoodType = Field(
         default=FoodType.Undefined,
@@ -359,6 +341,7 @@ class Item(BaseModel, abc.ABC):
     )
 
     # TEXTS
+    # TODO: MAKE AN OBJECT.
     pageText: LookupID = Field(
         default=0,
         description=cleandoc(
@@ -367,7 +350,7 @@ class Item(BaseModel, abc.ABC):
             that will be shown to the player.
             """
         ),
-        ge=0
+        ge=0,
     )
     pageMaterial: PageMaterial = Field(
         default=PageMaterial.Parchment,
@@ -382,12 +365,12 @@ class Item(BaseModel, abc.ABC):
         default=Language.Universal,
         description=cleandoc(
             """
-            The RPG language that the document will be written in, requiring 
+            The RPG language that the document will be written in, requiring
             players to be fluent in the document's language in order to read
             it correctly. Defaults to Universal, meaning all players will be
             able to interpret it, with no language requirements.
             """
-        )
+        ),
     )
 
     # REQUIREMENTS
@@ -431,11 +414,32 @@ class Item(BaseModel, abc.ABC):
         serialization_alias="RequiredLevel",
         ge=1,
     )
-    # requiredSkill: Lookup = Field(
+    requiredSkill: LookupID = Field(
+        default=0,
+        description=cleandoc(
+            """
 
-    # )
-    # requiredSkillRank:
-    # RequiredSpell
+            """
+        ),
+        serialization_alias="RequiredSkill",
+        ge=0,
+    )
+    requiredSkillRank: int = Field(
+        defaut=0,
+        description=cleandoc(
+            """
+            """
+        ),
+        serialization_alias="RequiredSkillRank",
+    )
+    requiredSpell: LookupID = Field(
+        default=0,
+        description=cleandoc(
+            """
+            """
+        ),
+        serialization_alias="requiredspell",
+    )
     requiredHonorRank: RequiredHonorRank = Field(
         default=RequiredHonorRank.Undefined,
         description=cleandoc(
@@ -444,6 +448,7 @@ class Item(BaseModel, abc.ABC):
             serialization_alias="requiredhonorrank",
             """
         ),
+        serialization_alias="requiredhonorrank",
     )
     requiredCityRank: int = Field(
         default=0,
@@ -455,15 +460,41 @@ class Item(BaseModel, abc.ABC):
         serialization_alias="RequiredCityRank",
         ge=0,
     )
+    requiredReputationFaction: int = Field(
+        default=0,
+        description=cleandoc(
+            """
 
-    # TODO: Composite object here.
-    # requiredRepFaction
-    # RequiredRepRank
+            """
+        ),
+        serialization_alias="RequiredReputationFaction",
+        ge=0,
+    )
+    requiredReputationRank: ReputationRank = Field(
+        default=0,
+        description=cleandoc(
+            """
 
-    # map
-    # area
-    # requiredHoliday
-    # lock_id
+            """
+        ),
+        serialization_alias="RequiredReputationRank",
+        ge=0,
+    )
+    requiredRankToDisenchant: int = Field(
+        default=-1,
+        description=cleandoc(
+            """
+            The required skill proficiency in disenchanting that the player must
+            have in order to disenchant this item.
+            """
+        ),
+        serialization_alias="RequiredDisenchantSkill",
+        ge=-1,
+    )
+    map: LookupID
+    area: LookupID
+    requiredHoliday: LookupID
+    unlocks: LookupID
 
     # RESISTANCE
     resistances: dict[ItemResistance, int] = Field(
@@ -476,17 +507,17 @@ class Item(BaseModel, abc.ABC):
     )
 
     # STATS
-    # ScalingStatDistribution: int
-    # ScalingStatValue: int
-    statCount: int = Field(
-        default=0,
-        description=cleandoc(
-            """
-            The total number of stats attached to this item. Defaults to 0.
-            """
-        ),
-        ge=0,
-    )
+    ScalingStatDistribution: int
+    ScalingStatValue: int
+    # statCount: int = Field(
+    #     default=0,
+    #     description=cleandoc(
+    #         """
+    #         The total number of stats attached to this item. Defaults to 0.
+    #         """
+    #     ),
+    #     ge=0,
+    # )
     stats: dict[ItemStat, int] = Field(
         default=dict(),
         description=cleandoc(
@@ -522,6 +553,7 @@ class Item(BaseModel, abc.ABC):
             This field is not well understood.
             """
         ),
+        serialization_alias="ArmorDamageModifier",
     )
     hitDelay: int = Field(
         default=0,
@@ -530,6 +562,7 @@ class Item(BaseModel, abc.ABC):
             The time in milliseconds between successive hits.
             """
         ),
+        serialization_alias="delay",
         ge=0,
     )
     ammoType: AmmoType = Field(
@@ -539,6 +572,7 @@ class Item(BaseModel, abc.ABC):
             The type of ammunition the item uses.
             """
         ),
+        serialization_alias="ammo_type",
     )
     weaponRange: int = Field(
         default=0,
@@ -548,6 +582,7 @@ class Item(BaseModel, abc.ABC):
             All of Blizzard's ranged weapons have a default range of 100.
             """
         ),
+        serialization_alias="RangedModRange",
         ge=0,
     )
     block: int = Field(
@@ -566,8 +601,11 @@ class Item(BaseModel, abc.ABC):
             The durability of the item. Defaults to 100.
             """
         ),
+        serialization_alias="MaxDurability",
         ge=0,
     )
+    sheath = Sheath
+
     damage: Damage = Field(
         default=Damage(),
         description=cleandoc(
@@ -578,6 +616,14 @@ class Item(BaseModel, abc.ABC):
     )
 
     # ItemSpells
+    spells: list[ItemSpell] = Field(
+        default=[],
+        description=cleandoc(
+            """
+            Items can be used to invoke spells.
+            """
+        ),
+    )
 
     @field_validator(
         "bonding",
@@ -634,9 +680,8 @@ class Item(BaseModel, abc.ABC):
                     .__args__  # args passed to Union[]
                 ),
             )
-        )[  # convert the elements returned by filter to a list
-            0
-        ]  # grab the first element in the list.
+        )  # convert the elements returned by filter to a list
+        [0]  # grab the first element in the list.
 
         intflags = [i.value for i in intflag_type]
         result = []

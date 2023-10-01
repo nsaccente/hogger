@@ -1,4 +1,4 @@
-from pydantic import Field, BaseModel
+from pydantic import BaseModel, Field
 
 # class Page(BaseModel):
 #     id: int = Field(
@@ -53,4 +53,4 @@ from pydantic import Field, BaseModel
 #     skill: Skill = Field(
 #         default=Skill(),
 #     )
-#     rank: 
+#     rank:

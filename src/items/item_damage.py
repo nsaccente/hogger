@@ -1,7 +1,13 @@
 from enum import Enum
 
-from pydantic import (BaseModel, Field, FieldValidationInfo, SerializationInfo,
-                      field_serializer, field_validator)
+from pydantic import (
+    BaseModel,
+    Field,
+    FieldValidationInfo,
+    SerializationInfo,
+    field_serializer,
+    field_validator,
+)
 
 
 class DamageType(Enum):
@@ -102,5 +108,3 @@ class Damage(BaseModel):
         if isinstance(v, DamageType):
             return v.name
         return v
-
-

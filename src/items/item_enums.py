@@ -242,3 +242,23 @@ class AmmoType(Enum):
     Undefined = 0
     Arrows = 2
     Bullets = 3
+
+
+class ReputationRank(Enum):
+    Hated = 0
+    Hostile = 1
+    Unfriendly = 2
+    Neutral = 3
+    Friendly = 4
+    Honored = 5
+    Revered = 6
+    Exalted = 7
+
+
+class Sheath(Enum):
+    TwoHanded = 1
+    Staff = 2
+    OneHanded = 3
+    Shield = 4
+    EnchantersRod = 5
+    Offhand = 6

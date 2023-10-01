@@ -23,8 +23,6 @@ def apply(
 
     # print(manifest.yaml_dump())
 
-
-
     # connection = mysql.connector.connect(
     #     host=host,
     #     port=port,
