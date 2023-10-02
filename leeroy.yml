@@ -3,34 +3,51 @@ entities:
   - type: OneHandedAxe
     name: 1-Handed Hatchet
     description: "A sparkly axe."
-    quality: Rare
+    itemClass: Gem
+    itemSubclass: 2
+    quality: 2
     displayId: 2334
-    buyPrice:
-      gold: 10
-      silver: 10
-      copper: 20
-    inventoryType: Head
-    bagFamily:
-    - Herbs
-    - 3
-    - 13
-    - 230
-    bonding: OnEquip
-    flags:
-    - IsHeroic
-    - HasLoot
-    - 5
-    flagsExtra:
-    - AllianceOnly
-    classes:
-    - Warrior
-    - 3
-    races:
-    - BloodElf
-    - 4
-
-
-  # - type: TwoHandedAxe
-  #   name: 2-Handed Axe
-  #   description: "An even sparklier axe."
-  #   quality: BoA
+    # buyPrice:
+    #   gold: 10
+    #   silver: 10
+    #   copper: 20
+    # inventoryType: Head
+    # bagFamily:
+    # - Herbs
+    # - 3
+    # - 13
+    # - 230
+    # bonding: OnEquip
+    # flags:
+    # - IsHeroic
+    # - HasLoot
+    # - 5
+    # flagsExtra:
+    # - AllianceOnly
+    # classes:
+    # - Warrior
+    # - 3
+    # races:
+    # - BloodElf
+    # - 4
+    stats:
+      Agility: 10
+      Stamina: 25
+      Mana: 25
+      Health: 25
+      Strength: 25
+      Spirit: 10
+      BlockRating: 10
+      MeleeHitRating: 10
+      SpellHitRating: 10
+      SpellCritRating: 20
+    resistances:
+      Frost: 10
+    # damage:
+    #   min1: 10
+    #   max1: 30
+    #   type1: 1
+    #   min2: 10
+    #   max2: 30
+    #   type2: 4
+    # requiredSkillRank: 20

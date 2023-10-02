@@ -1,5 +1,4 @@
 from enum import IntFlag, auto
-from src.misc.intflags import IntFlagUtils
 
 
 class BagFamily(IntFlag):
@@ -82,7 +81,6 @@ class AllowableClass(IntFlag):
     Druid: int = auto()
 
 
-# class
 class AllowableRace(IntFlag):
     Human: int = auto()
     Orc: int = auto()

@@ -1,7 +1,5 @@
 from enum import Enum
 
-from pydantic import BaseModel, Field
-
 
 class Quality(Enum):
     Poor = 0
@@ -182,48 +180,6 @@ class ItemStat(Enum):
     Block = 48
 
 
-class FoodType(Enum):
-    Undefined = 0
-    Meat = 1
-    Fish = 2
-    Cheese = 3
-    Bread = 4
-    Fungus = 5
-    Fruit = 6
-    RawMeat = 7
-    RawFish = 8
-
-
-class Language(Enum):
-    Orcish = 1
-    Darnassian = 2
-    Taurahe = 3
-    Dwarvish = 6
-    Common = 7
-    Demonic = 8
-    Titan = 9
-    Thalassian = 10
-    Draconic = 11
-    Kalimag = 12
-    Gnomish = 13
-    Troll = 14
-    Gutterspeak = 33
-    Draenei = 35
-    Zombie = 36
-    GnomishBinary = 37
-    GoblinBinary = 38
-
-
-class PageMaterial(Enum):
-    Parchment = 1
-    Stone = 2
-    Marble = 3
-    Silver = 4
-    Bronze = 5
-    Valentine = 6
-    Illidan = 7
-
-
 class RequiredHonorRank(Enum):
     Undefined = 0
     Private_Scout = 1
@@ -240,3 +196,39 @@ class RequiredHonorRank(Enum):
     Marshal_General = 12
     FieldMarshal_Warlord = 13
     GrandMarshal_HighWarlord = 14
+
+
+class ItemResistance(Enum):
+    Holy = 0
+    Fire = 1
+    Nature = 2
+    Frost = 3
+    Shadow = 4
+    Arcane = 5
+
+
+class AmmoType(Enum):
+    Undefined = 0
+    Arrows = 2
+    Bullets = 3
+
+
+class ReputationRank(Enum):
+    Hated = 0
+    Hostile = 1
+    Unfriendly = 2
+    Neutral = 3
+    Friendly = 4
+    Honored = 5
+    Revered = 6
+    Exalted = 7
+
+
+class Sheath(Enum):
+    Undefined = 0
+    TwoHanded = 1
+    Staff = 2
+    OneHanded = 3
+    Shield = 4
+    EnchantersRod = 5
+    Offhand = 6

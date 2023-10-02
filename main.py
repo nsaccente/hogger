@@ -1,6 +1,6 @@
 import argparse
 
-from src.apply import apply
+from hogger.apply import apply
 
 
 def main():
