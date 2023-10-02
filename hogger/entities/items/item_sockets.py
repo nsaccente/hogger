@@ -3,7 +3,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field, model_validator
 
-from src.misc.misc import LookupID
+from hogger.misc import LookupID
 
 
 class ItemSockets(BaseModel):

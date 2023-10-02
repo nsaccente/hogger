@@ -2,7 +2,7 @@ from inspect import cleandoc
 
 from pydantic import BaseModel, Field
 
-from src.misc.misc import LookupID
+from hogger.misc import LookupID
 
 
 class RandomStat(BaseModel):

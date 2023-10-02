@@ -1,4 +1,5 @@
 import abc
+from enum import Enum, IntFlag
 from inspect import cleandoc
 from typing import Literal
 
@@ -11,16 +12,8 @@ from pydantic import (
     field_validator,
 )
 
-from src.misc import Duration, Money
-from src.misc.misc import LookupID
-
-from .item_damage import *
-from .item_enums import *
-from .item_flags import *
-from .item_randomstat import *
-from .item_sockets import *
-from .item_spells import *
-from src.misc import EnumUtils, EnumMapUtils, IntFlagUtils
+from hogger.entities.items import *
+from hogger.misc import *
 
 _enum_fields = [
     "ammoType",
@@ -45,7 +38,7 @@ _intflag_fields = [
     "races",
 ]
 
-_enum_map_fields= [
+_enum_map_fields = [
     "resistances",
     "stats",
 ]
@@ -335,7 +328,7 @@ class Item(BaseModel, abc.ABC):
         ge=0,
         serialization_alias="itemset",
     )
-    bonding: (ItemBinding | int)= Field(
+    bonding: (ItemBinding | int) = Field(
         default=ItemBinding.Never,
         description=cleandoc(
             """
@@ -371,37 +364,9 @@ class Item(BaseModel, abc.ABC):
     )
 
     # # TEXTS
-    # # TODO: MAKE AN OBJECT.
-    # pageText: LookupID = Field(
-    #     default=0,
-    #     description=cleandoc(
-    #         """
-    #         The ID of the row in the `page_text` table corresponding to the text
-    #         that will be shown to the player.
-    #         """
-    #     ),
-    #     ge=0,
-    # )
-    # pageMaterial: PageMaterial = Field(
-    #     default=PageMaterial.Parchment,
-    #     description=cleandoc(
-    #         """
-    #         The material that the text will be displayed on to the player.
-    #         Defaults to parchment.
-    #         """
-    #     ),
-    # )
-    # language: (Language | LookupID) = Field(
-    #     default=Language.Universal,
-    #     description=cleandoc(
-    #         """
-    #         The RPG language that the document will be written in, requiring
-    #         players to be fluent in the document's language in order to read
-    #         it correctly. Defaults to Universal, meaning all players will be
-    #         able to interpret it, with no language requirements.
-    #         """
-    #     ),
-    # )
+    text: ItemText = Field(
+        default=ItemText(),
+    )
 
     # # REQUIREMENTS
     classes: list[AllowableClass | int] = Field(
@@ -575,7 +540,7 @@ class Item(BaseModel, abc.ABC):
 
     # STATS
     scalingStatDistribution: int = Field(
-        default = 0,
+        default=0,
         description=cleandoc(
             """
             Similar to Static Stats these are the Stats that grow along with the
@@ -584,7 +549,7 @@ class Item(BaseModel, abc.ABC):
         ),
     )
     scalingStatValue: int = Field(
-        default = 0,
+        default=0,
         description=cleandoc(
             """
             Final (level 80) value of the scaling-stat
@@ -688,7 +653,7 @@ class Item(BaseModel, abc.ABC):
         ge=0,
     )
     sheath: (Sheath | int) = Field(
-        default = Sheath.Undefined,
+        default=Sheath.Undefined,
         description=cleandoc(
             """
             Controls how the item is put away on the character. Press the 'Z'
@@ -720,11 +685,13 @@ class Item(BaseModel, abc.ABC):
         return EnumUtils.parse(cls, v, info)
 
     @field_serializer(*_enum_fields, when_used="unless-none")
-    def serialize_enum(self, v: (Enum | int), info: SerializationInfo) -> (str | int):
+    def serialize_enum(self, v: (Enum | int), info: SerializationInfo) -> str | int:
         return EnumUtils.serialize(self, v, info)
 
     @field_validator(*_intflag_fields, mode="before")
-    def parse_intflag(cls, items: list[str | int], info: FieldValidationInfo) -> list[IntFlag | int]:
+    def parse_intflag(
+        cls, items: list[str | int], info: FieldValidationInfo
+    ) -> list[IntFlag | int]:
         return IntFlagUtils.parse(cls, items, info)
 
     @field_serializer(*_intflag_fields, when_used="unless-none")
@@ -744,6 +711,7 @@ class Item(BaseModel, abc.ABC):
         self, items: dict[(Enum | int), int], info: SerializationInfo
     ) -> dict[(str | int), int]:
         return EnumMapUtils.serialize(self, items, info)
+
 
 # #     def to_sql(self) -> str:
 # #         m = self.model_dump(by_alias=True)

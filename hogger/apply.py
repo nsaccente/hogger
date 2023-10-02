@@ -3,7 +3,7 @@ import json
 import mysql.connector
 import yaml
 
-from src.manifest import Manifest
+from hogger.manifest import Manifest
 
 
 def apply(
@@ -14,10 +14,8 @@ def apply(
     password: str,
     **kwargs,
 ) -> None:
-    from src.items.item_flags import BagFamily
-
     manifest = Manifest.from_file("./leeroy.yml")
-    print(manifest.yaml_dump(exclude_defaults=True))
+    print(manifest.yaml_dump())
     # for entity in manifest.entities:
     #     print(entity.to_sql())
 

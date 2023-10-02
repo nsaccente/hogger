@@ -52,11 +52,3 @@ class Duration(BaseModel):
 
     def to_milli(self) -> int:
         return sum([(self.to_seconds * 1000), self.milli])
-
-    # def __int__(self) -> int:
-    #     return (
-    #         (self.days * 86400)
-    #         + (self.hours * 3600)
-    #         + (self.minutes * 60)
-    #         + (self.seconds)
-    #     )

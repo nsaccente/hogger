@@ -1,9 +1,9 @@
-from enum import IntFlag
-from pydantic import FieldValidationInfo, FieldSerializationInfo, SerializationInfo
-from typing import Any, get_args, get_type_hints
 from difflib import SequenceMatcher
+from enum import Enum, IntFlag
+from typing import Any, get_args, get_type_hints
 
-from enum import Enum
+from pydantic import FieldSerializationInfo, FieldValidationInfo, SerializationInfo
+
 from .errors import InvalidValueException
 
 
@@ -43,7 +43,7 @@ class EnumUtils:
         )
 
     @staticmethod
-    def serialize(self, v: (Enum | int), info: FieldSerializationInfo) -> (str | int):
+    def serialize(self, v: (Enum | int), info: FieldSerializationInfo) -> str | int:
         if isinstance(v, int):
             return v
         return v.name
@@ -52,14 +52,14 @@ class EnumUtils:
 class IntFlagUtils:
     class InvalidIntFlagValue(Exception):
         def __init__(
-            self, 
+            self,
             field_name: str,
             expected_values: list[str],
-            actual: Any, 
+            actual: Any,
             suggestion: Any = None,
         ) -> None:
             e = (
-                f"Invalid value for IntFlag field '{field_name}'; valid values are " 
+                f"Invalid value for IntFlag field '{field_name}'; valid values are "
                 f"{expected_values}, or an integer, got '{actual}'"
             )
             if suggestion is not None:
@@ -67,16 +67,14 @@ class IntFlagUtils:
             super().__init__(e)
 
     @staticmethod
-    def parse(cls, items: list[str | int], info: FieldValidationInfo) -> list[IntFlag | int]:
+    def parse(
+        cls, items: list[str | int], info: FieldValidationInfo
+    ) -> list[IntFlag | int]:
         IntFlagType = (
             list(
                 filter(
                     lambda field_type: (issubclass(field_type, Enum)),
-                    get_args(
-                        get_args(
-                            get_type_hints(cls)[info.field_name]
-                        )[0]
-                    ),
+                    get_args(get_args(get_type_hints(cls)[info.field_name])[0]),
                 )
             )
         )[0]
@@ -126,12 +124,14 @@ class IntFlagUtils:
 
 class EnumMapUtils:
     @staticmethod
-    def parse(cls, dmap: dict[(str | int), int], info: SerializationInfo) -> dict[(Enum | int), int]:
+    def parse(
+        cls, dmap: dict[(str | int), int], info: SerializationInfo
+    ) -> dict[(Enum | int), int]:
         EnumKeyType = (
             list(
                 filter(
                     lambda field_type: (issubclass(field_type, Enum)),
-                    get_args(get_args(get_type_hints(cls)[info.field_name])[0])
+                    get_args(get_args(get_type_hints(cls)[info.field_name])[0]),
                 )
             )
         )[0]
@@ -164,7 +164,7 @@ class EnumMapUtils:
                 FieldType=EnumKeyType,
                 actual=k,
                 suggestion=suggestion,
-        )
+            )
 
     def serialize(
         self, items: dict[(Enum | int), int], info: SerializationInfo

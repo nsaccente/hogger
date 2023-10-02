@@ -180,37 +180,6 @@ class ItemStat(Enum):
     Block = 48
 
 
-class Language(Enum):
-    Universal = 0
-    Orcish = 1
-    Darnassian = 2
-    Taurahe = 3
-    Dwarvish = 6
-    Common = 7
-    Demonic = 8
-    Titan = 9
-    Thalassian = 10
-    Draconic = 11
-    Kalimag = 12
-    Gnomish = 13
-    Troll = 14
-    Gutterspeak = 33
-    Draenei = 35
-    Zombie = 36
-    GnomishBinary = 37
-    GoblinBinary = 38
-
-
-class PageMaterial(Enum):
-    Parchment = 1
-    Stone = 2
-    Marble = 3
-    Silver = 4
-    Bronze = 5
-    Valentine = 6
-    Illidan = 7
-
-
 class RequiredHonorRank(Enum):
     Undefined = 0
     Private_Scout = 1

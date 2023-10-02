@@ -3,7 +3,7 @@ from inspect import cleandoc
 
 from pydantic import BaseModel, Field, model_validator
 
-from src.misc.misc import Duration, LookupID
+from hogger.misc import Duration, LookupID
 
 
 class SpellTrigger(Enum):
