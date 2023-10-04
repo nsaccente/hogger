@@ -1,15 +1,13 @@
 import abc
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, BaseModel
 
 from .item import Item
 
 
-class Weapon(Item, abc.ABC):
+class Weapon(Item):
     pass
-    # itemClass: int = 2
-
 
 class OneHandedAxe(Weapon):
     type: Literal["OneHandedAxe"]

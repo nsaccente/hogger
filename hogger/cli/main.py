@@ -1,7 +1,5 @@
 import argparse
-
-from hogger.apply import apply
-
+from hogger.cli import apply
 
 def main():
     parser = argparse.ArgumentParser(
@@ -51,7 +49,3 @@ def main():
         pass
     else:
         parser.print_help()
-
-
-if __name__ == "__main__":
-    main()

@@ -3,7 +3,8 @@ import json
 import mysql.connector
 import yaml
 
-from hogger.manifest import Manifest
+from hogger import Manifest, Entity, Item, OneHandedAxe
+from hogger.sql.sql_state import SQLState
 
 
 def apply(
@@ -15,11 +16,11 @@ def apply(
     **kwargs,
 ) -> None:
     manifest = Manifest.from_file("./leeroy.yml")
-    print(manifest.yaml_dump())
-    # for entity in manifest.entities:
-    #     print(entity.to_sql())
 
-    # print(manifest.yaml_dump())
+    for entity in manifest.entities:
+        print(type(entity))
+
+    print(manifest.yaml_dump())
 
     # connection = mysql.connector.connect(
     #     host=host,

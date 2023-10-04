@@ -1,15 +1,13 @@
 import json
-from typing import Union
-
 import yaml
 from pydantic import BaseModel, Field
-from typing_extensions import Annotated
-
-from hogger.entities.items import OneHandedAxe, TwoHandedAxe
-
-Entity = Annotated[Union[OneHandedAxe, TwoHandedAxe], Field(discriminator="type")]
 
 
+from hogger import Entity
+from hogger.misc.utils import pydantic_annotation
+
+
+Entity = pydantic_annotation(Entity)
 class Manifest(BaseModel):
     apiVersion: str = Field(
         description="API version to use against the configuration file.",
@@ -30,7 +28,7 @@ class Manifest(BaseModel):
             json.loads(
                 self.model_dump_json(
                     by_alias=by_alias,
-                    exclude_unset=True,
+                    exclude_unset=exclude_unset,
                 )
             ),
             indent=2,
