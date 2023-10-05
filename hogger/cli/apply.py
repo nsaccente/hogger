@@ -3,8 +3,8 @@ import json
 import mysql.connector
 import yaml
 
-from hogger import Manifest, Entity, Item, OneHandedAxe
-from hogger.sql.sql_state import SQLState
+from hogger import Manifest
+from hogger.misc import Lookup
 
 
 def apply(
@@ -18,9 +18,11 @@ def apply(
     manifest = Manifest.from_file("./leeroy.yml")
 
     for entity in manifest.entities:
-        print(type(entity))
+        for k, v in vars(entity).items():
+            if isinstance(v, Lookup):
+                print(v.to_sql())
 
-    print(manifest.yaml_dump())
+    # print(manifest.yaml_dump())
 
     # connection = mysql.connector.connect(
     #     host=host,

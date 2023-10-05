@@ -1,7 +1,8 @@
-from pydantic import BaseModel, Field
-from typing import Any, Annotated, Union, Literal
-from inspect import cleandoc
 from abc import ABCMeta
+from inspect import cleandoc
+from typing import Any
+
+from pydantic import BaseModel, Field
 
 
 class Entity(
@@ -15,8 +16,6 @@ class Entity(
             """
         ),
     )
-    # type: Literal["Entity"]
-
 
     def to_sql(self):
         dump = self.model_dump()

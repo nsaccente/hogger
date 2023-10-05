@@ -1,5 +1,7 @@
 import argparse
+
 from hogger.cli import apply
+
 
 def main():
     parser = argparse.ArgumentParser(

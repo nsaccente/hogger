@@ -1,6 +1,6 @@
 apiVersion: 1.0.1
 entities:
-  - type: OneHandedAxe 
+  - type: OneHandedAxe
     name: 1-Handed Hatchet
     description: "A sparkly axe."
     itemClass: Gem
@@ -12,6 +12,10 @@ entities:
       silver: 10
       copper: 20
     inventoryType: Head
+    startsQuest: 
+      lookup: id
+      type: Item
+      name: Sword of infinity
     bagFamily:
     - Herbs
     - 3

@@ -1,6 +1,6 @@
 from difflib import SequenceMatcher
 from enum import Enum, IntFlag
-from typing import Any, get_args, get_type_hints, Union
+from typing import Any, Union, get_args, get_type_hints
 
 from pydantic import FieldSerializationInfo, FieldValidationInfo, SerializationInfo
 

@@ -1,8 +1,24 @@
-from typing import Optional
+from pydantic import BaseModel, Field, Extra
 
-from pydantic import BaseModel, Field, model_serializer, SerializationInfo
 
-LookupID = int
+class Lookup(BaseModel):
+    class Config:
+        extra = Extra.allow # or 'allow' str
+    lookup: str
+
+    def to_sql(self) -> str:
+        m = self.model_dump()
+        query = f"SELECT {m['lookup']} FROM {m['type']} WHERE"
+        # map type to a type object, then map all keys passed to the actual names in the database.
+        del m["lookup"]
+        del m["type"]
+
+        for k, v in m.items():
+            query += f" `{k}`=`{v}`"
+        return query
+
+
+LookupID = (Lookup | int)
 
 
 class Money(BaseModel):
