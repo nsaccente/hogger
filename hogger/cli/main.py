@@ -15,8 +15,8 @@ def main():
         help="Apply the blob to the database",
     )
     apply_parser.add_argument(
-        "file",
-        help="Filesystem blob string (required)",
+        "glob",
+        help="Filesystem glob string (required)",
     )
     apply_parser.add_argument(
         "--host",

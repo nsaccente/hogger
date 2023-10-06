@@ -12,10 +12,6 @@ entities:
       silver: 10
       copper: 20
     inventoryType: Head
-    startsQuest: 
-      lookup: id
-      type: Item
-      name: Sword of infinity
     bagFamily:
     - Herbs
     - 3

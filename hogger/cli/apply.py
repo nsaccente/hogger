@@ -2,6 +2,7 @@ import json
 
 import mysql.connector
 import yaml
+import glob
 
 from hogger import Manifest
 from hogger.misc import Lookup
@@ -15,34 +16,44 @@ def apply(
     password: str,
     **kwargs,
 ) -> None:
-    manifest = Manifest.from_file("./leeroy.yml")
+    # Connect to the worldserver database 
+    connection = mysql.connector.connect(
+        host=host,
+        port=port,
+        database=database,
+        user=user,
+        password=password,
+    )
 
-    for entity in manifest.entities:
-        for k, v in vars(entity).items():
-            if isinstance(v, Lookup):
-                print(v.to_sql())
+    if not connection.is_connected():
+        raise Exception("Unable to connect to worldserver database.")
 
-    # print(manifest.yaml_dump())
+    cursor = connection.cursor()
+    # We need the following fields:
+    # entity_type, entity_name, entry_in_table, date_created
+    f = cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS hoggerstate (
+            type VARCHAR(32) NOT NULL,
+            name VARCHAR(128) NOT NULL,
+            entry INT NOT NULL
+        );
+        """
+    )
 
-    # connection = mysql.connector.connect(
-    #     host=host,
-    #     port=port,
-    #     database=database,
-    #     user=user,
-    #     password=password,
-    # )
-    # if connection.is_connected():
-    #     cursor = connection.cursor()
+    entities = []
+    for file in glob.glob(kwargs["glob"]):
+        manifest = Manifest.from_file(file)
+        entities.extend(manifest.entities)
+    
+    for entity in entities:
+        pass
+        # create hoggerstate table if not exists
+        # if in hoggerstate table but not in entities, entity must be deleted.
+        # if in entities but not in hoggerstate, entity must be created.
+        # display this diff to the user; seek confirmation from user.
 
-    #     # Define the SQL query to select data from the "acore_world" table
-    #     query = "SELECT * FROM creature; "
-
-    #     # Execute the query
-    #     cursor.execute(query)
-
-    #     # Fetch all the rows
-    #     rows = cursor.fetchall()
-
-    #     # Process and print the results
-    #     for row in rows:
-    #         print(row)
+    # We're going to have to settle on a primary identifier for entities. This
+    # is going to be different for each entity type. We can still dynamically
+    # allocate entry ids in the database, but refer to entities in hogger files
+    # strictly by their primary identifier.

@@ -16,9 +16,3 @@ class Entity(
             """
         ),
     )
-
-    def to_sql(self):
-        dump = self.model_dump()
-        for k, v in dump.items():
-            print(k, v)
-        return ""
