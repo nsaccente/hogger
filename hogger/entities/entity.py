@@ -18,8 +18,8 @@ class Entity(
         ),
     )
 
-    @abstractstaticmethod
-    def from_hoggerstate(
-        cursor: Cursor,
-    ) -> "Entity":
-        pass
+    # @abstractstaticmethod
+    # def from_hoggerstate(
+    #     cursor: Cursor,
+    # ) -> "Entity":
+    #     pass

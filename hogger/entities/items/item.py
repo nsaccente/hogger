@@ -10,6 +10,7 @@ from pydantic import (
     field_validator,
 )
 
+# from hogger.entities.world_table import Hoggerstate
 from hogger.entities import Entity
 from hogger.entities.items import *
 from hogger.misc import *
@@ -735,30 +736,6 @@ class Item(Entity):
         assert(len(entity) == 1)
         print(entity)
         return None
-
-
-    # @staticmethod
-    # def table_name() -> str:
-    #     """
-    #     Provides invokers with the name of the database that this class governs.
-    #     """
-    #     return "item_template"
-
-    # @staticmethod
-    # def db_key() -> str:
-    #     """
-    #     Provides invokers with the primary key in the database that uniquely
-    #     identifies instances of this class.
-    #     """
-    #     return "entry"
-
-    # @staticmethod
-    # def hogger_identifier() -> str:
-    #     """
-    #     Provides invokers with the field within this class that acts as the
-    #     primary identifier for Hogger.
-    #     """
-    #     return "name"
 
 
     # def to_sql(self) -> str:

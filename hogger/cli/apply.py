@@ -2,7 +2,7 @@ import mysql.connector
 
 from hogger import Manifest
 from hogger.misc import Lookup
-from hogger.sql import WorldTable
+from hogger.entities import WorldTable
 
 
 

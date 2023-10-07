@@ -1,6 +1,11 @@
 from .entity import Entity
-from .items import *
+from .world_table import Hoggerstate, WorldTable
+from .items import ItemFlagExtra
 
 __all__ = [
+    # entity
     "Entity",
+    # items
+    "Hoggerstate",
+    "WorldTable",
 ]

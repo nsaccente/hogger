@@ -1,5 +1,6 @@
 import mysql.connector
-from hogger import Item, Entity
+from hogger.entities.entity import Entity
+from hogger.entities.items import Item
 import logging
 from inspect import cleandoc
 
