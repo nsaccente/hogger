@@ -4,39 +4,9 @@ import logging
 from inspect import cleandoc
 
 
-class Hoggerstate:
-    table_key: int
-    db_key: int
-    hogger_key: str
-    entity_type: type[Entity]
-
-    def __new__(cls, table_key: int, db_key: int, hogger_key: str) -> None:
-        match table_key:
-            case 0:   
-                cls.entity_type = Item
-            case _:
-                logging.warning(
-                    cleandoc(
-                        f"""
-                        During parsing of hoggerstate table, encountered the
-                        table_key '{table_key}', which isn't mappable to an 
-                        entity type.
-
-                        It's possible that the hoggerstate table has entries
-                        that were created using a different version of Hogger.
-                        Make sure that you're using a version that is compatible
-                        with the version used to manage the hoggerstate table.
-                        Check your version of hogger using `hogger version`.
-                        """
-
-                    )
-                )
-                return None
-        cls.table_key = table_key
-        cls.db_key = db_key
-        cls.hoger_key = hogger_key
-        return cls
-
+ENTITY_TYPE_MAP: dict[int, Entity] = {
+    0: Item, 
+}
 
 class WorldTable:
     def __init__(
@@ -47,6 +17,7 @@ class WorldTable:
         user: str,
         password: str,
     ) -> None:
+        # Create a connection tied to the WorldTable object.
         self._cnx = mysql.connector.connect(
             host=host,
             port=port,
@@ -57,29 +28,63 @@ class WorldTable:
         if not self._cnx.is_connected():
             raise Exception(f"Unable to connect to worldserver database '{database}'")
 
+        # Initialize the hoggerstate table if one doesn't already exist.
         with self._cnx.cursor() as cursor:
             cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS hoggerstate (
-                    table_key INT NOT NULL,
+                    entity_type INT NOT NULL,
                     db_key INT NOT NULL,
                     hogger_identifier VARCHAR(128) NOT NULL,
-                    PRIMARY KEY (type, id)
+                    PRIMARY KEY (entity_type, db_key, hogger_identifier)
                 );
                 """
             )
-        
 
-    def get_hoggerstate(self):
+
+    def get_entities(self):
+        """
+        Gets all entities managed by Hogger from the world database.
+        """
         with self._cnx.cursor(buffered=True) as cursor:
-            cursor.execute("SELECT type, id, name FROM hoggerstate;")
+            cursor.execute(
+                """
+                SELECT entity_type, db_key, hogger_identifier
+                FROM hoggerstate;
+                """
+            )
             states = cursor.fetchall()
-            entities: dict[Hoggerstate, Entity]= {}
-            for state in states:
-                hs = Hoggerstate(*state)
-                if hs is not None: 
-                    entities[hs] = hs.entity_type.from_hoggerstate(
-                        
+            hoggerstates = []
+            for entity_type, db_key, hogger_identifier in states:
+
+                # Map a entity_type id from hoggerstate to an Entity object
+                match entity_type:
+                    case 0:
+                        hoggerstates.append(
+                            ENTITY_TYPE_MAP
+                            [entity_type]
+                            .from_hoggerstate(
+                                db_key=db_key,
+                                hogger_identifier=hogger_identifier,
+                                cursor=self._cnx.cursor(),
+                            )
+                        )
+                    case _:
+                        logging.warning(
+                            cleandoc(
+                                f"""
+                                During parsing of hoggerstate table, encountered the
+                                entity_type '{entity_type}', which isn't mappable to an 
+                                entity type.
+
+                                It's possible that the hoggerstate table has entries
+                                that were created using a different version of Hogger.
+                                Make sure that you're using a version that is compatible
+                                with the version used to manage the hoggerstate table.
+                                Check your version of hogger using `hogger version`.
+                                """
+
+                            )
                     )
 
 
@@ -87,7 +92,7 @@ class WorldTable:
         with self._cnx.cursor(buffered=True) as cursor:
             cursor.execute(
                 f"""
-                REPLACE INTO hoggerstate (type, id, name)
+                REPLACE INTO hoggerstate (entity_type, db_key, hogger_identifier)
                 VALUES ({_type}, {id}, "{name}");
                 """
             )

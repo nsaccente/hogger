@@ -28,15 +28,14 @@ def apply(
     wt.write_test(0, 17, "Martin Fury")
     wt.write_test(0, 25, "Worn Shortsword")
     wt.write_test(0, 35, "Bent Staff")
-    wt.get_hoggerstate()
+    wt.write_test(0, 35, "Bent Staff")
+    wt.get_entities()
 
 
 
-    # entities = []
-    # for file in dir_or_file:
-    #     print(file)
-    #     manifest = Manifest.from_file(file)
-    #     entities.extend(manifest.entities)
+    entities = []
+    manifest = Manifest.from_file("leeroy.hogger")
+    entities.extend(manifest.entities)
     
     # for entity in entities:
     #     pass

@@ -20,6 +20,8 @@ class Entity(
 
     @abstractstaticmethod
     def from_hoggerstate(
+        db_key: int,
+        hogger_id: str,
         cursor: Cursor,
     ) -> "Entity":
         pass
