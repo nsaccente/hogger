@@ -4,6 +4,8 @@ import os
 from hogger.cli import apply
 
 
+VERSION = "v0.1.0"
+
 def main():
     parser = argparse.ArgumentParser(
         description="A declarative way to manage your WoW database"
@@ -13,7 +15,7 @@ def main():
     # Subparser for the 'apply' command
     apply_parser = subparsers.add_parser(
         "apply",
-        help="Apply the blob to the database",
+        help="Apply the files to the database",
     )
     apply_parser.add_argument(
         "dir_or_file",
@@ -48,10 +50,24 @@ def main():
         default=os.getenv("HOGGER_DB_WORLD", "acore_world"),
     )
 
+    # Subparser for the 'destroy' command
+    destroy_parser = subparsers.add_parser(
+        "destroy",
+        help="Apply the files to the database",
+    )
+
+    # Subparser for the 'destroy' command
+    version_parser = subparsers.add_parser(
+        "version",
+        help="Print the current version of Hogger",
+    )
+
     args = parser.parse_args()
     if args.command == "apply":
         apply(**vars(args))
     elif args.command == "destroy":
         pass
+    elif args.command == "version":
+        print(f"Hogger {VERSION}")
     else:
         parser.print_help()
