@@ -713,17 +713,29 @@ class Item(Entity):
     ) -> dict[(str | int), int]:
         return EnumMapUtils.serialize(self, items, info)
 
-    # @classmethod
-    # def __init_subclass__(cls):
-    #     cls.__annotations__.update({field: annotation for field, annotation in cls.__bases__[0].__annotations__.items()})
-    # super().__init_subclass__()
-    # @classmethod
-    # def __init_subclass__(cls):
-    #     fields = super().__init_subclass__()
-    #     for name, value in cls.__annotations__.items():
-    #         print(name, value)
-    #         # fields[name] = Field(..., description=f"Field added in {cls.__name__}", default=value)
-    #     return fields
+    @staticmethod
+    def table_name() -> str:
+        """
+        Provides invokers with the name of the database that this class governs.
+        """
+        return "item_template"
+
+    @staticmethod
+    def db_key() -> str:
+        """
+        Provides invokers with the primary key in the database that uniquely
+        identifies instances of this class.
+        """
+        return "entry"
+
+    @staticmethod
+    def hogger_identifier() -> str:
+        """
+        Provides invokers with the field within this class that acts as the
+        primary identifier for Hogger.
+        """
+        return "name"
+
 
     # def to_sql(self) -> str:
     #     fields = self.model_fields

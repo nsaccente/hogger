@@ -1,4 +1,5 @@
 import argparse
+import os
 
 from hogger.cli import apply
 
@@ -15,33 +16,36 @@ def main():
         help="Apply the blob to the database",
     )
     apply_parser.add_argument(
-        "glob",
-        help="Filesystem glob string (required)",
+        "dir_or_file",
+        help="path to a file or folder where hogger should be invoked from",
     )
     apply_parser.add_argument(
         "--host",
         help="Database hostname (default=localhost)",
-        default="127.0.0.1",
+        default=os.getenv("HOGGER_DB_HOST", "127.0.0.1"),
     )
     apply_parser.add_argument(
         "--port",
         type=int,
         help="Database port (required)",
-        default="3306",
+        default=os.getenv("HOGGER_DB_PORT", "3306"),
     )
     apply_parser.add_argument(
         "--user",
         help="Database username (required)",
-        default="acore",
+        default=os.getenv("HOGGER_DB_USER", "acore"),
     )
     apply_parser.add_argument(
         "--pass",
         dest="password",
         help="Database password (optional)",
-        default="acore",
+        default=os.getenv("HOGGER_DB_PASS", "acore"),
     )
     apply_parser.add_argument(
-        "--database", help="Database name (required)", default="acore_world"
+        "--world",
+        dest="world",
+        help="name of the world database",
+        default=os.getenv("HOGGER_DB_WORLD", "acore_world"),
     )
 
     args = parser.parse_args()

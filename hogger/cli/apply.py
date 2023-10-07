@@ -1,53 +1,45 @@
-import json
-
 import mysql.connector
-import yaml
-import glob
 
 from hogger import Manifest
 from hogger.misc import Lookup
+from hogger.sql import WorldTable
 
 
+
+
+    
 def apply(
     host: str,
     port: (int | str),
-    database: str,
     user: str,
     password: str,
+    world: str,
+    dir_or_file: str,
     **kwargs,
 ) -> None:
-    # Connect to the worldserver database 
-    connection = mysql.connector.connect(
+    wt = WorldTable(
         host=host,
         port=port,
-        database=database,
         user=user,
         password=password,
+        database=world,
+
     )
+    wt.write_test(0, 17, "Martin Fury")
+    wt.write_test(0, 25, "Worn Shortsword")
+    wt.write_test(0, 35, "Bent Staff")
+    wt.get_hoggerstate()
 
-    if not connection.is_connected():
-        raise Exception("Unable to connect to worldserver database.")
 
-    cursor = connection.cursor()
-    # We need the following fields:
-    # entity_type, entity_name, entry_in_table, date_created
-    f = cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS hoggerstate (
-            type VARCHAR(32) NOT NULL,
-            name VARCHAR(128) NOT NULL,
-            entry INT NOT NULL
-        );
-        """
-    )
 
-    entities = []
-    for file in glob.glob(kwargs["glob"]):
-        manifest = Manifest.from_file(file)
-        entities.extend(manifest.entities)
+    # entities = []
+    # for file in dir_or_file:
+    #     print(file)
+    #     manifest = Manifest.from_file(file)
+    #     entities.extend(manifest.entities)
     
-    for entity in entities:
-        pass
+    # for entity in entities:
+    #     pass
         # create hoggerstate table if not exists
         # if in hoggerstate table but not in entities, entity must be deleted.
         # if in entities but not in hoggerstate, entity must be created.
