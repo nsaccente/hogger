@@ -7,14 +7,14 @@ from hogger.misc import LookupID
 
 
 class ItemSockets(BaseModel):
-    bonus: LookupID = Field(
+    socketBonus: LookupID = Field(
         default=0, 
-        serialization_alias="",
+        serialization_alias="socketBonus",
         ge=0
     )
     properties: LookupID = Field(
         default=0, 
-        serialization_alias="",
+        serialization_alias="GemProperties",
         ge=0,
     )
     meta: int = Field(
@@ -24,14 +24,13 @@ class ItemSockets(BaseModel):
             The number of meta sockets. Default is 0.
             """
         ),
-        serialization_alias="",
         ge=0,
     )
-    blue: int = Field(
+    red: int = Field(
         default=0,
         description=cleandoc(
             """
-            The number of blue sockets. Default is 0.
+            The number of red sockets. Default is 0.
             """
         ),
         ge=0,
@@ -45,11 +44,11 @@ class ItemSockets(BaseModel):
         ),
         ge=0,
     )
-    red: int = Field(
+    blue: int = Field(
         default=0,
         description=cleandoc(
             """
-            The number of red sockets. Default is 0.
+            The number of blue sockets. Default is 0.
             """
         ),
         ge=0,

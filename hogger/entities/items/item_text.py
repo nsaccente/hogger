@@ -7,6 +7,7 @@ from hogger.misc import LookupID
 
 
 class PageMaterial(Enum):
+    Undefined = 0
     Parchment = 1
     Stone = 2
     Marble = 3
@@ -38,7 +39,7 @@ class Language(Enum):
 
 
 class ItemText(BaseModel):
-    pageText: LookupID = Field(
+    id: LookupID = Field(
         default=0,
         description=cleandoc(
             """
@@ -46,6 +47,7 @@ class ItemText(BaseModel):
             that will be shown to the player.
             """
         ),
+        serialization_alias="PageText",
         ge=0,
     )
     pageMaterial: PageMaterial = Field(
@@ -56,6 +58,7 @@ class ItemText(BaseModel):
             Defaults to parchment.
             """
         ),
+        serialization_alias="PageMaterial",
     )
     language: (Language | LookupID) = Field(
         default=Language.Universal,
@@ -67,4 +70,5 @@ class ItemText(BaseModel):
             able to interpret it, with no language requirements.
             """
         ),
+        serialization_alias="LanguageID",
     )

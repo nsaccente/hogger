@@ -25,7 +25,7 @@ from .item_flags import (
 from .item_randomstat import RandomStat
 from .item_sockets import ItemSockets
 from .item_spells import ItemSpell, SpellTrigger
-from .item_text import ItemText
+from .item_text import ItemText, PageMaterial, Language
 from .weapon import (
     Bow,
     Crossbow,
@@ -87,6 +87,8 @@ __all__ = [
     "ItemSpell",
     # item_text
     "ItemText",
+    "PageMaterial",
+    "Language",
     # weapon
     "Bow",
     "Crossbow",

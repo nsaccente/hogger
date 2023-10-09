@@ -375,7 +375,7 @@ class Item(Entity):
     )
 
     # # TEXTS
-    text: ItemText = Field(
+    readText: ItemText = Field(
         default=ItemText(),
     )
 
@@ -699,6 +699,12 @@ class Item(Entity):
             """
         ),
     )
+    build: int = Field(
+        default=0,
+        description="Indicates the build version that the item was added in.",
+        serialization_alias="VerifiedBuild",
+        ge=0,
+    )
 
     @field_validator(*_enum_fields, mode="before")
     def parse_enum(cls, v: (str | int), info: FieldValidationInfo) -> Enum | int:
@@ -759,13 +765,14 @@ class Item(Entity):
         for sql_field, model_field in _sql_to_model.items():
             item_fields[model_field] = sql.pop(sql_field)
 
+        # Stats
         item_fields["stats"] = {}
         for i in range(1, 11):
             stat_type = sql.pop(f"stat_type{i}")
             stat_value = sql.pop(f"stat_value{i}")
             item_fields["stats"][ItemStat(stat_type)] = stat_value
         
-        # item_fields["damage"] = Damage(**sql)
+        # Damage
         item_fields["damage"] = {
             "min1": sql.pop("dmg_min1"),
             "max1": sql.pop("dmg_max1"),
@@ -775,6 +782,7 @@ class Item(Entity):
             "type2": sql.pop("dmg_type2"),
         }
 
+        # Spells 
         item_fields["spells"] = []
         for i in range(1, 6):
             item_fields["spells"].append(
@@ -789,15 +797,48 @@ class Item(Entity):
                 }
             )
             
-        
-
-        print(len(sql))
+        # Resistances 
         item_fields["resistances"] = {}
         for resistance in ItemResistance:
             res = f"{resistance.name.lower()}_res"
             item_fields["resistances"][res] = sql.pop(res)
-        for k, v in sql.items():
+
+        # ItemText
+        item_fields["readText"] = {
+            "id": sql.pop("PageText"),
+            "pageMaterial": sql.pop("PageMaterial"),
+            "language": sql.pop("LanguageID"),
+        }
+        
+        # Gems
+        gems = {1: 0, 2: 0, 4: 0, 8: 0}
+        for i in range(1, 4):
+            color = sql.pop(f"socketColor_{i}")
+            count = sql.pop(f"socketContent_{i}")
+            if color not in gems:
+                gems[color] = 0
+            gems[color] += count
+        item_fields["sockets"] = {
+            "socketBonus": sql.pop("socketBonus"),
+            "properties": sql.pop("GemProperties"),
+            "meta": gems[1],
+            "red": gems[2],
+            "yellow": gems[4],
+            "blue": gems[8],
+        }
+
+        # randomStat
+        item_fields["randomStat"] = {
+            "id": max(sql.pop("RandomProperty"), sql["RandomSuffix"]),
+            "randomSuffix": sql.pop("RandomSuffix"),
+        }
+
+        for k, v in item_fields.items():
             print(k, v)
+        print()
+        print()
+        print()
+        return Item(**item_fields)
             
 
 
