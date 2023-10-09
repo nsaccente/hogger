@@ -29,6 +29,7 @@ class Damage(BaseModel):
             The minimum, primary damage of the item.
             """
         ),
+        serialization_alias="dmg_min1",
         ge=0,
     )
     max1: int = Field(
@@ -38,6 +39,7 @@ class Damage(BaseModel):
             The maximum, primary damage of the item.
             """
         ),
+        serialization_alias="dmg_max1",
         ge=0,
     )
     type1: DamageType = Field(
@@ -47,6 +49,7 @@ class Damage(BaseModel):
             The type of primary damage inflicted.
             """
         ),
+        serialization_alias="dmg_type1",
     )
     min2: int = Field(
         default=0,
@@ -55,6 +58,7 @@ class Damage(BaseModel):
             The minimum, secondary damage of the item.
             """
         ),
+        serialization_alias="dmg_min2",
         ge=0,
     )
     max2: int = Field(
@@ -64,6 +68,7 @@ class Damage(BaseModel):
             The maximum, secondary damage of the item.
             """
         ),
+        serialization_alias="dmg_max2",
         ge=0,
     )
     type2: DamageType = Field(
@@ -73,6 +78,7 @@ class Damage(BaseModel):
             The type of secondary damage inflicted.
             """
         ),
+        serialization_alias="dmg_type2",
     )
 
     @field_validator(

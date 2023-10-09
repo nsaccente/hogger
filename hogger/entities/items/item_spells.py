@@ -23,7 +23,7 @@ class ItemSpell(BaseModel):
             The spell ID of the spell that the item can cast or trigger.
             """
         ),
-        serialization_alias="spellid",
+        serialization_alias="spellid_{}",
     )
     trigger: SpellTrigger = Field(
         default=0,
@@ -32,7 +32,7 @@ class ItemSpell(BaseModel):
             The type of trigger for the spell.
             """
         ),
-        serialization_alias="spelltrigger",
+        serialization_alias="spelltrigger_{}",
     )
     charges: int = Field(
         default=0,
@@ -44,7 +44,7 @@ class ItemSpell(BaseModel):
             the item is not deleted after all the charges are spent.
             """
         ),
-        serialization_alias="spellcharges",
+        serialization_alias="spellcharges_{}",
     )
     procsPerMinute: int = Field(
         default=0,
@@ -54,7 +54,7 @@ class ItemSpell(BaseModel):
             triggered. This field is only relevant if `trigger = ChanceOnHit`.
             """
         ),
-        serialization_alias="spellppmRate",
+        serialization_alias="spellppmRate_{}",
     )
     cooldown: Duration = Field(
         default=Duration(),
@@ -67,18 +67,18 @@ class ItemSpell(BaseModel):
             effects.
             """
         ),
-        serialization_alias="cooldown",
+        serialization_alias="spellcooldown_{}",
     )
-    spellCategory: LookupID = Field(
+    category: LookupID = Field(
         default=0,
         description=cleandoc(
             """
             The category the spell is in. Default is 0.
             """
         ),
-        serialization_alias="spellcategory",
+        serialization_alias="spellcategory_{}",
     )
-    spellCategoryCooldown: Duration = Field(
+    cooldownCategory: Duration = Field(
         default=-1,
         description=cleandoc(
             """
@@ -90,5 +90,5 @@ class ItemSpell(BaseModel):
             `spellCategoryCooldown`, they're not mutually exclusive.
             """
         ),
-        serialization_alias="spellcategorycooldown",
+        serialization_alias="spellcategorycooldown_{}",
     )

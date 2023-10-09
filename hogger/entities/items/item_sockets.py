@@ -7,8 +7,16 @@ from hogger.misc import LookupID
 
 
 class ItemSockets(BaseModel):
-    bonus: LookupID = Field(default=0, ge=0)
-    properties: LookupID = Field(default=0, ge=0)
+    bonus: LookupID = Field(
+        default=0, 
+        serialization_alias="",
+        ge=0
+    )
+    properties: LookupID = Field(
+        default=0, 
+        serialization_alias="",
+        ge=0,
+    )
     meta: int = Field(
         default=0,
         description=cleandoc(
@@ -16,6 +24,7 @@ class ItemSockets(BaseModel):
             The number of meta sockets. Default is 0.
             """
         ),
+        serialization_alias="",
         ge=0,
     )
     blue: int = Field(
