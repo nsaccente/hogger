@@ -9,20 +9,23 @@ from .item_enums import (
     ItemStat,
     Material,
     Quality,
-    ReputationRank,
-    RequiredHonorRank,
     Sheath,
     TotemCategory,
 )
 from .item_flags import (
-    AllowableClass,
-    AllowableRace,
     BagFamily,
     ItemFlag,
     ItemFlagCustom,
     ItemFlagExtra,
 )
 from .item_randomstat import RandomStat
+from .item_requires import (
+    Requires,
+    AllowableClass,
+    AllowableRace,
+    ReputationRank,
+    RequiredHonorRank,
+)
 from .item_sockets import ItemSockets
 from .item_spells import ItemSpell, SpellTrigger
 from .item_text import ItemText, PageMaterial, Language
@@ -67,19 +70,21 @@ __all__ = [
     "ItemStat",
     "Material",
     "Quality",
-    "ReputationRank",
-    "RequiredHonorRank",
     "Sheath",
     "TotemCategory",
     # item_intflags
-    "AllowableClass",
-    "AllowableRace",
     "BagFamily",
     "ItemFlag",
     "ItemFlagCustom",
     "ItemFlagExtra",
     # item_randomstat
     "RandomStat",
+    # item_Requires
+    "Requires",
+    "ReputationRank",
+    "RequiredHonorRank",
+    "AllowableClass",
+    "AllowableRace",
     # item_sockets
     "ItemSockets",
     # item_spells

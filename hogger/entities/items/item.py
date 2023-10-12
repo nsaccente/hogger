@@ -12,7 +12,7 @@ from pydantic import (
 
 from hogger.entities import Entity
 from hogger.entities.items import *
-from hogger.misc import *
+from hogger.util import *
 
 import mysql.connector as db
 from mysql.connector.cursor_cext import CMySQLCursor as Cursor
@@ -26,19 +26,15 @@ _enum_fields = [
     "itemClass",
     "material",
     "quality",
-    "requiredHonorRank",
-    "requiredReputationRank",
     "sheath",
     "totemCategory",
 ]
 
 _intflag_fields = [
     "bagFamily",
-    "classes",
     "flags",
     "flagsCustom",
     "flagsExtra",
-    "races",
 ]
 
 _enum_map_fields = [
@@ -46,7 +42,70 @@ _enum_map_fields = [
     "stats",
 ]
 
+
+class ItemOrm:
+    __table_name__ = "item_template"
+    type: Literal["Item"]
+    id: int 
+    name: str 
+    description: str 
+    scriptName: str  
+    itemClass: (ItemClass | int) 
+    itemSubclass: int 
+    soundOverride: int 
+    displayId: int 
+    quality: (Quality | int)
+    buyCount: int 
+    buyPrice: Money 
+    # # buyPriceExtra
+    sellPrice: Money 
+    inventoryType: (InventoryType | int) 
+    maxCount: int 
+    stackSize: int 
+    startsQuest: LookupID 
+    material: (Material | int) 
+    randomStat: RandomStat 
+    bagFamily: list[BagFamily | int]
+    containerSlots: int 
+    totemCategory: (TotemCategory | int)
+    duration: Duration 
+    itemLimitCategory: LookupID 
+    disenchantId: LookupID 
+    foodType: (FoodType | int) 
+    minMoneyLoot: Money 
+    maxMoneyLoot: Money 
+    itemSet: LookupID 
+    bonding: (ItemBinding | int) 
+    flags: list[ItemFlag | int] 
+    flagsExtra: list[ItemFlagExtra | int] 
+    flagsCustom: list[ItemFlagExtra | int] 
+    readText: ItemText 
+    requires: Requires 
+    itemLevel: int 
+    unlocks: LookupID 
+    resistances: dict[(ItemResistance | int), int] 
+    scalingStatDistribution: int 
+    scalingStatValue: int 
+    stats: dict[(ItemStat | int), int] 
+    sockets: ItemSockets 
+    armor: int 
+    armorDamageModifier: int 
+    hitDelay: int 
+    ammoType: (AmmoType | int) 
+    weaponRange: int 
+    block: int 
+    durability: int 
+    sheath: (Sheath | int) 
+    damage: Damage 
+    spells: list[ItemSpell] 
+    build: int 
+
+
+
 class Item(Entity):
+    class Config:
+        orm_mode = True
+
     type: Literal["Item"]
     # MISCELLANEOUS
     id: int = Field(
@@ -60,7 +119,7 @@ class Item(Entity):
             has that id.
             """
         ),
-        serialization_alias="entry",
+        # serialization_alias="entry",
     )
     name: str = Field(
         description=dedent(
@@ -68,7 +127,8 @@ class Item(Entity):
             The name of the item.
             """
         ),
-        serialization_alias="name",
+        # serialization_alias="name",
+        sql_fields=["name"],
     )
     description: str = Field(
         default="",
@@ -78,7 +138,8 @@ class Item(Entity):
             the item tooltip. No description by default.
             """
         ),
-        serialization_alias="description",
+        # serialization_alias="description",
+        sql_fields=["description"],
     )
     scriptName: str = Field(
         default="",
@@ -88,7 +149,8 @@ class Item(Entity):
             default.
             """
         ),
-        serialization_alias="ScriptName",
+        # serialization_alias="ScriptName",
+        sql_fields=["ScriptName"],
     )
     itemClass: (ItemClass | int) = Field(
         default=ItemClass.TradeGoods,
@@ -98,7 +160,8 @@ class Item(Entity):
             etc.
             """
         ),
-        serialization_alias="class",
+        # serialization_alias="class",
+        sql_fields=["class"],
     )
     itemSubclass: int = Field(
         defalt=0,
@@ -108,7 +171,8 @@ class Item(Entity):
             value of itemClass.
             """
         ),
-        serialization_alias="subclass",
+        # serialization_alias="subclass",
+        sql_fields=["subclass"],
     )
     soundOverride: int = Field(
         default=-1,
@@ -119,7 +183,8 @@ class Item(Entity):
             Use -1 to use the default sound for the item. Default is -1.
             """
         ),
-        serialization_alias="SoundOverrideSubclass",
+        # serialization_alias="SoundOverrideSubclass",
+        sql_fields=["SoundOverrideSubclass"],
         ge=-1,
     )
     displayId: int = Field(
@@ -129,7 +194,8 @@ class Item(Entity):
             Controls both the model appearance and icon.
             """
         ),
-        serialization_alias="displayid",
+        # serialization_alias="displayid",
+        sql_fields=["displayid"],
         ge=0,
     )
     quality: (Quality | int) = Field(
@@ -140,7 +206,8 @@ class Item(Entity):
             Common, Rare, Epic, Legendary, Artifact, BoA.
             """
         ),
-        serialization_alias="Quality",
+        # serialization_alias="Quality",
+        sql_fields=["Quality"],
     )
     buyCount: int = Field(
         default=1,
@@ -152,7 +219,8 @@ class Item(Entity):
             (see npc.vendor.incrtime).
             """
         ),
-        serialization_alias="BuyCount",
+        # serialization_alias="BuyCount",
+        sql_fields=["BuyCount"],
         ge=1,
     )
     buyPrice: Money = Field(
@@ -162,7 +230,8 @@ class Item(Entity):
             The cost to purchase this item form a vendor
             """
         ),
-        serialization_alias="BuyPrice",
+        # serialization_alias="BuyPrice",
+        sql_fields=["BuyPrice"],
     )
     # # buyPriceExtra
     sellPrice: Money = Field(
@@ -172,7 +241,8 @@ class Item(Entity):
             The amount a vendor will purchase this item from you for.
             """
         ),
-        serialization_alias="SellPrice",
+        # serialization_alias="SellPrice",
+        sql_fields=["SellPrice"],
     )
     inventoryType: (InventoryType | int) = Field(
         default=InventoryType.NoEquip,
@@ -181,7 +251,8 @@ class Item(Entity):
             Is the item equippable? A quest item?
             """
         ),
-        serialization_alias="InventoryType",
+        # serialization_alias="InventoryType",
+        sql_fields=["InventoryType"],
     )
     maxCount: int = Field(
         default=1,
@@ -190,7 +261,8 @@ class Item(Entity):
             The maximum amount that a player can have; use 0 for infinite.
             """
         ),
-        serialization_alias="maxcount",
+        # serialization_alias="maxcount",
+        sql_fields=["maxcount"],
         ge=0,
     )
     stackSize: int = Field(
@@ -200,7 +272,8 @@ class Item(Entity):
             The maximum size of a stack of this item.
             """
         ),
-        serialization_alias="stackable",
+        # serialization_alias="stackable",
+        sql_fields=["stackable"],
         ge=1,
     )
     startsQuest: LookupID = Field(
@@ -211,8 +284,10 @@ class Item(Entity):
             See quest_template.id.
             """
         ),
-        serialization_alias="startquest",
+        # serialization_alias="startquest",
+        sql_fields=["startquest"],
     )
+    # TODO: This could use a more intuitive name
     material: (Material | int) = Field(
         default=Material.Undefined,
         description=dedent(
@@ -220,7 +295,8 @@ class Item(Entity):
             Controls the sound played when moving items in your inventory.
             """
         ),
-        serialization_alias="Material",
+        # serialization_alias="Material",
+        sql_fields=["Material"],
     )
     randomStat: RandomStat = Field(
         default=RandomStat(),
@@ -229,6 +305,7 @@ class Item(Entity):
             Adds a random stat bonus on the item.
             """
         ),
+        sql_fields=["RandomProperty", "RandomName"],
     )
     bagFamily: list[BagFamily | int] = Field(
         default=[],
@@ -237,7 +314,8 @@ class Item(Entity):
             Dictates what kind of bags this item can be placed in.
             """
         ),
-        serialization_alias="BagFamily",
+        # serialization_alias="BagFamily",
+        sql_fields=["BagFamily"],
     )
     containerSlots: int = Field(
         default=0,
@@ -246,7 +324,8 @@ class Item(Entity):
             If this item is a bag, controls the number of slots it will have
             """
         ),
-        serialization_alias="ContainerSlots",
+        # serialization_alias="ContainerSlots",
+        sql_fields=["ContainerSlots"],
     )
     totemCategory: (TotemCategory | int) = Field(
         default=TotemCategory.Undefined,
@@ -256,7 +335,8 @@ class Item(Entity):
             shaman's totems, blacksmithing hammers, or enchanting rods.
             """
         ),
-        serialization_alias="TotemCategory",
+        # serialization_alias="TotemCategory",
+        sql_fields=["TotemCategory"],
     )
     duration: Duration = Field(
         default=Duration(),
@@ -267,7 +347,8 @@ class Item(Entity):
             prevent the item from every disappearing.
             """
         ),
-        serialization_alias="duration",
+        # serialization_alias="duration",
+        sql_fields=["duration"],
     )
     itemLimitCategory: LookupID = Field(
         default=0,
@@ -281,7 +362,8 @@ class Item(Entity):
             (check as example value 3 or 4).
             """
         ),
-        serialization_alias="ItemLimitCategory",
+        # serialization_alias="ItemLimitCategory",
+        sql_fields=["ItemLimitCategory"],
     )
     disenchantId: LookupID = Field(
         default=0,
@@ -290,7 +372,8 @@ class Item(Entity):
             Corresponds to an entry in disenchant_loot_template.
             """
         ),
-        serialization_alias="DisenchantID",
+        # serialization_alias="DisenchantID",
+        sql_fields=["DisenchantID"],
     )
     foodType: (FoodType | int) = Field(
         default=FoodType.Undefined,
@@ -301,7 +384,8 @@ class Item(Entity):
             Defaults to "Undefined".
             """
         ),
-        serialization_alias="FoodType",
+        # serialization_alias="FoodType",
+        sql_fields=["FoodType"],
     )
     minMoneyLoot: Money = Field(
         default=Money(),
@@ -312,7 +396,8 @@ class Item(Entity):
             is the default for this field.
             """
         ),
-        serialization_alias="minMoneyLoot",
+        # serialization_alias="minMoneyLoot",
+        sql_fields=["MinMoneyLoot"],
     )
     maxMoneyLoot: Money = Field(
         default=Money(),
@@ -323,7 +408,8 @@ class Item(Entity):
             is the default for this field.
             """
         ),
-        serialization_alias="maxMoneyLoot",
+        # serialization_alias="maxMoneyLoot",
+        sql_fields=["MaxMoneyLoot"],
     )
     itemSet: LookupID = Field(
         default=0,
@@ -353,7 +439,8 @@ class Item(Entity):
             A collection of flags to modify the behavior of the item.
             """
         ),
-        serialization_alias="Flags",
+        # serialization_alias="Flags",
+        sql_fields=["Flags"],
     )
     flagsExtra: list[ItemFlagExtra | int] = Field(
         default=[],
@@ -362,7 +449,8 @@ class Item(Entity):
             A collection of flags to modify the behavior of the item.
             """
         ),
-        serialization_alias="FlagsExtra",
+        # serialization_alias="FlagsExtra",
+        sql_fields=["FlagsExtra"],
     )
     flagsCustom: list[ItemFlagExtra | int] = Field(
         default=[],
@@ -371,32 +459,22 @@ class Item(Entity):
             A collection of flags to modify the behavior of the item.
             """
         ),
-        serialization_alias="flagsCustom",
+        # serialization_alias="flagsCustom",
+        sql_fields=["flagsCustom"],
     )
 
     # # TEXTS
     readText: ItemText = Field(
         default=ItemText(),
+        sql_fields=["PageText", "PageMaterial", "LanguageID"],
     )
 
     # # REQUIREMENTS
-    classes: list[AllowableClass | int] = Field(
-        default=[],
-        description=dedent(
-            """
-            Classes permitted to use the item.
-            """
-        ),
-        serialization_alias="AllowableClass",
-    )
-    races: list[AllowableRace | int] = Field(
-        default=[],
-        description=dedent(
-            """
-            Races permitted to use the item.
-            """
-        ),
-        serialization_alias="AllowableRace",
+    requires: Requires = Field(
+        default=Requires(),
+        description="",
+        sql_fields=["PageText", "PageMaterial", "LanguageID"],
+
     )
     # TODO: Add automatic item level calculation as default.
     itemLevel: int = Field(
@@ -407,129 +485,9 @@ class Item(Entity):
             equip or use the item.
             """
         ),
-        serialization_alias="ItemLevel",
+        # serialization_alias="ItemLevel",
+        sql_fields=["ItemLevel"],
         ge=0,
-    )
-    requiredLevel: int = Field(
-        default=1,
-        descrption=dedent(
-            """
-            The minimum player level required to equip the item.
-            """
-        ),
-        serialization_alias="RequiredLevel",
-        ge=1,
-    )
-    requiredSkill: LookupID = Field(
-        default=0,
-        description=dedent(
-            """
-            The skill required to use this item.
-            """
-        ),
-        serialization_alias="RequiredSkill",
-        ge=0,
-    )
-    requiredSkillRank: int = Field(
-        default=0,
-        description=dedent(
-            """
-            The required skill rank the player needs to have to use this item.
-            """
-        ),
-        serialization_alias="RequiredSkillRank",
-    )
-    requiredSpell: LookupID = Field(
-        default=0,
-        description=dedent(
-            """
-            The required spell that the player needs to have to use this item.
-            """
-        ),
-        serialization_alias="requiredspell",
-    )
-    requiredHonorRank: (RequiredHonorRank | int) = Field(
-        default=RequiredHonorRank.Undefined,
-        description=dedent(
-            """
-            The required PvP rank required to use the item.",
-            serialization_alias="requiredhonorrank",
-            """
-        ),
-        serialization_alias="requiredhonorrank",
-    )
-    requiredCityRank: int = Field(
-        default=0,
-        description=dedent(
-            """
-            Unused. All items have this set to 0.
-            """
-        ),
-        serialization_alias="RequiredCityRank",
-        ge=0,
-    )
-    requiredReputationFaction: int = Field(
-        default=0,
-        description=dedent(
-            """
-            The faction template ID of the faction that the player has to have
-            a certain ranking with. If this value is 0, the faction of the
-            seller of the item is used.
-            """
-        ),
-        serialization_alias="RequiredReputationFaction",
-        ge=0,
-    )
-    requiredReputationRank: (ReputationRank | int) = Field(
-        default=0,
-        description=dedent(
-            """
-            The required reputation rank to use the item.
-            """
-        ),
-        serialization_alias="RequiredReputationRank",
-        ge=0,
-    )
-    requiredDisenchantSkill: int = Field(
-        default=0,
-        description=dedent(
-            """
-            The required skill proficiency in disenchanting that the player must
-            have in order to disenchant this item.
-            """
-        ),
-        serialization_alias="RequiredDisenchantSkill",
-        ge=0,
-    )
-    requiredMap: LookupID = Field(
-        default=0,
-        description=dedent(
-            """
-            The ID of the map in which this item can be used. If you leave the
-            map, the item will be deleted from the inventory.
-            """
-        ),
-        serialization_alias="Map",
-        ge=0,
-    )
-    requiredArea: LookupID = Field(
-        default=0,
-        description=dedent(
-            """
-            The ID of the zone in which this item can be used. If you leave the
-            area, the item will be deleted from the inventory.
-            """
-        ),
-        serialization_alias="area",
-    )
-    requiredHoliday: LookupID = Field(
-        default=0,
-        description=dedent(
-            """
-            The holiday event that must be active in order to use the item.
-            """
-        ),
-        serialization_alias="HolidayId",
     )
     unlocks: LookupID = Field(
         default=0,
@@ -539,7 +497,8 @@ class Item(Entity):
             This field is used in key-door mechanics.
             """
         ),
-        serialization_alias="lockid",
+        # serialization_alias="lockid",
+        sql_fields=["lockid"],
     )
 
     # RESISTANCE
@@ -550,6 +509,14 @@ class Item(Entity):
             Item resistances.
             """
         ),
+        sql_fields={
+            "Holy": "holy_res", 
+            "Fire": "fire_res", 
+            "Nature": "nature_res", 
+            "Frost": "frost_res",
+            "Shadow": "shadow_res",
+            "Arcane": "arcane_res",
+        },
     )
 
     # STATS
@@ -561,7 +528,8 @@ class Item(Entity):
             users level (mainly heirloom leveling gear) use like static stats.
             """
         ),
-        serialization_alias="ScalingStatDistribution",
+        # serialization_alias="ScalingStatDistribution",
+        sql_fields=["ScalingStatDistribution"],
     )
     scalingStatValue: int = Field(
         default=0,
@@ -570,19 +538,21 @@ class Item(Entity):
             Final (level 80) value of the scaling-stat
             """
         ),
-        serialization_alias="ScalingStatValue",
+        # serialization_alias="ScalingStatValue",
+        sql_fields=["ScalingStatValue"],
     )
-    statCount: int = Field(
-        default=0,
-        description=dedent(
-            """
-            The total number of stats attached to this item. Defaults to 0.
-            """
-        ),
-        ge=0,
-        exclude=True,
-        serialization_alias="StatsCount",
-    )
+    # TODO: We need to fill this back in when serialized.
+    # statCount: int = Field(
+    #     default=0,
+    #     description=dedent(
+    #         """
+    #         The total number of stats attached to this item. Defaults to 0.
+    #         """
+    #     ),
+    #     ge=0,
+    #     # serialization_alias="StatsCount",
+    #     sql_fields=["StatsCount"],
+    # )
     stats: dict[(ItemStat | int), int] = Field(
         default=dict(),
         description=dedent(
@@ -590,6 +560,27 @@ class Item(Entity):
             Stats applied to the item in key-value pairs.
             """
         ),
+        sql_fields=[
+            "StatsCount",
+            "stat_type1",
+            "stat_value1",
+            "stat_type2",
+            "stat_value2",
+            "stat_type3",
+            "stat_value4",
+            "stat_type5",
+            "stat_value5",
+            "stat_type6",
+            "stat_value6",
+            "stat_type7",
+            "stat_value7",
+            "stat_type8",
+            "stat_value8",
+            "stat_type9",
+            "stat_value9",
+            "stat_type10",
+            "stat_value10",
+        ],
     )
 
     # # SOCKETS
@@ -600,6 +591,16 @@ class Item(Entity):
             Item socket details.
             """
         ),
+        sql_fields=[
+            "GemProperties",
+            "socketBonus",
+            "socketColor_1",
+            "socketColor_2",
+            "socketColor_3",
+            "socketContent_1",
+            "socketContent_2",
+            "socketContent_3",
+        ],
     )
 
     # # WEAPON ARMOR
@@ -610,7 +611,8 @@ class Item(Entity):
             The armor value of the item.
             """
         ),
-        serialization_alias="armor",
+        # serialization_alias="armor",
+        sql_fields=["armor"],
     )
     armorDamageModifier: int = Field(
         default=0,
@@ -619,7 +621,8 @@ class Item(Entity):
             This field is not well understood.
             """
         ),
-        serialization_alias="ArmorDamageModifier",
+        # serialization_alias="ArmorDamageModifier",
+        sql_fields=["ArmorDamageModifier"],
     )
     hitDelay: int = Field(
         default=0,
@@ -628,7 +631,8 @@ class Item(Entity):
             The time in milliseconds between successive hits.
             """
         ),
-        serialization_alias="delay",
+        # serialization_alias="delay",
+        sql_fields=["delay"],
         ge=0,
     )
     ammoType: (AmmoType | int) = Field(
@@ -638,7 +642,8 @@ class Item(Entity):
             The type of ammunition the item uses.
             """
         ),
-        serialization_alias="ammo_type",
+        # serialization_alias="ammo_type",
+        sql_fields=["ammo_type"],
     )
     weaponRange: int = Field(
         default=0,
@@ -648,7 +653,8 @@ class Item(Entity):
             All of Blizzard's ranged weapons have a default range of 100.
             """
         ),
-        serialization_alias="RangedModRange",
+        # serialization_alias="RangedModRange",
+        sql_fields=["RangedModRange"],
         ge=0,
     )
     block: int = Field(
@@ -659,7 +665,8 @@ class Item(Entity):
             shield.
             """
         ),
-        serialization_alias="block",
+        # serialization_alias="block",
+        sql_fields=["block"],
     )
     durability: int = Field(
         default=100,
@@ -668,7 +675,8 @@ class Item(Entity):
             The durability of the item. Defaults to 100.
             """
         ),
-        serialization_alias="MaxDurability",
+        # serialization_alias="MaxDurability",
+        sql_fields=["MaxDurability"],
         ge=0,
     )
     sheath: (Sheath | int) = Field(
@@ -679,7 +687,8 @@ class Item(Entity):
             hotkey to sheath and unsheathe your weapons.
             """
         ),
-        serialization_alias="sheath"
+        # serialization_alias="sheath"
+        sql_fields=["sheath"],
     )
     damage: Damage = Field(
         default=Damage(),
@@ -688,6 +697,7 @@ class Item(Entity):
             The damage values of the weapon.
             """
         ),
+        sql_fields=["damage"],
     )
 
     # # SPELL
@@ -698,11 +708,49 @@ class Item(Entity):
             Items can be used to invoke spells.
             """
         ),
+        sql_fields=[
+            "spellid_1",
+            "spelltrigger_1",
+            "spellcharges_1",
+            "spellppmRate_1",
+            "spellcooldown_1",
+            "spellcategory_1",
+            "spellcategorycooldown_1",
+            "spellid_2",
+            "spelltrigger_2",
+            "spellcharges_2",
+            "spellppmRate_2",
+            "spellcooldown_2",
+            "spellcategory_2",
+            "spellcategorycooldown_2",
+            "spellid_3",
+            "spelltrigger_3",
+            "spellcharges_3",
+            "spellppmRate_3",
+            "spellcooldown_3",
+            "spellcategory_3",
+            "spellcategorycooldown_3",
+            "spellid_4",
+            "spelltrigger_4",
+            "spellcharges_4",
+            "spellppmRate_4",
+            "spellcooldown_4",
+            "spellcategory_4",
+            "spellcategorycooldown_4",
+            "spellid_5",
+            "spelltrigger_5",
+            "spellcharges_5",
+            "spellppmRate_5",
+            "spellcooldown_5",
+            "spellcategory_5",
+            "spellcategorycooldown_5",
+        ],
     )
     build: int = Field(
         default=0,
         description="Indicates the build version that the item was added in.",
-        serialization_alias="VerifiedBuild",
+        # serialization_alias="VerifiedBuild",
+        sql_fields=["VerifiedBuild"],
         ge=0,
     )
 
@@ -761,91 +809,101 @@ class Item(Entity):
     
     @staticmethod
     def from_sql(sql: dict[str, any]) -> "Item":
-        item_fields = {}
-        for sql_field, model_field in _sql_to_model.items():
-            item_fields[model_field] = sql.pop(sql_field)
+        f = Item.model_fields["id"].json_schema_extra["from_sql"]
+        print(f(sql))
 
-        # Stats
-        item_fields["stats"] = {}
-        for i in range(1, 11):
-            stat_type = sql.pop(f"stat_type{i}")
-            stat_value = sql.pop(f"stat_value{i}")
-            item_fields["stats"][ItemStat(stat_type)] = stat_value
-        
-        # Damage
-        item_fields["damage"] = {
-            "min1": sql.pop("dmg_min1"),
-            "max1": sql.pop("dmg_max1"),
-            "type1": sql.pop("dmg_type1"),
-            "min2": sql.pop("dmg_min2"),
-            "max2": sql.pop("dmg_max2"),
-            "type2": sql.pop("dmg_type2"),
-        }
-
-        # Spells 
-        item_fields["spells"] = []
-        for i in range(1, 6):
-            item_fields["spells"].append(
-                {
-                    "id": sql.pop(f"spellid_{i}"),
-                    "trigger": sql.pop(f"spelltrigger_{i}"),
-                    "charges": sql.pop(f"spellcharges_{i}"),
-                    "procsPerMinute": sql.pop(f"spellppmRate_{i}"),
-                    "cooldown": sql.pop(f"spellcooldown_{i}"),
-                    "category": sql.pop(f"spellcategory_{i}"),
-                    "cooldownCategory": sql.pop(f"spellcategorycooldown_{i}"),
-                }
-            )
+        # for field_name, field_properties in list(Item.model_fields.items())[0:15]:
+        #     try:
+        #         sql_fields = field_properties.json_schema_extra["from_sql"]
+        #     except:
+        #         sql_fields = None
             
-        # Resistances 
-        item_fields["resistances"] = {}
-        for resistance in ItemResistance:
-            res = f"{resistance.name.lower()}_res"
-            item_fields["resistances"][res] = sql.pop(res)
+        #     if sql_fields is not None:
+        #         anno = field_properties.annotation
+        #         print(field_name, sql_fields, anno)
+                # if issubclass(IntFlag, anno):
+                #     print(anno)
+                # if issubclass(Enum, anno):
+                #     print(anno)
 
-        # ItemText
-        item_fields["readText"] = {
-            "id": sql.pop("PageText"),
-            "pageMaterial": sql.pop("PageMaterial"),
-            "language": sql.pop("LanguageID"),
-        }
+
+
+        # item_fields = {
+        #     "name": sql.pop("name"),
+        #     # "itemSubclass": sql.pop("")
+        # }
+        # for sql_field, model_field in _sql_to_model.items():
+        #     item_fields[model_field] = sql.pop(sql_field)
+
+        # # Stats
+        # item_fields["stats"] = {}
+        # for i in range(1, 11):
+        #     stat_type = sql.pop(f"stat_type{i}")
+        #     stat_value = sql.pop(f"stat_value{i}")
+        #     item_fields["stats"][ItemStat(stat_type)] = stat_value
         
-        # Gems
-        gems = {1: 0, 2: 0, 4: 0, 8: 0}
-        for i in range(1, 4):
-            color = sql.pop(f"socketColor_{i}")
-            count = sql.pop(f"socketContent_{i}")
-            if color not in gems:
-                gems[color] = 0
-            gems[color] += count
-        item_fields["sockets"] = {
-            "socketBonus": sql.pop("socketBonus"),
-            "properties": sql.pop("GemProperties"),
-            "meta": gems[1],
-            "red": gems[2],
-            "yellow": gems[4],
-            "blue": gems[8],
-        }
+        # # Damage
+        # item_fields["damage"] = {
+        #     "min1": sql.pop("dmg_min1"),
+        #     "max1": sql.pop("dmg_max1"),
+        #     "type1": sql.pop("dmg_type1"),
+        #     "min2": sql.pop("dmg_min2"),
+        #     "max2": sql.pop("dmg_max2"),
+        #     "type2": sql.pop("dmg_type2"),
+        # }
 
-        # randomStat
-        item_fields["randomStat"] = {
-            "id": max(sql.pop("RandomProperty"), sql["RandomSuffix"]),
-            "randomSuffix": sql.pop("RandomSuffix"),
-        }
-
-        for k, v in item_fields.items():
-            print(k, v)
-        print()
-        print()
-        print()
-        return Item(**item_fields)
+        # # Spells 
+        # item_fields["spells"] = []
+        # for i in range(1, 6):
+        #     item_fields["spells"].append(
+        #         {
+        #             "id": sql.pop(f"spellid_{i}"),
+        #             "trigger": sql.pop(f"spelltrigger_{i}"),
+        #             "charges": sql.pop(f"spellcharges_{i}"),
+        #             "procsPerMinute": sql.pop(f"spellppmRate_{i}"),
+        #             "cooldown": sql.pop(f"spellcooldown_{i}"),
+        #             "category": sql.pop(f"spellcategory_{i}"),
+        #             "cooldownCategory": sql.pop(f"spellcategorycooldown_{i}"),
+        #         }
+        #     )
             
+        # # Resistances 
+        # item_fields["resistances"] = {}
+        # for resistance in ItemResistance:
+        #     res = f"{resistance.name.lower()}_res"
+        #     item_fields["resistances"][resistance] = sql.pop(res)
 
+        # # ItemText
+        # item_fields["readText"] = {
+        #     "id": sql.pop("PageText"),
+        #     "pageMaterial": sql.pop("PageMaterial"),
+        #     "language": sql.pop("LanguageID"),
+        # }
+        
+        # # Gems
+        # gems = {1: 0, 2: 0, 4: 0, 8: 0}
+        # for i in range(1, 4):
+        #     color = sql.pop(f"socketColor_{i}")
+        #     count = sql.pop(f"socketContent_{i}")
+        #     if color not in gems:
+        #         gems[color] = 0
+        #     gems[color] += count
+        # item_fields["sockets"] = {
+        #     "socketBonus": sql.pop("socketBonus"),
+        #     "properties": sql.pop("GemProperties"),
+        #     "meta": gems[1],
+        #     "red": gems[2],
+        #     "yellow": gems[4],
+        #     "blue": gems[8],
+        # }
 
-# Construct a constant used to map sql fields to model fields AFTER the model
-# has been defind above.
-_sql_to_model: dict[str, str] = {}
-for field, metadata in Item.model_fields.items():
-    if metadata.serialization_alias is not None:
-        _sql_to_model[metadata.serialization_alias] = field 
-    
+        # # randomStat
+        # item_fields["randomStat"] = {
+        #     "id": max(sql.pop("RandomProperty"), sql["RandomSuffix"]),
+        #     "randomSuffix": sql.pop("RandomSuffix"),
+        # }
+
+        # for k, v in sql.items():
+        #     print(k, v)
+        # return Item(**item_fields)
+            

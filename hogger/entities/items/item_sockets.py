@@ -3,7 +3,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field, model_validator
 
-from hogger.misc import LookupID
+from hogger.util import LookupID
 
 
 class ItemSockets(BaseModel):
@@ -55,6 +55,17 @@ class ItemSockets(BaseModel):
     )
 
     # TODO
-    @model_validator(mode="before")
+    @model_validator(mode="after")
     def ensure_3_of_4_socket_colors(cls, data: Any) -> Any:
         return data
+
+    # @staticmethod
+    # def from_sql(
+    #     sql_data: dict[str, any],
+    #     sql_to_model: dict[str, str]={
+    #     },
+    # ) -> "ItemSockets":
+    #     params = {}
+    #     for sql_field, model_field in sql_to_model.items():
+    #         params[model_field] = sql_data[sql_field] 
+    #     return Requires(*params)

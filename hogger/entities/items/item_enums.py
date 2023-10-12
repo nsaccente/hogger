@@ -180,24 +180,6 @@ class ItemStat(Enum):
     Block = 48
 
 
-class RequiredHonorRank(Enum):
-    Undefined = 0
-    Private_Scout = 1
-    Corporal_Grunt = 2
-    Sergeant_Sergeant = 3
-    MasterSergeant_SeniorSergeant = 4
-    SergeantMajor_FirstSergeant = 5
-    Knight_StoneGuard = 6
-    KnightLieutenant_BloodGuard = 7
-    KnightCaptain_Legionnare = 8
-    KnightChampion_Centurion = 9
-    LieutenantCommander_Champion = 10
-    Commander_LieutenantGeneral = 11
-    Marshal_General = 12
-    FieldMarshal_Warlord = 13
-    GrandMarshal_HighWarlord = 14
-
-
 class ItemResistance(Enum):
     Holy = 0
     Fire = 1
@@ -211,17 +193,6 @@ class AmmoType(Enum):
     Undefined = 0
     Arrows = 2
     Bullets = 3
-
-
-class ReputationRank(Enum):
-    Hated = 0
-    Hostile = 1
-    Unfriendly = 2
-    Neutral = 3
-    Friendly = 4
-    Honored = 5
-    Revered = 6
-    Exalted = 7
 
 
 class Sheath(Enum):

@@ -1,9 +1,8 @@
 from enum import Enum
 from inspect import cleandoc
-
 from pydantic import BaseModel, Field
 
-from hogger.misc import LookupID
+from hogger.util import LookupID
 
 
 class PageMaterial(Enum):

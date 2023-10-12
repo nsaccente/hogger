@@ -1,9 +1,9 @@
 from enum import Enum
 from inspect import cleandoc
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field
 
-from hogger.misc import Duration, LookupID
+from hogger.util import Duration, LookupID
 
 
 class SpellTrigger(Enum):
@@ -78,7 +78,7 @@ class ItemSpell(BaseModel):
         ),
         serialization_alias="spellcategory_{}",
     )
-    cooldownCategory: Duration = Field(
+    cooldownCategory: int = Field(
         default=-1,
         description=cleandoc(
             """

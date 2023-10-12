@@ -1,13 +1,10 @@
 import mysql.connector
 
 from hogger import Manifest
-from hogger.misc import Lookup
+from hogger.util import Lookup
 from hogger.sql import WorldTable
 
 
-
-
-    
 def apply(
     host: str,
     port: (int | str),
@@ -29,13 +26,18 @@ def apply(
     wt.write_test(0, 25, "Worn Shortsword")
     wt.write_test(0, 35, "Bent Staff")
     wt.write_test(0, 35, "Bent Staff")
-    wt.get_entities()
 
+    states = wt.get_entities()
+    for state in states:
+        print(state)
 
 
     entities = []
     manifest = Manifest.from_file("leeroy.hogger")
-    entities.extend(manifest.entities)
+    # entities.extend(manifest.entities)
+    # for entity in manifest.entities:
+    #     print(entity)
+
     
     # for entity in entities:
     #     pass
