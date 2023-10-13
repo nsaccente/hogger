@@ -320,7 +320,7 @@ class Item(Entity):
             is the default for this field.
             """
         ),
-        # from_sql=
+        from_sql=Money.from_sql_copper("minMoneyLoot")
     )
     maxMoneyLoot: Money = Field(
         default=Money(),
@@ -331,7 +331,7 @@ class Item(Entity):
             is the default for this field.
             """
         ),
-        # from_sql=direct_map("MaxMoneyLoot"),
+        from_sql=Money.from_sql_copper("maxMoneyLoot")
     )
     itemSet: LookupID = Field(
         default=0,
@@ -388,15 +388,20 @@ class Item(Entity):
     readText: ItemText = Field(
         default=ItemText(),
         sql_fields=["PageText", "PageMaterial", "LanguageID"],
+        from_sql=ItemText.from_sql(
+            id="PageText",
+            pageMaterial="PageMaterial",
+            language="LanguageID",
+        )
     )
 
     # # REQUIREMENTS
     requires: Requires = Field(
         default=Requires(),
         description="",
-        sql_fields=["PageText", "PageMaterial", "LanguageID"],
-
+        from_sql=Requires.from_sql()
     )
+
     # TODO: Add automatic item level calculation as default.
     itemLevel: int = Field(
         default=0,
@@ -406,9 +411,7 @@ class Item(Entity):
             equip or use the item.
             """
         ),
-        # serialization_alias="ItemLevel",
-        sql_fields=["ItemLevel"],
-        ge=0,
+        from_sql=direct_map("ItemLevel"),
     )
     unlocks: LookupID = Field(
         default=0,
@@ -418,8 +421,7 @@ class Item(Entity):
             This field is used in key-door mechanics.
             """
         ),
-        # serialization_alias="lockid",
-        sql_fields=["lockid"],
+        from_sql=direct_map("lockid"),
     )
 
     # RESISTANCE
@@ -449,8 +451,7 @@ class Item(Entity):
             users level (mainly heirloom leveling gear) use like static stats.
             """
         ),
-        # serialization_alias="ScalingStatDistribution",
-        sql_fields=["ScalingStatDistribution"],
+        from_sql=direct_map("ScalingStatDistribution"),
     )
     scalingStatValue: int = Field(
         default=0,
@@ -459,8 +460,7 @@ class Item(Entity):
             Final (level 80) value of the scaling-stat
             """
         ),
-        # serialization_alias="ScalingStatValue",
-        sql_fields=["ScalingStatValue"],
+        from_sql=direct_map("ScalingStatValue"),
     )
     # TODO: We need to fill this back in when serialized.
     # statCount: int = Field(
@@ -532,8 +532,7 @@ class Item(Entity):
             The armor value of the item.
             """
         ),
-        # serialization_alias="armor",
-        sql_fields=["armor"],
+        from_sql=direct_map("armor"),
     )
     armorDamageModifier: int = Field(
         default=0,
@@ -542,8 +541,7 @@ class Item(Entity):
             This field is not well understood.
             """
         ),
-        # serialization_alias="ArmorDamageModifier",
-        sql_fields=["ArmorDamageModifier"],
+        from_sql=direct_map("ArmorDamageModifier"),
     )
     hitDelay: int = Field(
         default=0,
@@ -552,9 +550,7 @@ class Item(Entity):
             The time in milliseconds between successive hits.
             """
         ),
-        # serialization_alias="delay",
-        sql_fields=["delay"],
-        ge=0,
+        from_sql=direct_map("delay"),
     )
     ammoType: (AmmoType | int) = Field(
         default=AmmoType.Undefined,
@@ -563,8 +559,7 @@ class Item(Entity):
             The type of ammunition the item uses.
             """
         ),
-        # serialization_alias="ammo_type",
-        sql_fields=["ammo_type"],
+        from_sql=direct_map("ammo_type"),
     )
     weaponRange: int = Field(
         default=0,
@@ -574,9 +569,7 @@ class Item(Entity):
             All of Blizzard's ranged weapons have a default range of 100.
             """
         ),
-        # serialization_alias="RangedModRange",
-        sql_fields=["RangedModRange"],
-        ge=0,
+        from_sql=direct_map("RangedModRange"),
     )
     block: int = Field(
         default=0,
@@ -586,8 +579,7 @@ class Item(Entity):
             shield.
             """
         ),
-        # serialization_alias="block",
-        sql_fields=["block"],
+        from_sql=direct_map("block"),
     )
     durability: int = Field(
         default=100,
@@ -596,9 +588,7 @@ class Item(Entity):
             The durability of the item. Defaults to 100.
             """
         ),
-        # serialization_alias="MaxDurability",
-        sql_fields=["MaxDurability"],
-        ge=0,
+        from_sql=direct_map("MaxDurability"),
     )
     sheath: (Sheath | int) = Field(
         default=Sheath.Undefined,
@@ -608,8 +598,7 @@ class Item(Entity):
             hotkey to sheath and unsheathe your weapons.
             """
         ),
-        # serialization_alias="sheath"
-        sql_fields=["sheath"],
+        from_sql=direct_map("sheath"),
     )
     damage: Damage = Field(
         default=Damage(),
@@ -671,8 +660,7 @@ class Item(Entity):
         default=0,
         description="Indicates the build version that the item was added in.",
         # serialization_alias="VerifiedBuild",
-        sql_fields=["VerifiedBuild"],
-        ge=0,
+        from_sql=direct_map("VerifiedBuild"),
     )
 
     @field_validator(*_enum_fields, mode="before")

@@ -20,3 +20,8 @@ class Money(BaseModel):
             copper=copper,
         )
 
+    @staticmethod
+    def from_sql_copper(field: str):
+        def from_sql_copper(sql_dict: dict[str, any]) -> "Money":
+            return Money.from_copper(sql_dict[field])
+        return from_sql_copper

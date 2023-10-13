@@ -71,3 +71,19 @@ class ItemText(BaseModel):
         ),
         serialization_alias="LanguageID",
     )
+
+
+    @staticmethod
+    def from_sql(
+        id: str,
+        pageMaterial: str,
+        language: str,
+    ):
+        def from_sql(sql_dict: dict[str, any]) -> "ItemText":
+            return ItemText(
+                id=sql_dict[id],
+                pageMaterial=sql_dict[pageMaterial],
+                language=sql_dict[language],
+            )
+            
+        return from_sql

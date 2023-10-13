@@ -87,7 +87,6 @@ class Requires(BaseModel):
             The minimum player level required to equip the item.
             """
         ),
-        ge=1,
     )
     skill: LookupID = Field(
         default=0,
@@ -96,7 +95,6 @@ class Requires(BaseModel):
             The skill required to use this item.
             """
         ),
-        ge=0,
     )
     skillRank: int = Field(
         default=0,
@@ -130,7 +128,6 @@ class Requires(BaseModel):
             Unused. All items have this set to 0.
             """
         ),
-        ge=0,
     )
     reputationFaction: int = Field(
         default=0,
@@ -141,7 +138,6 @@ class Requires(BaseModel):
             seller of the item is used.
             """
         ),
-        ge=0,
     )
     reputationRank: (ReputationRank | int) = Field(
         default=0,
@@ -159,7 +155,6 @@ class Requires(BaseModel):
             have in order to disenchant this item.
             """
         ),
-        ge=0,
     )
     map: LookupID = Field(
         default=0,
@@ -169,7 +164,6 @@ class Requires(BaseModel):
             map, the item will be deleted from the inventory.
             """
         ),
-        ge=0,
     )
     area: LookupID = Field(
         default=0,
@@ -192,25 +186,47 @@ class Requires(BaseModel):
 
     @staticmethod
     def from_sql(
-        sql_data: dict[str, any],
-        sql_to_model: dict[str, str]={
-            "classes": "AllowableClass",
-            "races": "AllowableRace",
-            "level": "RequiredLevel",
-            "skill": "RequiredSkill",
-            "skillRank": "RequiredSkillRank",
-            "spell": "requiredspell",
-            "honorRank": "requiredhonorrank",
-            "cityRank": "RequiredCityRank",
-            "reputationFaction": "RequiredReputationFaction",
-            "reputationRank": "RequiredReputationRank",
-            "disenchantSkill": "RequiredDisenchantSkill",
-            "map": "Map",
-            "area": "area",
-            "holiday": "HolidayId",
-        },
-    ) -> "Requires":
-        params = {}
-        for sql_field, model_field in sql_to_model.items():
-            params[model_field] = sql_data[sql_field] 
-        return Requires(*params)
+        classes: str="AllowableClass",
+        races: str="AllowableRace",
+        level: str="RequiredLevel",
+        skill: str="RequiredSkill",
+        skillRank: str="RequiredSkillRank",
+        spell: str="requiredspell",
+        honorRank: str="requiredhonorrank",
+        cityRank: str="RequiredCityRank",
+        reputationFaction: str="RequiredReputationFaction",
+        reputationRank: str="RequiredReputationRank",
+        disenchantSkill: str="RequiredDisenchantSkill",
+        map: str="Map",
+        area: str="area",
+        holiday: str="HolidayId",
+    ):
+        def from_sql(sql_dict: dict[str, any]) -> "Requires":
+            if sql_dict[races] == -1:
+                allowable_races = []
+            else:
+                allowable_races = [race for race in AllowableRace if race in AllowableRace(sql_dict[races])]
+
+            if sql_dict[classes] == -1:
+                allowable_classes = []
+            else:
+                allowable_classes = [
+                    _class for _class in AllowableClass if _class in AllowableClass(sql_dict[classes])]
+            return Requires(
+                classes=allowable_classes,
+                races=allowable_races,
+                level=sql_dict[level],
+                skill=sql_dict[skill],
+                skillRank=sql_dict[skillRank],
+                spell=sql_dict[spell],
+                honorRank=sql_dict[honorRank],
+                cityRank=sql_dict[cityRank],
+                reputationFaction=sql_dict[reputationFaction],
+                reputationRank=sql_dict[reputationRank],
+                disenchantSkill=sql_dict[disenchantSkill],
+                map=sql_dict[map],
+                area=sql_dict[area],
+                holiday=sql_dict[holiday],
+            )
+            
+        return from_sql
