@@ -54,45 +54,39 @@ class WorldTable:
                 """
             )
             states = cursor.fetchall()
-            return states
-            # hoggerstates = []
-            # for entity_type, db_key, hogger_identifier in states:
+            hoggerstates = []
+            for entity_type, db_key, hogger_identifier in states:
 
-            #     # Map a entity_type id from hoggerstate to an Entity object
-            #     match entity_type:
-            #         case 0:
-            #             hoggerstates.append(
-            #                 entity_type,
-            #                 db_key,
-            #                 hogger_identifier,
-            #             )
-            #             # hoggerstates.append(
-            #             #     ENTITY_TYPE_MAP
-            #             #     [entity_type]
-            #             #     .from_hoggerstate(
-            #             #         db_key=db_key,
-            #             #         hogger_identifier=hogger_identifier,
-            #             #         cursor=self._cnx.cursor(),
-            #             #     )
-            #             # )
-            #         case _:
-            #             logging.warning(
-            #                 cleandoc(
-            #                     f"""
-            #                     During parsing of hoggerstate table, encountered the
-            #                     entity_type '{entity_type}', which isn't mappable to an 
-            #                     entity type.
+                # Map a entity_type id from hoggerstate to an Entity object
+                match entity_type:
+                    case 0:
+                        hoggerstates.append(
+                            ENTITY_TYPE_MAP
+                            [entity_type]
+                            .from_hoggerstate(
+                                db_key=db_key,
+                                hogger_identifier=hogger_identifier,
+                                cursor=self._cnx.cursor(),
+                            )
+                        )
+                    case _:
+                        logging.warning(
+                            cleandoc(
+                                f"""
+                                During parsing of hoggerstate table, encountered the
+                                entity_type '{entity_type}', which isn't mappable to an 
+                                entity type.
 
-            #                     It's possible that the hoggerstate table has entries
-            #                     that were created using a different version of Hogger.
-            #                     Make sure that you're using a version that is compatible
-            #                     with the version used to manage the hoggerstate table.
-            #                     Check your version of hogger using `hogger version`.
-            #                     """
+                                It's possible that the hoggerstate table has entries
+                                that were created using a different version of Hogger.
+                                Make sure that you're using a version that is compatible
+                                with the version used to manage the hoggerstate table.
+                                Check your version of hogger using `hogger version`.
+                                """
 
-            #                 )
-            #         )
-            # return hoggerstates
+                            )
+                    )
+            return hoggerstates
 
 
     def write_test(self, _type: int, id: int, name: str):

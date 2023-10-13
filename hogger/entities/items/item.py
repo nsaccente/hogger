@@ -43,69 +43,13 @@ _enum_map_fields = [
 ]
 
 
-class ItemOrm:
-    __table_name__ = "item_template"
-    type: Literal["Item"]
-    id: int 
-    name: str 
-    description: str 
-    scriptName: str  
-    itemClass: (ItemClass | int) 
-    itemSubclass: int 
-    soundOverride: int 
-    displayId: int 
-    quality: (Quality | int)
-    buyCount: int 
-    buyPrice: Money 
-    # # buyPriceExtra
-    sellPrice: Money 
-    inventoryType: (InventoryType | int) 
-    maxCount: int 
-    stackSize: int 
-    startsQuest: LookupID 
-    material: (Material | int) 
-    randomStat: RandomStat 
-    bagFamily: list[BagFamily | int]
-    containerSlots: int 
-    totemCategory: (TotemCategory | int)
-    duration: Duration 
-    itemLimitCategory: LookupID 
-    disenchantId: LookupID 
-    foodType: (FoodType | int) 
-    minMoneyLoot: Money 
-    maxMoneyLoot: Money 
-    itemSet: LookupID 
-    bonding: (ItemBinding | int) 
-    flags: list[ItemFlag | int] 
-    flagsExtra: list[ItemFlagExtra | int] 
-    flagsCustom: list[ItemFlagExtra | int] 
-    readText: ItemText 
-    requires: Requires 
-    itemLevel: int 
-    unlocks: LookupID 
-    resistances: dict[(ItemResistance | int), int] 
-    scalingStatDistribution: int 
-    scalingStatValue: int 
-    stats: dict[(ItemStat | int), int] 
-    sockets: ItemSockets 
-    armor: int 
-    armorDamageModifier: int 
-    hitDelay: int 
-    ammoType: (AmmoType | int) 
-    weaponRange: int 
-    block: int 
-    durability: int 
-    sheath: (Sheath | int) 
-    damage: Damage 
-    spells: list[ItemSpell] 
-    build: int 
-
+def direct_map(sql_field: str):
+    def direct_map(sql: dict[str, any]) -> any:
+        return sql[sql_field]
+    return direct_map 
 
 
 class Item(Entity):
-    class Config:
-        orm_mode = True
-
     type: Literal["Item"]
     # MISCELLANEOUS
     id: int = Field(
@@ -119,7 +63,7 @@ class Item(Entity):
             has that id.
             """
         ),
-        # serialization_alias="entry",
+        from_sql=direct_map("entry"),
     )
     name: str = Field(
         description=dedent(
@@ -127,8 +71,7 @@ class Item(Entity):
             The name of the item.
             """
         ),
-        # serialization_alias="name",
-        sql_fields=["name"],
+        from_sql=direct_map("name"),
     )
     description: str = Field(
         default="",
@@ -138,8 +81,7 @@ class Item(Entity):
             the item tooltip. No description by default.
             """
         ),
-        # serialization_alias="description",
-        sql_fields=["description"],
+        from_sql=direct_map("description"),
     )
     scriptName: str = Field(
         default="",
@@ -149,8 +91,7 @@ class Item(Entity):
             default.
             """
         ),
-        # serialization_alias="ScriptName",
-        sql_fields=["ScriptName"],
+        from_sql=direct_map("ScriptName"),
     )
     itemClass: (ItemClass | int) = Field(
         default=ItemClass.TradeGoods,
@@ -160,8 +101,7 @@ class Item(Entity):
             etc.
             """
         ),
-        # serialization_alias="class",
-        sql_fields=["class"],
+        from_sql=direct_map("class"),
     )
     itemSubclass: int = Field(
         defalt=0,
@@ -171,8 +111,7 @@ class Item(Entity):
             value of itemClass.
             """
         ),
-        # serialization_alias="subclass",
-        sql_fields=["subclass"],
+        from_sql=direct_map("subclass"),
     )
     soundOverride: int = Field(
         default=-1,
@@ -183,8 +122,7 @@ class Item(Entity):
             Use -1 to use the default sound for the item. Default is -1.
             """
         ),
-        # serialization_alias="SoundOverrideSubclass",
-        sql_fields=["SoundOverrideSubclass"],
+        from_sql=direct_map("SoundOverrideSubclass"),
         ge=-1,
     )
     displayId: int = Field(
@@ -194,8 +132,7 @@ class Item(Entity):
             Controls both the model appearance and icon.
             """
         ),
-        # serialization_alias="displayid",
-        sql_fields=["displayid"],
+        from_sql=direct_map("displayid"),
         ge=0,
     )
     quality: (Quality | int) = Field(
@@ -206,8 +143,7 @@ class Item(Entity):
             Common, Rare, Epic, Legendary, Artifact, BoA.
             """
         ),
-        # serialization_alias="Quality",
-        sql_fields=["Quality"],
+        from_sql=direct_map("Quality"),
     )
     buyCount: int = Field(
         default=1,
@@ -219,8 +155,7 @@ class Item(Entity):
             (see npc.vendor.incrtime).
             """
         ),
-        # serialization_alias="BuyCount",
-        sql_fields=["BuyCount"],
+        from_sql=direct_map("BuyCount"),
         ge=1,
     )
     buyPrice: Money = Field(
@@ -230,8 +165,7 @@ class Item(Entity):
             The cost to purchase this item form a vendor
             """
         ),
-        # serialization_alias="BuyPrice",
-        sql_fields=["BuyPrice"],
+        from_sql=direct_map("BuyPrice"),
     )
     # # buyPriceExtra
     sellPrice: Money = Field(
@@ -241,8 +175,7 @@ class Item(Entity):
             The amount a vendor will purchase this item from you for.
             """
         ),
-        # serialization_alias="SellPrice",
-        sql_fields=["SellPrice"],
+        from_sql=direct_map("SellPrice"),
     )
     inventoryType: (InventoryType | int) = Field(
         default=InventoryType.NoEquip,
@@ -251,8 +184,7 @@ class Item(Entity):
             Is the item equippable? A quest item?
             """
         ),
-        # serialization_alias="InventoryType",
-        sql_fields=["InventoryType"],
+        from_sql=direct_map("InventoryType"),
     )
     maxCount: int = Field(
         default=1,
@@ -261,8 +193,7 @@ class Item(Entity):
             The maximum amount that a player can have; use 0 for infinite.
             """
         ),
-        # serialization_alias="maxcount",
-        sql_fields=["maxcount"],
+        from_sql=direct_map("maxcount"),
         ge=0,
     )
     stackSize: int = Field(
@@ -272,8 +203,7 @@ class Item(Entity):
             The maximum size of a stack of this item.
             """
         ),
-        # serialization_alias="stackable",
-        sql_fields=["stackable"],
+        from_sql=direct_map("stackable"),
         ge=1,
     )
     startsQuest: LookupID = Field(
@@ -284,8 +214,7 @@ class Item(Entity):
             See quest_template.id.
             """
         ),
-        # serialization_alias="startquest",
-        sql_fields=["startquest"],
+        from_sql=direct_map("startquest"),
     )
     # TODO: This could use a more intuitive name
     material: (Material | int) = Field(
@@ -295,8 +224,7 @@ class Item(Entity):
             Controls the sound played when moving items in your inventory.
             """
         ),
-        # serialization_alias="Material",
-        sql_fields=["Material"],
+        from_sql=direct_map("Material"),
     )
     randomStat: RandomStat = Field(
         default=RandomStat(),
@@ -305,7 +233,10 @@ class Item(Entity):
             Adds a random stat bonus on the item.
             """
         ),
-        sql_fields=["RandomProperty", "RandomName"],
+        from_sql=RandomStat.from_sql(
+            RandomProperty="RandomProperty",
+            RandomSuffix="RandomSuffix",
+        )
     )
     bagFamily: list[BagFamily | int] = Field(
         default=[],
@@ -314,8 +245,7 @@ class Item(Entity):
             Dictates what kind of bags this item can be placed in.
             """
         ),
-        # serialization_alias="BagFamily",
-        sql_fields=["BagFamily"],
+        from_sql=direct_map("BagFamily"),
     )
     containerSlots: int = Field(
         default=0,
@@ -324,8 +254,7 @@ class Item(Entity):
             If this item is a bag, controls the number of slots it will have
             """
         ),
-        # serialization_alias="ContainerSlots",
-        sql_fields=["ContainerSlots"],
+        from_sql=direct_map("ContainerSlots"),
     )
     totemCategory: (TotemCategory | int) = Field(
         default=TotemCategory.Undefined,
@@ -335,8 +264,7 @@ class Item(Entity):
             shaman's totems, blacksmithing hammers, or enchanting rods.
             """
         ),
-        # serialization_alias="TotemCategory",
-        sql_fields=["TotemCategory"],
+        from_sql=direct_map("TotemCategory"),
     )
     duration: Duration = Field(
         default=Duration(),
@@ -347,8 +275,7 @@ class Item(Entity):
             prevent the item from every disappearing.
             """
         ),
-        # serialization_alias="duration",
-        sql_fields=["duration"],
+        from_sql=Duration.from_sql_seconds("duration"),
     )
     itemLimitCategory: LookupID = Field(
         default=0,
@@ -362,8 +289,7 @@ class Item(Entity):
             (check as example value 3 or 4).
             """
         ),
-        # serialization_alias="ItemLimitCategory",
-        sql_fields=["ItemLimitCategory"],
+        from_sql=direct_map("ItemLimitCategory"),
     )
     disenchantId: LookupID = Field(
         default=0,
@@ -372,8 +298,7 @@ class Item(Entity):
             Corresponds to an entry in disenchant_loot_template.
             """
         ),
-        # serialization_alias="DisenchantID",
-        sql_fields=["DisenchantID"],
+        from_sql=direct_map("DisenchantID"),
     )
     foodType: (FoodType | int) = Field(
         default=FoodType.Undefined,
@@ -384,8 +309,7 @@ class Item(Entity):
             Defaults to "Undefined".
             """
         ),
-        # serialization_alias="FoodType",
-        sql_fields=["FoodType"],
+        from_sql=direct_map("FoodType"),
     )
     minMoneyLoot: Money = Field(
         default=Money(),
@@ -396,8 +320,7 @@ class Item(Entity):
             is the default for this field.
             """
         ),
-        # serialization_alias="minMoneyLoot",
-        sql_fields=["MinMoneyLoot"],
+        # from_sql=
     )
     maxMoneyLoot: Money = Field(
         default=Money(),
@@ -408,8 +331,7 @@ class Item(Entity):
             is the default for this field.
             """
         ),
-        # serialization_alias="maxMoneyLoot",
-        sql_fields=["MaxMoneyLoot"],
+        # from_sql=direct_map("MaxMoneyLoot"),
     )
     itemSet: LookupID = Field(
         default=0,
@@ -419,7 +341,7 @@ class Item(Entity):
             """
         ),
         ge=0,
-        serialization_alias="itemset",
+        from_sql=direct_map("itemset"),
     )
     bonding: (ItemBinding | int) = Field(
         default=ItemBinding.Never,
@@ -428,7 +350,7 @@ class Item(Entity):
             Determines if the item binds to the character. Defaults to Never.
             """
         ),
-        serialization_alias="bonding",
+        from_sql=direct_map("bonding"),
     )
 
     # # FLAGS
@@ -439,8 +361,7 @@ class Item(Entity):
             A collection of flags to modify the behavior of the item.
             """
         ),
-        # serialization_alias="Flags",
-        sql_fields=["Flags"],
+        from_sql=direct_map("Flags"),
     )
     flagsExtra: list[ItemFlagExtra | int] = Field(
         default=[],
@@ -802,9 +723,21 @@ class Item(Entity):
         )
         entity = cursor.fetchall()
         assert(len(entity) == 1)
-        Item.from_sql(dict(zip(cursor.column_names, entity[0])))
 
-        return None
+        sql = dict(zip(cursor.column_names, entity[0]))
+        for field, field_properties in Item.model_fields.items():
+            json_schema_extra = field_properties.json_schema_extra
+            if json_schema_extra is not None and "from_sql" in json_schema_extra:
+                from_sql_func = json_schema_extra["from_sql"]
+                result = from_sql_func(sql)
+                print(field, result, type(result))
+
+        print()
+        print()
+        print()
+        print()
+        return sql
+
 
     
     @staticmethod

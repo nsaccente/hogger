@@ -24,3 +24,24 @@ class RandomStat(BaseModel):
             """
         ),
     )
+
+    @staticmethod
+    def from_sql(
+        RandomProperty: str="RandomProperty",
+        RandomSuffix: str="RandomSuffix",
+    ):
+        def from_sql(sql: dict[str, any]):
+            random_property = sql[RandomProperty]
+            random_suffix = sql[RandomSuffix]
+            with_prefix = (random_suffix != 0)
+
+
+            if min(random_property, random_suffix) != 0:
+                pass
+                # raise Exception("Unable to create ")
+            return RandomStat(
+                id=abs(max(random_property, random_suffix)),
+                withPrefix=with_prefix,
+            )
+        return from_sql
+        
