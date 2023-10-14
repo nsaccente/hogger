@@ -3,6 +3,7 @@ from enum import Enum
 from typing import get_args, get_type_hints
 
 from pydantic import FieldSerializationInfo, FieldValidationInfo
+from mysql.connector.cursor_cext import CMySQLCursor as Cursor
 
 from .errors import InvalidValueException
 
@@ -47,3 +48,21 @@ class EnumUtils:
         if isinstance(v, int):
             return v
         return v.name
+
+
+    @staticmethod
+    def from_sql(field: str):
+        def from_sql(
+            sql_dict: dict[str, any], 
+            cursor: Cursor,
+            field_type: type,
+        ) -> Enum:
+            for t in get_args(field_type):
+                if issubclass(t, Enum):
+                    EnumType = t
+                    break
+            try:
+                return EnumType(sql_dict[field])
+            except:
+                return sql_dict[field]
+        return from_sql

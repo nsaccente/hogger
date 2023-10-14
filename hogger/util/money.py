@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+from mysql.connector.cursor_cext import CMySQLCursor as Cursor
 
 class Money(BaseModel):
     gold: int = Field(default=0, ge=0)
@@ -22,6 +23,10 @@ class Money(BaseModel):
 
     @staticmethod
     def from_sql_copper(field: str):
-        def from_sql_copper(sql_dict: dict[str, any]) -> "Money":
+        def from_sql_copper(
+            sql_dict: dict[str, any],
+            cursor: Cursor,
+            field_type: type,
+        ) -> "Money":
             return Money.from_copper(sql_dict[field])
         return from_sql_copper

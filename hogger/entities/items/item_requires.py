@@ -1,9 +1,8 @@
 from textwrap import dedent
 from enum import auto, IntFlag, Enum
 from pydantic import BaseModel, Field
-from hogger.util import (
-    LookupID,
-)
+from hogger.util import LookupID
+from mysql.connector.cursor_cext import CMySQLCursor as Cursor
 
 
 class AllowableClass(IntFlag):
@@ -201,7 +200,11 @@ class Requires(BaseModel):
         area: str="area",
         holiday: str="HolidayId",
     ):
-        def from_sql(sql_dict: dict[str, any]) -> "Requires":
+        def from_sql(
+            sql_dict: dict[str, any],
+            cursor: Cursor,
+            field_type: type,
+        ) -> "Requires":
             if sql_dict[races] == -1:
                 allowable_races = []
             else:

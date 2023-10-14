@@ -3,6 +3,7 @@ from inspect import cleandoc
 from pydantic import BaseModel, Field
 
 from hogger.util import LookupID
+from mysql.connector.cursor_cext import CMySQLCursor as Cursor
 
 
 class PageMaterial(Enum):
@@ -79,7 +80,11 @@ class ItemText(BaseModel):
         pageMaterial: str,
         language: str,
     ):
-        def from_sql(sql_dict: dict[str, any]) -> "ItemText":
+        def from_sql(
+            sql_dict: dict[str, any],
+            cursor: Cursor,
+            field_type: type,
+        ) -> "ItemText":
             return ItemText(
                 id=sql_dict[id],
                 pageMaterial=sql_dict[pageMaterial],

@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from mysql.connector.cursor_cext import CMySQLCursor as Cursor
 
 
 class Duration(BaseModel):
@@ -56,6 +57,10 @@ class Duration(BaseModel):
 
     @staticmethod
     def from_sql_seconds(field: str):
-        def from_sql_seconds(sql_dict: dict[str, any]) -> Duration:
+        def from_sql_seconds(
+            sql_dict: dict[str, any],
+            cursor: Cursor,
+            field_type: type,
+            ) -> Duration:
             return Duration.from_seconds(sql_dict[field])
         return from_sql_seconds

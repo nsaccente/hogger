@@ -22,10 +22,10 @@ def apply(
         database=world,
 
     )
-    wt.write_test(0, 17, "Martin Fury")
-    wt.write_test(0, 25, "Worn Shortsword")
-    wt.write_test(0, 35, "Bent Staff")
-    wt.write_test(0, 35, "Bent Staff")
+    # wt.write_test(0, 17, "Martin Fury")
+    # wt.write_test(0, 25, "Worn Shortsword")
+    # wt.write_test(0, 35, "Bent Staff")
+    wt.write_test(0, 21846, "Spellfire Belt")
 
     states = wt.get_entities()
     # for state in states:

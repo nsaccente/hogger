@@ -1,5 +1,6 @@
 from inspect import cleandoc
 from pydantic import BaseModel, Field
+from mysql.connector.cursor_cext import CMySQLCursor as Cursor
 from hogger.util import LookupID
 
 
@@ -30,12 +31,14 @@ class RandomStat(BaseModel):
         RandomProperty: str="RandomProperty",
         RandomSuffix: str="RandomSuffix",
     ):
-        def from_sql(sql: dict[str, any]):
-            random_property = sql[RandomProperty]
-            random_suffix = sql[RandomSuffix]
+        def from_sql(
+            sql_dict: dict[str, any], 
+            cursor: Cursor=None,
+            field_type: type=None,
+        ):
+            random_property = sql_dict[RandomProperty]
+            random_suffix = sql_dict[RandomSuffix]
             with_prefix = (random_suffix != 0)
-
-
             if min(random_property, random_suffix) != 0:
                 pass
                 # raise Exception("Unable to create ")

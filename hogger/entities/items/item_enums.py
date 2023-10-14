@@ -1,4 +1,5 @@
 from enum import Enum
+from mysql.connector.cursor_cext import CMySQLCursor as Cursor
 
 
 class Quality(Enum):

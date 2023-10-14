@@ -3,6 +3,7 @@ from enum import Enum, IntFlag
 from typing import get_args, get_type_hints
 
 from pydantic import FieldValidationInfo, SerializationInfo
+from mysql.connector.cursor_cext import CMySQLCursor as Cursor
 
 from .errors import InvalidValueException
 
@@ -80,3 +81,22 @@ class IntFlagUtils:
             else:
                 result.append(item)
         return result
+
+    @staticmethod
+    def from_sql(field: str):
+        def from_sql(
+            sql_dict: dict[str, any], 
+            cursor: Cursor,
+            field_type: type,
+        ) -> IntFlag:
+            for t in get_args(get_args(field_type)[0]):
+                if issubclass(t, IntFlag):
+                    IntFlagType = t
+                    break
+
+            if sql_dict[field] == -1:
+                flags = []
+            else:
+                flags = [flag for flag in IntFlagType if flag in IntFlagType(sql_dict[field])]
+            return flags
+        return from_sql

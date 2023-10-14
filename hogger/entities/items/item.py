@@ -1,5 +1,5 @@
 from enum import Enum, IntFlag
-from typing import Literal
+from typing import Literal, get_args
 from textwrap import dedent
 
 from pydantic import (
@@ -43,9 +43,30 @@ _enum_map_fields = [
 ]
 
 
+def res_from_sql(
+    field_map: dict[str, str]
+):
+    def res_from_sql(
+        sql_dict: dict[str, any], 
+        cursor: Cursor,
+        field_type: type,
+    ) -> dict[dict[(Enum | int), int]]:
+        EnumType = get_args(get_args(field_type)[0])[0]
+        result = {}
+        for sql_field, model_field in field_map.items():
+            if sql_dict[sql_field] != 0:
+                result[EnumType[model_field]] = sql_dict[sql_field]
+        return result
+    return res_from_sql
+
+
 def direct_map(sql_field: str):
-    def direct_map(sql: dict[str, any]) -> any:
-        return sql[sql_field]
+    def direct_map(
+        sql_dict: dict[str, any], 
+        cursor: Cursor=None,
+        field_type: type=None,
+    ) -> any:
+        return sql_dict[sql_field]
     return direct_map 
 
 
@@ -101,7 +122,7 @@ class Item(Entity):
             etc.
             """
         ),
-        from_sql=direct_map("class"),
+        from_sql=EnumUtils.from_sql("class"),
     )
     itemSubclass: int = Field(
         defalt=0,
@@ -143,7 +164,7 @@ class Item(Entity):
             Common, Rare, Epic, Legendary, Artifact, BoA.
             """
         ),
-        from_sql=direct_map("Quality"),
+        from_sql=EnumUtils.from_sql("Quality"),
     )
     buyCount: int = Field(
         default=1,
@@ -184,7 +205,7 @@ class Item(Entity):
             Is the item equippable? A quest item?
             """
         ),
-        from_sql=direct_map("InventoryType"),
+        from_sql=EnumUtils.from_sql("InventoryType"),
     )
     maxCount: int = Field(
         default=1,
@@ -245,7 +266,7 @@ class Item(Entity):
             Dictates what kind of bags this item can be placed in.
             """
         ),
-        from_sql=direct_map("BagFamily"),
+        from_sql=IntFlagUtils.from_sql("BagFamily"),
     )
     containerSlots: int = Field(
         default=0,
@@ -264,7 +285,7 @@ class Item(Entity):
             shaman's totems, blacksmithing hammers, or enchanting rods.
             """
         ),
-        from_sql=direct_map("TotemCategory"),
+        from_sql=EnumUtils.from_sql("TotemCategory"),
     )
     duration: Duration = Field(
         default=Duration(),
@@ -309,7 +330,7 @@ class Item(Entity):
             Defaults to "Undefined".
             """
         ),
-        from_sql=direct_map("FoodType"),
+        from_sql=EnumUtils.from_sql("FoodType"),
     )
     minMoneyLoot: Money = Field(
         default=Money(),
@@ -350,7 +371,7 @@ class Item(Entity):
             Determines if the item binds to the character. Defaults to Never.
             """
         ),
-        from_sql=direct_map("bonding"),
+        from_sql=EnumUtils.from_sql("bonding"),
     )
 
     # # FLAGS
@@ -361,7 +382,7 @@ class Item(Entity):
             A collection of flags to modify the behavior of the item.
             """
         ),
-        from_sql=direct_map("Flags"),
+        from_sql=IntFlagUtils.from_sql("Flags"),
     )
     flagsExtra: list[ItemFlagExtra | int] = Field(
         default=[],
@@ -370,8 +391,7 @@ class Item(Entity):
             A collection of flags to modify the behavior of the item.
             """
         ),
-        # serialization_alias="FlagsExtra",
-        sql_fields=["FlagsExtra"],
+        from_sql=IntFlagUtils.from_sql("FlagsExtra"),
     )
     flagsCustom: list[ItemFlagExtra | int] = Field(
         default=[],
@@ -380,8 +400,7 @@ class Item(Entity):
             A collection of flags to modify the behavior of the item.
             """
         ),
-        # serialization_alias="flagsCustom",
-        sql_fields=["flagsCustom"],
+        from_sql=IntFlagUtils.from_sql("flagsCustom"),
     )
 
     # # TEXTS
@@ -432,14 +451,16 @@ class Item(Entity):
             Item resistances.
             """
         ),
-        sql_fields={
-            "Holy": "holy_res", 
-            "Fire": "fire_res", 
-            "Nature": "nature_res", 
-            "Frost": "frost_res",
-            "Shadow": "shadow_res",
-            "Arcane": "arcane_res",
-        },
+        from_sql=res_from_sql(
+            {
+                "holy_res": "Holy", 
+                "fire_res": "Fire", 
+                "nature_res": "Nature", 
+                "frost_res": "Frost",
+                "shadow_res": "Shadow",
+                "arcane_res": "Arcane",
+            },
+        )
     )
 
     # STATS
@@ -502,6 +523,7 @@ class Item(Entity):
             "stat_type10",
             "stat_value10",
         ],
+        # from_sql=direct_map()
     )
 
     # # SOCKETS
@@ -512,16 +534,7 @@ class Item(Entity):
             Item socket details.
             """
         ),
-        sql_fields=[
-            "GemProperties",
-            "socketBonus",
-            "socketColor_1",
-            "socketColor_2",
-            "socketColor_3",
-            "socketContent_1",
-            "socketContent_2",
-            "socketContent_3",
-        ],
+        from_sql=ItemSockets.from_sql(),
     )
 
     # # WEAPON ARMOR
@@ -559,7 +572,7 @@ class Item(Entity):
             The type of ammunition the item uses.
             """
         ),
-        from_sql=direct_map("ammo_type"),
+        from_sql=EnumUtils.from_sql("ammo_type"),
     )
     weaponRange: int = Field(
         default=0,
@@ -598,7 +611,7 @@ class Item(Entity):
             hotkey to sheath and unsheathe your weapons.
             """
         ),
-        from_sql=direct_map("sheath"),
+        from_sql=EnumUtils.from_sql("sheath"),
     )
     damage: Damage = Field(
         default=Damage(),
@@ -712,49 +725,20 @@ class Item(Entity):
         entity = cursor.fetchall()
         assert(len(entity) == 1)
 
-        sql = dict(zip(cursor.column_names, entity[0]))
+        sql_dict = dict(zip(cursor.column_names, entity[0]))
         for field, field_properties in Item.model_fields.items():
             json_schema_extra = field_properties.json_schema_extra
             if json_schema_extra is not None and "from_sql" in json_schema_extra:
                 from_sql_func = json_schema_extra["from_sql"]
-                result = from_sql_func(sql)
+                result = from_sql_func(
+                    sql_dict=sql_dict, 
+                    cursor=cursor,
+                    field_type=field_properties.annotation,
+                )
                 print(field, result, type(result))
 
-        print()
-        print()
-        print()
-        print()
-        return sql
+        return sql_dict
 
-
-    
-    @staticmethod
-    def from_sql(sql: dict[str, any]) -> "Item":
-        f = Item.model_fields["id"].json_schema_extra["from_sql"]
-        print(f(sql))
-
-        # for field_name, field_properties in list(Item.model_fields.items())[0:15]:
-        #     try:
-        #         sql_fields = field_properties.json_schema_extra["from_sql"]
-        #     except:
-        #         sql_fields = None
-            
-        #     if sql_fields is not None:
-        #         anno = field_properties.annotation
-        #         print(field_name, sql_fields, anno)
-                # if issubclass(IntFlag, anno):
-                #     print(anno)
-                # if issubclass(Enum, anno):
-                #     print(anno)
-
-
-
-        # item_fields = {
-        #     "name": sql.pop("name"),
-        #     # "itemSubclass": sql.pop("")
-        # }
-        # for sql_field, model_field in _sql_to_model.items():
-        #     item_fields[model_field] = sql.pop(sql_field)
 
         # # Stats
         # item_fields["stats"] = {}
@@ -788,43 +772,4 @@ class Item(Entity):
         #         }
         #     )
             
-        # # Resistances 
-        # item_fields["resistances"] = {}
-        # for resistance in ItemResistance:
-        #     res = f"{resistance.name.lower()}_res"
-        #     item_fields["resistances"][resistance] = sql.pop(res)
-
-        # # ItemText
-        # item_fields["readText"] = {
-        #     "id": sql.pop("PageText"),
-        #     "pageMaterial": sql.pop("PageMaterial"),
-        #     "language": sql.pop("LanguageID"),
-        # }
-        
-        # # Gems
-        # gems = {1: 0, 2: 0, 4: 0, 8: 0}
-        # for i in range(1, 4):
-        #     color = sql.pop(f"socketColor_{i}")
-        #     count = sql.pop(f"socketContent_{i}")
-        #     if color not in gems:
-        #         gems[color] = 0
-        #     gems[color] += count
-        # item_fields["sockets"] = {
-        #     "socketBonus": sql.pop("socketBonus"),
-        #     "properties": sql.pop("GemProperties"),
-        #     "meta": gems[1],
-        #     "red": gems[2],
-        #     "yellow": gems[4],
-        #     "blue": gems[8],
-        # }
-
-        # # randomStat
-        # item_fields["randomStat"] = {
-        #     "id": max(sql.pop("RandomProperty"), sql["RandomSuffix"]),
-        #     "randomSuffix": sql.pop("RandomSuffix"),
-        # }
-
-        # for k, v in sql.items():
-        #     print(k, v)
-        # return Item(**item_fields)
-            
+# TODO: stats, spells, damage
