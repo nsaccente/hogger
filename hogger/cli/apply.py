@@ -28,9 +28,9 @@ def apply(
     wt.write_test(0, 21846, "Spellfire Belt")
 
     states = wt.get_entities()
-    # for state in states:
-        # print(state)
-        # print()
+    for state in states:
+        print(state)
+        print()
 
 
     entities = []
