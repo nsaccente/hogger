@@ -28,7 +28,7 @@ class IntFlagUtils:
 
     @staticmethod
     def parse(
-        cls, items: list[str | int], info: FieldValidationInfo
+        cls, items: list[IntFlag | str | int], info: FieldValidationInfo
     ) -> list[IntFlag | int]:
         IntFlagType = (
             list(
@@ -41,34 +41,31 @@ class IntFlagUtils:
         domain = {i.name: i.value for i in IntFlagType}
         result = []
         suggestion = None
-        try:
-            for item in items:
-                if isinstance(item, IntFlagType):
+        for item in items:
+            if isinstance(item, IntFlagType):
+                result.append(item)
+            elif isinstance(item, int):
+                flag = 2**item
+                if flag in domain.values():
+                    result.append(IntFlagType(flag))
+                else:
                     result.append(item)
-                elif isinstance(item, int):
-                    flag = 2**item
-                    if flag in domain.values():
-                        result.append(IntFlagType(flag))
-                    else:
-                        result.append(item)
-                elif isinstance(item, str):
-                    if item in domain:
-                        result.append(IntFlagType[item])
-                    else:
-                        # Attempt to find the nearest valid Enum value
-                        for k in domain.keys():
-                            if SequenceMatcher(None, item, k).ratio() >= 0.7:
-                                suggestion = k
-                                raise
+            elif isinstance(item, str):
+                if item in domain:
+                    result.append(IntFlagType[item])
+                else:
+                    # Attempt to find the nearest valid Enum value
+                    for k in domain.keys():
+                        if SequenceMatcher(None, item, k).ratio() >= 0.7:
+                            suggestion = k
+                            raise InvalidValueException(
+                                field_name=info.field_name,
+                                expected_values=list(domain.keys()),
+                                FieldType=IntFlag,
+                                actual=item,
+                                suggestion=suggestion,
+                            )
             return list(set(result))
-        except:
-            raise InvalidValueException(
-                field_name=info.field_name,
-                expected_values=list(domain.keys()),
-                FieldType=IntFlag,
-                actual=item,
-                suggestion=suggestion,
-            )
 
 
     def serialize(

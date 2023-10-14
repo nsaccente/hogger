@@ -9,7 +9,7 @@ from .errors import InvalidValueException
 from .intflag import IntFlagUtils
 from .lookup import Lookup, LookupID
 from .money import Money
-from .utils import pydantic_annotation
+from .utils import pydantic_annotation, direct_map
 
 
 
@@ -30,5 +30,6 @@ __all__ = [
     # money
     "Money",
     # utils
-    "pydantic_annotation"
+    "pydantic_annotation",
+    "direct_map",
 ]

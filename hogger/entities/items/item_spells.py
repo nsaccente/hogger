@@ -92,3 +92,4 @@ class ItemSpell(BaseModel):
         ),
         serialization_alias="spellcategorycooldown_{}",
     )
+

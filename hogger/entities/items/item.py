@@ -1,5 +1,5 @@
 from enum import Enum, IntFlag
-from typing import Literal, get_args
+from typing import Literal
 from textwrap import dedent
 
 from pydantic import (
@@ -14,7 +14,6 @@ from hogger.entities import Entity
 from hogger.entities.items import *
 from hogger.util import *
 
-import mysql.connector as db
 from mysql.connector.cursor_cext import CMySQLCursor as Cursor
 
 
@@ -42,37 +41,9 @@ _enum_map_fields = [
     "stats",
 ]
 
-
-def res_from_sql(
-    field_map: dict[str, str]
-):
-    def res_from_sql(
-        sql_dict: dict[str, any], 
-        cursor: Cursor,
-        field_type: type,
-    ) -> dict[dict[(Enum | int), int]]:
-        EnumType = get_args(get_args(field_type)[0])[0]
-        result = {}
-        for sql_field, model_field in field_map.items():
-            if sql_dict[sql_field] != 0:
-                result[EnumType[model_field]] = sql_dict[sql_field]
-        return result
-    return res_from_sql
-
-
-def direct_map(sql_field: str):
-    def direct_map(
-        sql_dict: dict[str, any], 
-        cursor: Cursor=None,
-        field_type: type=None,
-    ) -> any:
-        return sql_dict[sql_field]
-    return direct_map 
-
-
 class Item(Entity):
     type: Literal["Item"]
-    # MISCELLANEOUS
+    
     id: int = Field(
         default=-1,
         description=dedent(
@@ -186,9 +157,9 @@ class Item(Entity):
             The cost to purchase this item form a vendor
             """
         ),
-        from_sql=direct_map("BuyPrice"),
+        from_sql=Money.from_sql_copper("BuyPrice"),
     )
-    # # buyPriceExtra
+    # TODO: buyPriceExtra
     sellPrice: Money = Field(
         default=Money(gold=0, silver=0, copper=0),
         description=dedent(
@@ -196,7 +167,7 @@ class Item(Entity):
             The amount a vendor will purchase this item from you for.
             """
         ),
-        from_sql=direct_map("SellPrice"),
+        from_sql=Money.from_sql_copper("SellPrice"),
     )
     inventoryType: (InventoryType | int) = Field(
         default=InventoryType.NoEquip,
@@ -373,8 +344,6 @@ class Item(Entity):
         ),
         from_sql=EnumUtils.from_sql("bonding"),
     )
-
-    # # FLAGS
     flags: list[ItemFlag | int] = Field(
         default=[],
         description=dedent(
@@ -402,8 +371,6 @@ class Item(Entity):
         ),
         from_sql=IntFlagUtils.from_sql("flagsCustom"),
     )
-
-    # # TEXTS
     readText: ItemText = Field(
         default=ItemText(),
         sql_fields=["PageText", "PageMaterial", "LanguageID"],
@@ -413,14 +380,11 @@ class Item(Entity):
             language="LanguageID",
         )
     )
-
-    # # REQUIREMENTS
     requires: Requires = Field(
         default=Requires(),
         description="",
         from_sql=Requires.from_sql()
     )
-
     # TODO: Add automatic item level calculation as default.
     itemLevel: int = Field(
         default=0,
@@ -442,8 +406,6 @@ class Item(Entity):
         ),
         from_sql=direct_map("lockid"),
     )
-
-    # RESISTANCE
     resistances: dict[(ItemResistance | int), int] = Field(
         default=dict(),
         description=dedent(
@@ -451,7 +413,7 @@ class Item(Entity):
             Item resistances.
             """
         ),
-        from_sql=res_from_sql(
+        from_sql=EnumMapUtils.from_sql_named_fields(
             {
                 "holy_res": "Holy", 
                 "fire_res": "Fire", 
@@ -460,10 +422,8 @@ class Item(Entity):
                 "shadow_res": "Shadow",
                 "arcane_res": "Arcane",
             },
-        )
+        ),
     )
-
-    # STATS
     scalingStatDistribution: int = Field(
         default=0,
         description=dedent(
@@ -483,50 +443,28 @@ class Item(Entity):
         ),
         from_sql=direct_map("ScalingStatValue"),
     )
-    # TODO: We need to fill this back in when serialized.
-    # statCount: int = Field(
-    #     default=0,
-    #     description=dedent(
-    #         """
-    #         The total number of stats attached to this item. Defaults to 0.
-    #         """
-    #     ),
-    #     ge=0,
-    #     # serialization_alias="StatsCount",
-    #     sql_fields=["StatsCount"],
-    # )
     stats: dict[(ItemStat | int), int] = Field(
+        # TODO: must include `statCount` in serialization
         default=dict(),
         description=dedent(
             """
             Stats applied to the item in key-value pairs.
             """
         ),
-        sql_fields=[
-            "StatsCount",
-            "stat_type1",
-            "stat_value1",
-            "stat_type2",
-            "stat_value2",
-            "stat_type3",
-            "stat_value4",
-            "stat_type5",
-            "stat_value5",
-            "stat_type6",
-            "stat_value6",
-            "stat_type7",
-            "stat_value7",
-            "stat_type8",
-            "stat_value8",
-            "stat_type9",
-            "stat_value9",
-            "stat_type10",
-            "stat_value10",
-        ],
-        # from_sql=direct_map()
+        from_sql=EnumMapUtils.stats_from_sql_kvpairs(
+            {
+                "stat_type1": "stat_value1",
+                "stat_type2": "stat_value2",
+                "stat_type3": "stat_value4",
+                "stat_type5": "stat_value5",
+                "stat_type6": "stat_value6",
+                "stat_type7": "stat_value7",
+                "stat_type8": "stat_value8",
+                "stat_type9": "stat_value9",
+                "stat_type10": "stat_value10",
+            },
+        ),
     )
-
-    # # SOCKETS
     sockets: ItemSockets = Field(
         default=ItemSockets(),
         description=dedent(
@@ -536,8 +474,6 @@ class Item(Entity):
         ),
         from_sql=ItemSockets.from_sql(),
     )
-
-    # # WEAPON ARMOR
     armor: int = Field(
         default=0,
         description=dedent(
@@ -620,10 +556,8 @@ class Item(Entity):
             The damage values of the weapon.
             """
         ),
-        sql_fields=["damage"],
+        from_sql=Damage.from_sql(),
     )
-
-    # # SPELL
     spells: list[ItemSpell] = Field(
         default=[],
         description=dedent(
@@ -631,48 +565,47 @@ class Item(Entity):
             Items can be used to invoke spells.
             """
         ),
-        sql_fields=[
-            "spellid_1",
-            "spelltrigger_1",
-            "spellcharges_1",
-            "spellppmRate_1",
-            "spellcooldown_1",
-            "spellcategory_1",
-            "spellcategorycooldown_1",
-            "spellid_2",
-            "spelltrigger_2",
-            "spellcharges_2",
-            "spellppmRate_2",
-            "spellcooldown_2",
-            "spellcategory_2",
-            "spellcategorycooldown_2",
-            "spellid_3",
-            "spelltrigger_3",
-            "spellcharges_3",
-            "spellppmRate_3",
-            "spellcooldown_3",
-            "spellcategory_3",
-            "spellcategorycooldown_3",
-            "spellid_4",
-            "spelltrigger_4",
-            "spellcharges_4",
-            "spellppmRate_4",
-            "spellcooldown_4",
-            "spellcategory_4",
-            "spellcategorycooldown_4",
-            "spellid_5",
-            "spelltrigger_5",
-            "spellcharges_5",
-            "spellppmRate_5",
-            "spellcooldown_5",
-            "spellcategory_5",
-            "spellcategorycooldown_5",
-        ],
+        # sql_fields=[
+        #     "spellid_1",
+        #     "spelltrigger_1",
+        #     "spellcharges_1",
+        #     "spellppmRate_1",
+        #     "spellcooldown_1",
+        #     "spellcategory_1",
+        #     "spellcategorycooldown_1",
+        #     "spellid_2",
+        #     "spelltrigger_2",
+        #     "spellcharges_2",
+        #     "spellppmRate_2",
+        #     "spellcooldown_2",
+        #     "spellcategory_2",
+        #     "spellcategorycooldown_2",
+        #     "spellid_3",
+        #     "spelltrigger_3",
+        #     "spellcharges_3",
+        #     "spellppmRate_3",
+        #     "spellcooldown_3",
+        #     "spellcategory_3",
+        #     "spellcategorycooldown_3",
+        #     "spellid_4",
+        #     "spelltrigger_4",
+        #     "spellcharges_4",
+        #     "spellppmRate_4",
+        #     "spellcooldown_4",
+        #     "spellcategory_4",
+        #     "spellcategorycooldown_4",
+        #     "spellid_5",
+        #     "spelltrigger_5",
+        #     "spellcharges_5",
+        #     "spellppmRate_5",
+        #     "spellcooldown_5",
+        #     "spellcategory_5",
+        #     "spellcategorycooldown_5",
+        # ],
     )
     build: int = Field(
         default=0,
         description="Indicates the build version that the item was added in.",
-        # serialization_alias="VerifiedBuild",
         from_sql=direct_map("VerifiedBuild"),
     )
 
@@ -725,51 +658,22 @@ class Item(Entity):
         entity = cursor.fetchall()
         assert(len(entity) == 1)
 
+        item_args = {}
         sql_dict = dict(zip(cursor.column_names, entity[0]))
         for field, field_properties in Item.model_fields.items():
             json_schema_extra = field_properties.json_schema_extra
             if json_schema_extra is not None and "from_sql" in json_schema_extra:
                 from_sql_func = json_schema_extra["from_sql"]
-                result = from_sql_func(
+                item_args[field] = from_sql_func(
                     sql_dict=sql_dict, 
                     cursor=cursor,
                     field_type=field_properties.annotation,
                 )
-                print(field, result, type(result))
-
-        return sql_dict
-
-
-        # # Stats
-        # item_fields["stats"] = {}
-        # for i in range(1, 11):
-        #     stat_type = sql.pop(f"stat_type{i}")
-        #     stat_value = sql.pop(f"stat_value{i}")
-        #     item_fields["stats"][ItemStat(stat_type)] = stat_value
         
-        # # Damage
-        # item_fields["damage"] = {
-        #     "min1": sql.pop("dmg_min1"),
-        #     "max1": sql.pop("dmg_max1"),
-        #     "type1": sql.pop("dmg_type1"),
-        #     "min2": sql.pop("dmg_min2"),
-        #     "max2": sql.pop("dmg_max2"),
-        #     "type2": sql.pop("dmg_type2"),
-        # }
+        item_args["type"] = "Item"
 
-        # # Spells 
-        # item_fields["spells"] = []
-        # for i in range(1, 6):
-        #     item_fields["spells"].append(
-        #         {
-        #             "id": sql.pop(f"spellid_{i}"),
-        #             "trigger": sql.pop(f"spelltrigger_{i}"),
-        #             "charges": sql.pop(f"spellcharges_{i}"),
-        #             "procsPerMinute": sql.pop(f"spellppmRate_{i}"),
-        #             "cooldown": sql.pop(f"spellcooldown_{i}"),
-        #             "category": sql.pop(f"spellcategory_{i}"),
-        #             "cooldownCategory": sql.pop(f"spellcategorycooldown_{i}"),
-        #         }
+        # for _intflag_field in _intflag_fields:
+        #     print(
+        #         item_args[_intflag_field]
         #     )
-            
-# TODO: stats, spells, damage
+        return Item(**item_args)

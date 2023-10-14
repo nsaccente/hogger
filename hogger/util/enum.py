@@ -43,11 +43,23 @@ class EnumUtils:
             suggestion=suggestion,
         )
 
+
     @staticmethod
     def serialize(self, v: (Enum | int), info: FieldSerializationInfo) -> str | int:
         if isinstance(v, int):
             return v
         return v.name
+
+
+    @staticmethod
+    def resolve(
+        value: int,
+        EnumType: type[Enum],
+    ) -> (Enum | int):
+        try:
+            return EnumType(value)
+        except:
+            return value
 
 
     @staticmethod
@@ -61,8 +73,5 @@ class EnumUtils:
                 if issubclass(t, Enum):
                     EnumType = t
                     break
-            try:
-                return EnumType(sql_dict[field])
-            except:
-                return sql_dict[field]
+            return EnumUtils.resolve(sql_dict[field], EnumType)
         return from_sql

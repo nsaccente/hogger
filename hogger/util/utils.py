@@ -1,4 +1,5 @@
 from typing import Union
+from mysql.connector.cursor_cext import CMySQLCursor as Cursor
 
 
 
@@ -16,4 +17,14 @@ def pydantic_annotation(cls) -> type:
     for subclass in subclasses[2:]:
         FinalType = Union[FinalType, subclass]
     return FinalType
+
+
+def direct_map(sql_field: str):
+    def direct_map(
+        sql_dict: dict[str, any], 
+        cursor: Cursor=None,
+        field_type: type=None,
+    ) -> any:
+        return sql_dict[sql_field]
+    return direct_map 
 

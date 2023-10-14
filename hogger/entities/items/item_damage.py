@@ -1,5 +1,6 @@
 from enum import Enum
 from inspect import cleandoc
+from hogger.util import EnumUtils
 
 from pydantic import (
     BaseModel,
@@ -9,6 +10,8 @@ from pydantic import (
     field_serializer,
     field_validator,
 )
+
+from mysql.connector.cursor_cext import CMySQLCursor as Cursor
 
 
 class DamageType(Enum):
@@ -116,3 +119,27 @@ class Damage(BaseModel):
             return v.name
         return v
 
+
+    @staticmethod
+    def from_sql(
+        min1: str="dmg_min1",
+        max1: str="dmg_max1",
+        type1: str="dmg_type1",
+        min2: str="dmg_min2",
+        max2: str="dmg_max2",
+        type2: str="dmg_type2",
+    ):
+        def from_sql(
+            sql_dict: dict[str, any], 
+            cursor: Cursor=None,
+            field_type: type=None,
+        ) -> Damage:
+            return Damage(
+                min1=sql_dict[min1],
+                max1=sql_dict[max1],
+                type1=EnumUtils.resolve(sql_dict[type1], DamageType),
+                min2=sql_dict[min2],
+                max2=sql_dict[max2],
+                type2=EnumUtils.resolve(sql_dict[type2], DamageType),
+            )
+        return from_sql 
