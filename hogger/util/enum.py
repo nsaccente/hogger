@@ -61,7 +61,6 @@ class EnumUtils:
         except:
             return value
 
-
     @staticmethod
     def from_sql(field: str):
         def from_sql(

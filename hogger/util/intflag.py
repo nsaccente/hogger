@@ -65,7 +65,7 @@ class IntFlagUtils:
                                 actual=item,
                                 suggestion=suggestion,
                             )
-            return list(set(result))
+        return list(set(result))
 
 
     def serialize(

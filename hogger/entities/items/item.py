@@ -671,9 +671,4 @@ class Item(Entity):
                 )
         
         item_args["type"] = "Item"
-
-        # for _intflag_field in _intflag_fields:
-        #     print(
-        #         item_args[_intflag_field]
-        #     )
         return Item(**item_args)
