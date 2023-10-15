@@ -1,12 +1,14 @@
-import mysql.connector
-from hogger import Item, Entity
 import logging
 from inspect import cleandoc
 
+import mysql.connector
+
+from hogger.entities import Entity, Item
 
 ENTITY_TYPE_MAP: dict[int, Entity] = {
-    0: Item, 
+    0: Item,
 }
+
 
 class WorldTable:
     def __init__(
@@ -41,7 +43,6 @@ class WorldTable:
                 """
             )
 
-
     def get_entities(self):
         """
         Gets all entities managed by Hogger from the world database.
@@ -56,14 +57,11 @@ class WorldTable:
             states = cursor.fetchall()
             hoggerstates = []
             for entity_type, db_key, hogger_identifier in states:
-
                 # Map a entity_type id from hoggerstate to an Entity object
                 match entity_type:
                     case 0:
                         hoggerstates.append(
-                            ENTITY_TYPE_MAP
-                            [entity_type]
-                            .from_hoggerstate(
+                            ENTITY_TYPE_MAP[entity_type].from_hoggerstate(
                                 db_key=db_key,
                                 hogger_identifier=hogger_identifier,
                                 cursor=self._cnx.cursor(),
@@ -74,7 +72,7 @@ class WorldTable:
                             cleandoc(
                                 f"""
                                 During parsing of hoggerstate table, encountered the
-                                entity_type '{entity_type}', which isn't mappable to an 
+                                entity_type '{entity_type}', which isn't mappable to an
                                 entity type.
 
                                 It's possible that the hoggerstate table has entries
@@ -83,11 +81,9 @@ class WorldTable:
                                 with the version used to manage the hoggerstate table.
                                 Check your version of hogger using `hogger version`.
                                 """
-
                             )
-                    )
+                        )
             return hoggerstates
-
 
     def write_test(self, _type: int, id: int, name: str):
         with self._cnx.cursor(buffered=True) as cursor:

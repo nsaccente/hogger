@@ -1,6 +1,6 @@
 from enum import Enum
 from inspect import cleandoc
-from hogger.util import EnumUtils
+from hogger.types import EnumUtils
 
 from pydantic import (
     BaseModel,

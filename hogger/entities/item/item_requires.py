@@ -1,7 +1,7 @@
 from textwrap import dedent
 from enum import auto, IntFlag, Enum
 from pydantic import BaseModel, Field
-from hogger.util import LookupID
+from hogger.types import LookupID
 from mysql.connector.cursor_cext import CMySQLCursor as Cursor
 
 
@@ -81,7 +81,7 @@ class Requires(BaseModel):
     )
     level: int = Field(
         default=1,
-        descrption=dedent(
+        description=dedent(
             """
             The minimum player level required to equip the item.
             """

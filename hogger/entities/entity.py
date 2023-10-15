@@ -2,8 +2,8 @@ from abc import ABCMeta, abstractstaticmethod
 from inspect import cleandoc
 from typing import Any
 
-from pydantic import BaseModel, Field
 from mysql.connector.cursor_cext import CMySQLCursor as Cursor
+from pydantic import BaseModel, Field
 
 
 class Entity(

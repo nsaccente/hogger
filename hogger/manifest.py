@@ -3,7 +3,7 @@ import json
 import yaml
 from pydantic import BaseModel, Field
 
-from hogger import Entity
+from hogger.entities import Entity
 from hogger.util.utils import pydantic_annotation
 
 Entity = pydantic_annotation(Entity)

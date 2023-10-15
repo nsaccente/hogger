@@ -5,7 +5,7 @@ from typing import get_args, get_type_hints
 from pydantic import FieldSerializationInfo, FieldValidationInfo
 from mysql.connector.cursor_cext import CMySQLCursor as Cursor
 
-from .errors import InvalidValueException
+from hogger.util import InvalidValueException
 
 
 class EnumUtils:

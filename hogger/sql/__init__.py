@@ -1,7 +1,4 @@
-from .world_table import (
-    WorldTable,
-)
-
+from .world_table import WorldTable
 
 __all__ = [
     # world_table

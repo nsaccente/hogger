@@ -3,8 +3,8 @@ import os
 
 from hogger.cli import apply
 
-
 VERSION = "v0.1.0"
+
 
 def main():
     parser = argparse.ArgumentParser(

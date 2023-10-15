@@ -1,5 +1,5 @@
 from .entity import Entity
-from .items import *
+from .item import *
 
 __all__ = [
     "Entity",

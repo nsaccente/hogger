@@ -1,7 +1,7 @@
 from inspect import cleandoc
 from pydantic import BaseModel, Field
 from mysql.connector.cursor_cext import CMySQLCursor as Cursor
-from hogger.util import LookupID
+from hogger.types import LookupID
 
 
 class RandomStat(BaseModel):

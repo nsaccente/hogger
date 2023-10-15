@@ -4,7 +4,7 @@ from typing import Any
 from pydantic import BaseModel, Field, model_validator
 from mysql.connector.cursor_cext import CMySQLCursor as Cursor
 
-from hogger.util import LookupID
+from hogger.types import LookupID
 
 
 class ItemSockets(BaseModel):
