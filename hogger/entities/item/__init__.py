@@ -12,23 +12,18 @@ from .item_enums import (
     Sheath,
     TotemCategory,
 )
-from .item_flags import (
-    BagFamily,
-    ItemFlag,
-    ItemFlagCustom,
-    ItemFlagExtra,
-)
+from .item_flags import BagFamily, ItemFlag, ItemFlagCustom, ItemFlagExtra
 from .item_randomstat import RandomStat
 from .item_requires import (
-    Requires,
     AllowableClass,
     AllowableRace,
     ReputationRank,
     RequiredHonorRank,
+    Requires,
 )
 from .item_sockets import ItemSockets
 from .item_spells import ItemSpell, SpellTrigger
-from .item_text import ItemText, PageMaterial, Language
+from .item_text import ItemText, Language, PageMaterial
 from .weapon import (
     Bow,
     Crossbow,

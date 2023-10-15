@@ -1,10 +1,10 @@
 from enum import Enum
 from inspect import cleandoc
 
-from pydantic import BaseModel, Field
 from mysql.connector.cursor_cext import CMySQLCursor as Cursor
+from pydantic import BaseModel, Field
 
-from hogger.types import Duration, LookupID, EnumUtils
+from hogger.types import Duration, EnumUtils, LookupID
 
 
 class SpellTrigger(Enum):
@@ -94,7 +94,6 @@ class ItemSpell(BaseModel):
         serialization_alias="spellcategorycooldown_{}",
     )
 
-
     @staticmethod
     def from_sql(
         id: str,
@@ -106,33 +105,21 @@ class ItemSpell(BaseModel):
         cooldownCategory: str,
     ):
         def from_sql(
-            sql_dict: dict[str, any], 
+            sql_dict: dict[str, any],
             cursor: Cursor,
             field_type: type,
         ) -> ItemSpell:
-            print(
-                id,
-                trigger,
-                charges,
-                procsPerMinute,
-                cooldown,
-                category,
-                cooldownCategory,
-            )
+            duration = Duration()
+            if sql_dict[cooldown] > 0:
+                duration = Duration.from_milli(sql_dict[cooldown])
             return ItemSpell(
                 id=sql_dict[id],
                 trigger=EnumUtils.resolve(sql_dict[trigger], SpellTrigger),
                 charges=sql_dict[charges],
                 procsPerMinute=sql_dict[procsPerMinute],
-                cooldown=Duration(
-                    days=0,
-                    hours=0,
-                    minutes=0,
-                    seconds=0,
-                    milli=0,
-                    # sql_dict[cooldown],
-                ),
+                cooldown=duration,
                 category=sql_dict[category],
                 cooldownCategory=sql_dict[cooldownCategory],
             )
+
         return from_sql

@@ -1,19 +1,19 @@
 from inspect import cleandoc
 from typing import Any
 
-from pydantic import BaseModel, Field, model_validator
 from mysql.connector.cursor_cext import CMySQLCursor as Cursor
+from pydantic import BaseModel, Field, model_validator
 
 from hogger.types import LookupID
 
 
 class ItemSockets(BaseModel):
     socketBonus: LookupID = Field(
-        default=0, 
+        default=0,
         serialization_alias="socketBonus",
     )
     properties: LookupID = Field(
-        default=0, 
+        default=0,
         serialization_alias="GemProperties",
     )
     meta: int = Field(
@@ -70,16 +70,16 @@ class ItemSockets(BaseModel):
         socketContent_3="socketContent_3",
     ):
         def from_sql(
-            sql_dict: dict[str, any], 
+            sql_dict: dict[str, any],
             cursor: Cursor,
             field_type: type,
         ) -> ItemSockets:
             args = {1: 0, 2: 0, 4: 0, 8: 0}
-            if socketColor_1 in args: 
+            if socketColor_1 in args:
                 args[socketColor_1] += socketContent_1
-            if socketColor_2 in args: 
+            if socketColor_2 in args:
                 args[socketColor_2] += socketContent_2
-            if socketColor_3 in args: 
+            if socketColor_3 in args:
                 args[socketColor_3] += socketContent_3
             args["meta"] = args.pop(1)
             args["red"] = args.pop(2)
@@ -90,4 +90,5 @@ class ItemSockets(BaseModel):
                 properties=sql_dict[GemProperties],
                 **args,
             )
+
         return from_sql

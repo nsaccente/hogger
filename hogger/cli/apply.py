@@ -14,30 +14,30 @@ def apply(
     dir_or_file: str,
     **kwargs,
 ) -> None:
-    # wt = WorldTable(
-    #     host=host,
-    #     port=port,
-    #     user=user,
-    #     password=password,
-    #     database=world,
+    wt = WorldTable(
+        host=host,
+        port=port,
+        user=user,
+        password=password,
+        database=world,
+    )
 
-    # )
     # wt.write_test(0, 17, "Martin Fury")
     # wt.write_test(0, 25, "Worn Shortsword")
     # wt.write_test(0, 35, "Bent Staff")
-    # wt.write_test(0, 21846, "Spellfire Belt")
+    wt.write_test(0, 21846, "Spellfire Belt")
 
-    # states = wt.get_entities()
-    # for state in states:
-    #     print(state)
-    #     print()
+    states = wt.get_entities()
+    for state in states:
+        print(state)
+        print()
 
     # entities = []
     # manifest = Manifest.from_file("leeroy.hogger")
 
-    entities.extend(manifest.entities)
-    for entity in manifest.entities:
-        print(entity)
+    # entities.extend(manifest.entities)
+    # for entity in manifest.entities:
+    #     print(entity)
 
     # for entity in entities:
     #     pass

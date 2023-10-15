@@ -1,7 +1,8 @@
 from enum import Enum, IntFlag
-from typing import Literal
 from textwrap import dedent
+from typing import Literal
 
+from mysql.connector.cursor_cext import CMySQLCursor as Cursor
 from pydantic import (
     Field,
     FieldValidationInfo,
@@ -10,20 +11,11 @@ from pydantic import (
     field_validator,
 )
 
-from hogger.types import (
-    EnumUtils,
-    Money,
-    LookupID,
-)
 from hogger.entities import Entity
-
-from hogger.util import direct_map
-
 from hogger.entities.item import *
 from hogger.types import *
-
-from mysql.connector.cursor_cext import CMySQLCursor as Cursor
-
+from hogger.types import EnumUtils, LookupID, Money
+from hogger.util import direct_map
 
 _enum_fields = [
     "ammoType",
@@ -54,19 +46,20 @@ def spells_from_sql(
     field_maps: list[dict[str, str]],
 ):
     def spells_from_sql(
-        sql_dict: dict[str, any], 
+        sql_dict: dict[str, any],
         cursor: Cursor,
         field_type: type,
     ) -> ItemSpell:
         results = []
         for field_map in field_maps:
-            results.append(
-                ItemSpell.from_sql(**field_map)(
-                    sql_dict=sql_dict, 
-                    cursor=cursor,
-                    field_type=field_type,
+            if sql_dict[field_map["id"]] != 0:
+                results.append(
+                    ItemSpell.from_sql(**field_map)(
+                        sql_dict=sql_dict,
+                        cursor=cursor,
+                        field_type=field_type,
+                    )
                 )
-            )
         return results
 
     return spells_from_sql
@@ -74,7 +67,7 @@ def spells_from_sql(
 
 class Item(Entity, extra="allow"):
     type: Literal["Item"]
-    
+
     id: int = Field(
         default=-1,
         description=dedent(
@@ -99,6 +92,15 @@ class Item(Entity, extra="allow"):
         json_schema_extra={
             "from_sql": direct_map("name"),
         },
+    )
+    tag: str = Field(
+        default="",
+        description=(
+            "The contents of this field is appended to the contents of the "
+            "`name` field to serve as an identifier for entities of this type. "
+            "The name, tag, and item type will all be used to identify the "
+            "entity."
+        ),
     )
     description: str = Field(
         default="",
@@ -393,9 +395,7 @@ class Item(Entity, extra="allow"):
             is the default for this field.
             """
         ),
-        json_schema_extra={
-            "from_sql": Money.from_sql_copper("minMoneyLoot")
-        },
+        json_schema_extra={"from_sql": Money.from_sql_copper("minMoneyLoot")},
     )
     maxMoneyLoot: Money = Field(
         default=Money(),
@@ -406,9 +406,7 @@ class Item(Entity, extra="allow"):
             is the default for this field.
             """
         ),
-        json_schema_extra={
-            "from_sql": Money.from_sql_copper("maxMoneyLoot")
-        },
+        json_schema_extra={"from_sql": Money.from_sql_copper("maxMoneyLoot")},
     )
     itemSet: LookupID = Field(
         default=0,
@@ -478,9 +476,7 @@ class Item(Entity, extra="allow"):
     requires: Requires = Field(
         default=Requires(),
         description="",
-        json_schema_extra={
-            "from_sql": Requires.from_sql()
-        },
+        json_schema_extra={"from_sql": Requires.from_sql()},
     )
     # TODO: Add automatic item level calculation as default.
     itemLevel: int = Field(
@@ -515,11 +511,11 @@ class Item(Entity, extra="allow"):
             """
         ),
         json_schema_extra={
-            "from_sql":EnumMapUtils.from_sql_named_fields(
+            "from_sql": EnumMapUtils.from_sql_named_fields(
                 {
-                    "holy_res": "Holy", 
-                    "fire_res": "Fire", 
-                    "nature_res": "Nature", 
+                    "holy_res": "Holy",
+                    "fire_res": "Fire",
+                    "nature_res": "Nature",
                     "frost_res": "Frost",
                     "shadow_res": "Shadow",
                     "arcane_res": "Arcane",
@@ -787,7 +783,10 @@ class Item(Entity, extra="allow"):
         self, items: dict[(Enum | int), int], info: SerializationInfo
     ) -> dict[(str | int), int]:
         return EnumMapUtils.serialize(self, items, info)
-    
+
+    def hoggerid(self) -> str:
+        pass
+
     @staticmethod
     def from_hoggerstate(
         db_key: int,
@@ -801,7 +800,7 @@ class Item(Entity, extra="allow"):
             """
         )
         entity = cursor.fetchall()
-        assert(len(entity) == 1)
+        assert len(entity) == 1
 
         item_args = {}
         sql_dict = dict(zip(cursor.column_names, entity[0]))
@@ -810,12 +809,13 @@ class Item(Entity, extra="allow"):
             if json_schema_extra is not None and "from_sql" in json_schema_extra:
                 from_sql_func = json_schema_extra["from_sql"]
                 item_args[field] = from_sql_func(
-                    sql_dict=sql_dict, 
+                    sql_dict=sql_dict,
                     cursor=cursor,
                     field_type=field_properties.annotation,
                 )
-        
+
         item_args["type"] = "Item"
         return Item(**item_args)
+
 
 # TODO: Rework Duration, finalize spells_from_sql

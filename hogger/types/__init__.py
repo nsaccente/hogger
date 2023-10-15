@@ -5,8 +5,6 @@ from .intflag import IntFlagUtils
 from .lookup import Lookup, LookupID
 from .money import Money
 
-
-
 __all__ = [
     # duration
     "Duration",

@@ -1,5 +1,5 @@
-from pydantic import BaseModel
 from mysql.connector.cursor_cext import CMySQLCursor as Cursor
+from pydantic import BaseModel
 
 
 class Duration(BaseModel):
@@ -15,33 +15,31 @@ class Duration(BaseModel):
     def __getitem__(self, key):
         return getattr(self, key)
 
-    # def to_seconds(self) -> int:
-    #     return sum(
-    #         [
-    #             (self.days * 86400),
-    #             (self.hours * 3600),
-    #             (self.minutes * 60),
-    #             (self.seconds),
-    #         ]
-    #     )
+    def to_seconds(self) -> int:
+        return sum(
+            [
+                (self.days * 86400),
+                (self.hours * 3600),
+                (self.minutes * 60),
+                (self.seconds),
+            ]
+        )
 
-    # def to_milli(self) -> int:
-    #     return sum([(self.to_seconds * 1000), self.milli])
-    
+    def to_milli(self) -> int:
+        return sum([(self.to_seconds * 1000), self.milli])
 
     @staticmethod
     def from_seconds(s) -> "Duration":
-        return Duration.from_milli(s*1000)
-
+        return Duration.from_milli(s * 1000)
 
     @staticmethod
     def from_milli(ms) -> "Duration":
-        milli_to_second   = 1000
-        milli_to_minute   = 60 * milli_to_second
-        milli_to_hour     = 60 * milli_to_minute
-        milli_to_day      = 24 * milli_to_hour
+        milli_to_second = 1000
+        milli_to_minute = 60 * milli_to_second
+        milli_to_hour = 60 * milli_to_minute
+        milli_to_day = 24 * milli_to_hour
 
-        days = ms // milli_to_day 
+        days = ms // milli_to_day
         ms %= milli_to_day
 
         hours = ms // milli_to_hour
@@ -63,15 +61,15 @@ class Duration(BaseModel):
             milli=milli,
         )
 
-
     @staticmethod
     def from_sql_seconds(field: str):
         def from_sql_seconds(
             sql_dict: dict[str, any],
             cursor: Cursor,
             field_type: type,
-            ) -> Duration:
+        ) -> Duration:
             return Duration.from_seconds(sql_dict[field])
+
         return from_sql_seconds
 
     @staticmethod
@@ -80,6 +78,7 @@ class Duration(BaseModel):
             sql_dict: dict[str, any],
             cursor: Cursor,
             field_type: type,
-            ) -> Duration:
+        ) -> Duration:
             return Duration.from_milli(sql_dict[field])
+
         return from_sql_seconds

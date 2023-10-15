@@ -2,8 +2,8 @@ from difflib import SequenceMatcher
 from enum import Enum
 from typing import get_args, get_type_hints
 
-from pydantic import FieldSerializationInfo, FieldValidationInfo
 from mysql.connector.cursor_cext import CMySQLCursor as Cursor
+from pydantic import FieldSerializationInfo, FieldValidationInfo
 
 from hogger.util import InvalidValueException
 
@@ -43,19 +43,17 @@ class EnumUtils:
             suggestion=suggestion,
         )
 
-
     @staticmethod
     def serialize(self, v: (Enum | int), info: FieldSerializationInfo) -> str | int:
         if isinstance(v, int):
             return v
         return v.name
 
-
     @staticmethod
     def resolve(
         value: int,
         EnumType: type[Enum],
-    ) -> (Enum | int):
+    ) -> Enum | int:
         try:
             return EnumType(value)
         except:
@@ -64,7 +62,7 @@ class EnumUtils:
     @staticmethod
     def from_sql(field: str):
         def from_sql(
-            sql_dict: dict[str, any], 
+            sql_dict: dict[str, any],
             cursor: Cursor,
             field_type: type,
         ) -> Enum:
@@ -73,4 +71,5 @@ class EnumUtils:
                     EnumType = t
                     break
             return EnumUtils.resolve(sql_dict[field], EnumType)
+
         return from_sql

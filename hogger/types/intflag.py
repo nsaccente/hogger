@@ -2,8 +2,8 @@ from difflib import SequenceMatcher
 from enum import Enum, IntFlag
 from typing import get_args, get_type_hints
 
-from pydantic import FieldValidationInfo, SerializationInfo
 from mysql.connector.cursor_cext import CMySQLCursor as Cursor
+from pydantic import FieldValidationInfo, SerializationInfo
 
 from hogger.util import InvalidValueException
 
@@ -24,7 +24,6 @@ class IntFlagUtils:
             if suggestion is not None:
                 e += f".\n\nDid you mean '{suggestion}' for field '{field_name}'?"
             super().__init__(e)
-
 
     @staticmethod
     def parse(
@@ -67,7 +66,6 @@ class IntFlagUtils:
                             )
         return list(set(result))
 
-
     def serialize(
         self, items: list[int | IntFlag], info: SerializationInfo
     ) -> list[str | int]:
@@ -82,7 +80,7 @@ class IntFlagUtils:
     @staticmethod
     def from_sql(field: str):
         def from_sql(
-            sql_dict: dict[str, any], 
+            sql_dict: dict[str, any],
             cursor: Cursor,
             field_type: type,
         ) -> IntFlag:
@@ -94,6 +92,26 @@ class IntFlagUtils:
             if sql_dict[field] == -1:
                 flags = []
             else:
-                flags = [flag for flag in IntFlagType if flag in IntFlagType(sql_dict[field])]
+                flags = [
+                    flag for flag in IntFlagType if flag in IntFlagType(sql_dict[field])
+                ]
             return flags
+
         return from_sql
+
+    @staticmethod
+    def resolve(
+        value: int,
+        IntFlagType: type[IntFlag],
+    ) -> list[IntFlag | int]:
+        flags = {flag.value: flag for flag in IntFlagType}
+        powers = []
+        i = 1
+        while i <= value:
+            if i & value:
+                try:
+                    powers.append(flags[i])
+                except KeyError:
+                    powers.append(i)
+            i <<= 1
+        return powers

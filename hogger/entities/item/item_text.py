@@ -1,9 +1,10 @@
 from enum import Enum
 from inspect import cleandoc
+
+from mysql.connector.cursor_cext import CMySQLCursor as Cursor
 from pydantic import BaseModel, Field
 
 from hogger.types import LookupID
-from mysql.connector.cursor_cext import CMySQLCursor as Cursor
 
 
 class PageMaterial(Enum):
@@ -73,7 +74,6 @@ class ItemText(BaseModel):
         serialization_alias="LanguageID",
     )
 
-
     @staticmethod
     def from_sql(
         id: str,
@@ -90,5 +90,5 @@ class ItemText(BaseModel):
                 pageMaterial=sql_dict[pageMaterial],
                 language=sql_dict[language],
             )
-            
+
         return from_sql

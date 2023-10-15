@@ -1,8 +1,10 @@
+from enum import Enum, IntFlag, auto
 from textwrap import dedent
-from enum import auto, IntFlag, Enum
-from pydantic import BaseModel, Field
-from hogger.types import LookupID
+
 from mysql.connector.cursor_cext import CMySQLCursor as Cursor
+from pydantic import BaseModel, Field
+
+from hogger.types import IntFlagUtils, LookupID
 
 
 class AllowableClass(IntFlag):
@@ -182,42 +184,31 @@ class Requires(BaseModel):
         ),
     )
 
-
     @staticmethod
     def from_sql(
-        classes: str="AllowableClass",
-        races: str="AllowableRace",
-        level: str="RequiredLevel",
-        skill: str="RequiredSkill",
-        skillRank: str="RequiredSkillRank",
-        spell: str="requiredspell",
-        honorRank: str="requiredhonorrank",
-        cityRank: str="RequiredCityRank",
-        reputationFaction: str="RequiredReputationFaction",
-        reputationRank: str="RequiredReputationRank",
-        disenchantSkill: str="RequiredDisenchantSkill",
-        map: str="Map",
-        area: str="area",
-        holiday: str="HolidayId",
+        classes: str = "AllowableClass",
+        races: str = "AllowableRace",
+        level: str = "RequiredLevel",
+        skill: str = "RequiredSkill",
+        skillRank: str = "RequiredSkillRank",
+        spell: str = "requiredspell",
+        honorRank: str = "requiredhonorrank",
+        cityRank: str = "RequiredCityRank",
+        reputationFaction: str = "RequiredReputationFaction",
+        reputationRank: str = "RequiredReputationRank",
+        disenchantSkill: str = "RequiredDisenchantSkill",
+        map: str = "Map",
+        area: str = "area",
+        holiday: str = "HolidayId",
     ):
         def from_sql(
             sql_dict: dict[str, any],
             cursor: Cursor,
             field_type: type,
         ) -> "Requires":
-            if sql_dict[races] == -1:
-                allowable_races = []
-            else:
-                allowable_races = [race for race in AllowableRace if race in AllowableRace(sql_dict[races])]
-
-            if sql_dict[classes] == -1:
-                allowable_classes = []
-            else:
-                allowable_classes = [
-                    _class for _class in AllowableClass if _class in AllowableClass(sql_dict[classes])]
             return Requires(
-                classes=allowable_classes,
-                races=allowable_races,
+                classes=IntFlagUtils.resolve(sql_dict[races], AllowableRace),
+                races=IntFlagUtils.resolve(sql_dict[classes], AllowableClass),
                 level=sql_dict[level],
                 skill=sql_dict[skill],
                 skillRank=sql_dict[skillRank],
@@ -231,5 +222,5 @@ class Requires(BaseModel):
                 area=sql_dict[area],
                 holiday=sql_dict[holiday],
             )
-            
+
         return from_sql

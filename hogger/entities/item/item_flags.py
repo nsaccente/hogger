@@ -65,4 +65,3 @@ class ItemFlagCustom(IntFlag):
     GlobalDuration: int = auto()
     IgnoreQuestStatus: int = auto()
     FollowLootRules: int = auto()
-

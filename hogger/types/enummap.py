@@ -2,10 +2,10 @@ from difflib import SequenceMatcher
 from enum import Enum
 from typing import get_args, get_type_hints
 
-from pydantic import SerializationInfo
 from mysql.connector.cursor_cext import CMySQLCursor as Cursor
-from hogger.types import EnumUtils
+from pydantic import SerializationInfo
 
+from hogger.types import EnumUtils
 from hogger.util import InvalidValueException
 
 
@@ -69,8 +69,9 @@ class EnumMapUtils:
         Takes a dictionary where each key is the sql field that indicates the
         enum to use as the return key, and the value is the corresponding value in the returned dict.
         """
+
         def stats_from_sql_kvpairs(
-            sql_dict: dict[str, any], 
+            sql_dict: dict[str, any],
             cursor: Cursor,
             field_type: type,
         ) -> dict[dict[(Enum | int), int]]:
@@ -87,13 +88,11 @@ class EnumMapUtils:
                         result[enum_key] = 0
                     result[enum_key] += enum_value
             return result
+
         return stats_from_sql_kvpairs
 
-
     @staticmethod
-    def from_sql_named_fields(
-        field_map: dict[str, str]
-    ):
+    def from_sql_named_fields(field_map: dict[str, str]):
         """
         Use when the sql table has items typically stored in an enummap are
         defined in their own column, e.g. fire_res, frost_res, etc.
@@ -101,8 +100,9 @@ class EnumMapUtils:
         The key should be the field in the sql table, and the value should map
         to the name for the enum it's mapped to.
         """
+
         def from_sql_named_fields(
-            sql_dict: dict[str, any], 
+            sql_dict: dict[str, any],
             cursor: Cursor,
             field_type: type,
         ) -> dict[dict[(Enum | int), int]]:
@@ -113,4 +113,5 @@ class EnumMapUtils:
                     EnumUtils.resolve(model_field, EnumType)
                     result[model_field] = sql_dict[sql_field]
             return result
+
         return from_sql_named_fields

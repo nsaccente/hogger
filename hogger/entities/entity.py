@@ -10,7 +10,7 @@ class Entity(
     BaseModel,
     metaclass=ABCMeta,
 ):
-    type: Any = Field(
+    type: str = Field(
         description=cleandoc(
             """
             This field tells the parser which object to use
