@@ -31,57 +31,37 @@ class Duration(BaseModel):
 
     @staticmethod
     def from_seconds(s) -> "Duration":
-        seconds_to_minute   = 60
-        seconds_to_hour     = 60 * seconds_to_minute
-        seconds_to_day      = 24 * seconds_to_hour
+        return Duration.from_milli(s*1000)
 
-        days = s // seconds_to_day
-        s %= seconds_to_day
 
-        hours = s // seconds_to_hour
-        s %= seconds_to_hour
+    @staticmethod
+    def from_milli(ms) -> "Duration":
+        milli_to_second   = 1000
+        milli_to_minute   = 60 * milli_to_second
+        milli_to_hour     = 60 * milli_to_minute
+        milli_to_day      = 24 * milli_to_hour
 
-        minutes = s // seconds_to_minute
-        s %= seconds_to_minute
+        days = ms // milli_to_day 
+        ms %= milli_to_day
 
-        seconds = s  
+        hours = ms // milli_to_hour
+        ms %= milli_to_hour
+
+        minutes = ms // milli_to_minute
+        ms %= milli_to_minute
+
+        seconds = ms // milli_to_second
+        ms %= milli_to_second
+
+        milli = ms
 
         return Duration(
             days=days,
             hours=hours,
             minutes=minutes,
             seconds=seconds,
-            milli=0,
+            milli=milli,
         )
-
-    @staticmethod
-    def from_milli(milli) -> "Duration":
-        # s = milli//1000
-        # seconds_to_minute   = 60
-        # seconds_to_hour     = 60 * seconds_to_minute
-        # seconds_to_day      = 24 * seconds_to_hour
-
-        # days = s // seconds_to_day
-        # s %= seconds_to_day
-
-        # hours = s // seconds_to_hour
-        # s %= seconds_to_hour
-
-        # minutes = s // seconds_to_minute
-        # s %= seconds_to_minute
-
-        # seconds = s  
-
-        # return Duration(
-        #     days=days,
-        #     hours=hours,
-        #     minutes=minutes,
-        #     seconds=seconds,
-        #     milli=0,
-        # )
-
-        return Duration()
-
 
 
     @staticmethod
