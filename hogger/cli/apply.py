@@ -1,9 +1,12 @@
-import mysql.connector
-
 from hogger.manifest import Manifest
+from hogger.entities import entity
 from hogger.sql import WorldTable
-from hogger.types import Duration, Lookup
+from hogger.util import get_hoggerpaths
 
+# wt._write_hoggerstate(0, "Martin Fury", 17)
+# wt._write_hoggerstate(0, "Worn Shortsword", 25)
+# wt._write_hoggerstate(0, "Bent Staff", 35)
+# wt._write_hoggerstate(0, "Spellfire Belt#asdf", 21846)
 
 def apply(
     host: str,
@@ -14,6 +17,8 @@ def apply(
     dir_or_file: str,
     **kwargs,
 ) -> None:
+    # All of your database interactions through the WorldTable object.
+    # Connect to WorldTable before bothering with parsing anything.
     wt = WorldTable(
         host=host,
         port=port,
@@ -22,31 +27,42 @@ def apply(
         database=world,
     )
 
-    # wt.write_test(0, 17, "Martin Fury")
-    # wt.write_test(0, 25, "Worn Shortsword")
-    # wt.write_test(0, 35, "Bent Staff")
-    wt.write_test(0, 21846, "Spellfire Belt")
+    # Load all entities 
+    desired_states = {}
+    for hoggerfile in get_hoggerpaths(dir_or_file):
+        manifest = Manifest.from_file(hoggerfile)
+        entities: list = manifest.entities
+        for entity in entities:
+            entity_type = entity.entity_type()
+            hogger_identifier = entity.hogger_identifier()
+            if entity_type not in desired_states:
+                desired_states[entity_type] = {}
+            desired_states[entity_type][hogger_identifier] = entity
+    
+            
+    # Confirm unlocked, then Lock hogger.
 
-    states = wt.get_entities()
-    for state in states:
-        print(state)
-        print()
+    # Load entities from hoggerstate
+    hoggerstates = wt.get_hoggerstate()
+    actual_states = {}
+    for entity_type, hogger_identifier, db_key in hoggerstates:
+        if entity_type not in actual_states:
+            actual_states[entity_type] = {} 
+        actual_states[entity_type][hogger_identifier] = (
+            wt.resolve_hoggerstate(
+                entity_type=entity_type, 
+                hogger_identifier=hogger_identifier,
+                db_key=db_key, 
+            )
+        )
+    
+    # for entity_type in actual_states:
+    #     for actual_state in actual_states[entity_type]:
+            # print(actual_state)
 
-    # entities = []
-    # manifest = Manifest.from_file("leeroy.hogger")
+    # Compare actual and desired
+    
+    # Seek confirmation
 
-    # entities.extend(manifest.entities)
-    # for entity in manifest.entities:
-    #     print(entity)
+    # Write
 
-    # for entity in entities:
-    #     pass
-    # create hoggerstate table if not exists
-    # if in hoggerstate table but not in entities, entity must be deleted.
-    # if in entities but not in hoggerstate, entity must be created.
-    # display this diff to the user; seek confirmation from user.
-
-    # We're going to have to settle on a primary identifier for entities. This
-    # is going to be different for each entity type. We can still dynamically
-    # allocate entry ids in the database, but refer to entities in hogger files
-    # strictly by their primary identifier.

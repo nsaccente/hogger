@@ -1,4 +1,4 @@
-from abc import ABCMeta, abstractstaticmethod
+from abc import ABCMeta, abstractstaticmethod, abstractmethod
 from inspect import cleandoc
 from typing import Any
 
@@ -24,4 +24,16 @@ class Entity(
         hogger_id: str,
         cursor: Cursor,
     ) -> "Entity":
+        pass
+
+    @abstractmethod
+    def entity_type() -> int:
+        pass
+
+    @abstractmethod
+    def db_key(self) -> int:
+        pass
+
+    @abstractmethod
+    def hogger_identifier(self) -> str:
         pass

@@ -9,7 +9,6 @@ ENTITY_TYPE_MAP: dict[int, Entity] = {
     0: Item,
 }
 
-
 class WorldTable:
     def __init__(
         self,
@@ -36,61 +35,76 @@ class WorldTable:
                 """
                 CREATE TABLE IF NOT EXISTS hoggerstate (
                     entity_type INT NOT NULL,
-                    db_key INT NOT NULL,
                     hogger_identifier VARCHAR(128) NOT NULL,
-                    PRIMARY KEY (entity_type, db_key, hogger_identifier)
+                    db_key INT NOT NULL,
+                    PRIMARY KEY (entity_type, hogger_identifier)
                 );
                 """
             )
 
-    def get_entities(self):
-        """
-        Gets all entities managed by Hogger from the world database.
-        """
+
+    def get_hoggerstate(self):   
         with self._cnx.cursor(buffered=True) as cursor:
             cursor.execute(
                 """
-                SELECT entity_type, db_key, hogger_identifier
+                SELECT entity_type, hogger_identifier, db_key
                 FROM hoggerstate;
                 """
             )
-            states = cursor.fetchall()
-            hoggerstates = []
-            for entity_type, db_key, hogger_identifier in states:
-                # Map a entity_type id from hoggerstate to an Entity object
-                match entity_type:
-                    case 0:
-                        hoggerstates.append(
-                            ENTITY_TYPE_MAP[entity_type].from_hoggerstate(
-                                db_key=db_key,
-                                hogger_identifier=hogger_identifier,
-                                cursor=self._cnx.cursor(),
-                            )
-                        )
-                    case _:
-                        logging.warning(
-                            cleandoc(
-                                f"""
-                                During parsing of hoggerstate table, encountered the
-                                entity_type '{entity_type}', which isn't mappable to an
-                                entity type.
+        hoggerstate = cursor.fetchall()
+        return hoggerstate
 
-                                It's possible that the hoggerstate table has entries
-                                that were created using a different version of Hogger.
-                                Make sure that you're using a version that is compatible
-                                with the version used to manage the hoggerstate table.
-                                Check your version of hogger using `hogger version`.
-                                """
-                            )
-                        )
-            return hoggerstates
 
-    def write_test(self, _type: int, id: int, name: str):
+    def resolve_hoggerstate(
+        self,
+        entity_type: int,
+        hogger_identifier: str,
+        db_key: int,
+    ) -> Entity:
+        """
+        Gets all entities managed by Hogger from the world database.
+        """
+        # Map a entity_type id from hoggerstate to an Entity object
+        match entity_type:
+            case 0:
+                return (
+                    ENTITY_TYPE_MAP[entity_type]
+                    .from_hoggerstate(
+                        db_key=db_key,
+                        hogger_identifier=hogger_identifier,
+                        cursor=self._cnx.cursor(),
+                    )
+                )
+            case _:
+                logging.warning(
+                    cleandoc(
+                        f"""
+                        During parsing of hoggerstate table, encountered the
+                        entity_type '{entity_type}', which isn't mappable to an
+                        entity type.
+
+                        It's possible that the hoggerstate table has entries
+                        that were created using a different version of Hogger.
+                        Make sure that you're using a version that is compatible
+                        with the version used to manage the hoggerstate table.
+                        Check your version of hogger using `hogger version`.
+                        """
+                    )
+                )
+        return None
+
+
+    def _write_hoggerstate(
+        self, 
+        entity_type: int, 
+        hogger_identifier: str, 
+        db_key: int,
+    ):
         with self._cnx.cursor(buffered=True) as cursor:
             cursor.execute(
                 f"""
-                REPLACE INTO hoggerstate (entity_type, db_key, hogger_identifier)
-                VALUES ({_type}, {id}, "{name}");
+                REPLACE INTO hoggerstate (entity_type, hogger_identifier, db_key)
+                VALUES ({entity_type}, "{hogger_identifier}", {db_key});
                 """
             )
             self._cnx.commit()

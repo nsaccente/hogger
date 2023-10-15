@@ -1,5 +1,9 @@
 from .errors import InvalidValueException
-from .utils import direct_map, pydantic_annotation
+from .utils import (
+    direct_map, 
+    pydantic_annotation, 
+    get_hoggerpaths,
+)
 
 __all__ = [
     # errors
@@ -7,4 +11,5 @@ __all__ = [
     # utils
     "pydantic_annotation",
     "direct_map",
+    "get_hoggerpaths",
 ]

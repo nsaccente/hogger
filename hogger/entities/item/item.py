@@ -783,12 +783,16 @@ class Item(Entity, extra="allow"):
         self, items: dict[(Enum | int), int], info: SerializationInfo
     ) -> dict[(str | int), int]:
         return EnumMapUtils.serialize(self, items, info)
+    
+    def entity_type(self) -> int:
+        return 1
 
-    def id(self) -> int:
+    def db_key(self) -> int:
         return self.id
 
-    def hogger_identifier(self) -> int:
+    def hogger_identifier(self) -> str:
         tag = self.tag.strip()
+        suffix = ""
         if len(tag) > 0:
             suffix = f"#{tag}"
         return f"{self.name}{suffix}"
