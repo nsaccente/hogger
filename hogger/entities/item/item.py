@@ -784,8 +784,14 @@ class Item(Entity, extra="allow"):
     ) -> dict[(str | int), int]:
         return EnumMapUtils.serialize(self, items, info)
 
-    def hoggerid(self) -> str:
-        pass
+    def id(self) -> int:
+        return self.id
+
+    def hogger_identifier(self) -> int:
+        tag = self.tag.strip()
+        if len(tag) > 0:
+            suffix = f"#{tag}"
+        return f"{self.name}{suffix}"
 
     @staticmethod
     def from_hoggerstate(
@@ -815,7 +821,5 @@ class Item(Entity, extra="allow"):
                 )
 
         item_args["type"] = "Item"
+        item_args["tag"] = hogger_identifier.replace(f"{sql_dict['name']}#", "", 1)
         return Item(**item_args)
-
-
-# TODO: Rework Duration, finalize spells_from_sql
