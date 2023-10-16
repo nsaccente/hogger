@@ -26,6 +26,7 @@ class WorldTable:
             user=user,
             password=password,
         )
+        self.database=database
         if not self._cnx.is_connected():
             raise Exception(f"Unable to connect to worldserver database '{database}'")
 
@@ -41,6 +42,32 @@ class WorldTable:
                 );
                 """
             )
+
+            cursor.execute(
+                f"""
+                SELECT * 
+                FROM information_schema.tables
+                WHERE table_schema = '{self.database}'
+                    AND table_name = 'hoggerstate'
+                LIMIT 1;
+                """
+            )
+            exists = len(cursor.fetchall()) > 0
+            if not exists:
+                cursor.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS hoggerlock (
+                        k VARCHAR(32) NOT NULL,
+                        v BIT NOT NULL,
+                        PRIMARY KEY (k)
+                    );
+                    """
+                )
+                cursor.execute(
+                    """
+                    INSERT INTO hoggerlock(k, v) values ("locked", 0);
+                    """
+                )
 
 
     def get_hoggerstate(self):   
@@ -105,6 +132,40 @@ class WorldTable:
                 f"""
                 REPLACE INTO hoggerstate (entity_type, hogger_identifier, db_key)
                 VALUES ({entity_type}, "{hogger_identifier}", {db_key});
+                """
+            )
+            self._cnx.commit()
+
+
+    def is_locked(self) -> bool:
+        with self._cnx.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT * FROM hoggerlock
+                WHERE k="locked";
+                """
+            )
+            # TODO: Raise error if this returns nil
+            return bool(cursor.fetchone()[1])
+
+
+    def acquire_lock(self):
+        with self._cnx.cursor() as cursor:
+            cursor.execute(
+                """
+                REPLACE INTO hoggerlock(k, v)
+                VALUES ("locked", 1);
+                """
+            )
+            self._cnx.commit()
+
+
+    def release_lock(self):
+        with self._cnx.cursor() as cursor:
+            cursor.execute(
+                """
+                REPLACE INTO hoggerlock(k, v)
+                VALUES ("locked", 0);
                 """
             )
             self._cnx.commit()
