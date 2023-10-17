@@ -1,13 +1,10 @@
 from hogger.manifest import Manifest
+from hogger.entities import Entity, EntityCodes
 from hogger.sql import WorldTable
 from hogger.util import get_hoggerpaths
 from contextlib import ExitStack
 from functools import partial
 
-# wt._write_hoggerstate(0, "Martin Fury", 17)
-# wt._write_hoggerstate(0, "Worn Shortsword", 25)
-# wt._write_hoggerstate(0, "Bent Staff", 35)
-# wt._write_hoggerstate(0, "Spellfire Belt#asdf", 21846)
 
 def apply(
     host: str,
@@ -28,6 +25,11 @@ def apply(
         database=world,
     )
 
+    # wt._write_hoggerstate(1, "Martin Fury", 17)
+    # wt._write_hoggerstate(1, "Worn Shortsword", 25)
+    # wt._write_hoggerstate(1, "Bent Staff", 35)
+    # wt._write_hoggerstate(1, "Spellfire Belt#asdf", 21846)
+
     # Confirm unlocked, then Lock hogger.
     if wt.is_locked():
         # TODO: Can't do anything while it's not locked.
@@ -35,42 +37,38 @@ def apply(
 
     # Enter an ExitStack to defer releasing hoggerlock.
     with ExitStack() as stack:
+        print("Acquiring hoggerlock.")
         wt.acquire_lock()
         stack.callback(wt.release_lock)
         stack.callback(partial(print, "Releasing hoggerlock."))
 
         # Load all entities 
-        desired_states = {}
+        desired_states = {entity_code: {} for entity_code, _ in EntityCodes.items()}
         for hoggerfile in get_hoggerpaths(dir_or_file):
             manifest = Manifest.from_file(hoggerfile)
-            entities: list = manifest.entities
+            entities: list[Entity] = manifest.entities
             for entity in entities:
-                entity_type = entity.entity_type()
+                entity_code = EntityCodes(type(entity))
                 hogger_identifier = entity.hogger_identifier()
-                if entity_type not in desired_states:
-                    desired_states[entity_type] = {}
-                desired_states[entity_type][hogger_identifier] = entity
+                desired_states[entity_code][hogger_identifier] = entity
         
-
-        # Load entities from hoggerstate
+        # # Load entities from hoggerstate
         hoggerstates = wt.get_hoggerstate()
-        actual_states = {}
-        for entity_type, hogger_identifier, db_key in hoggerstates:
-            if entity_type not in actual_states:
-                actual_states[entity_type] = {} 
-            actual_states[entity_type][hogger_identifier] = (
+        actual_states = {entity_code: {} for entity_code, _ in EntityCodes.items()}
+        for entity_code, hogger_identifier, db_key in hoggerstates:
+            actual_states[entity_code][hogger_identifier] = (
                 wt.resolve_hoggerstate(
-                    entity_type=entity_type, 
+                    entity_code=entity_code, 
                     hogger_identifier=hogger_identifier,
                     db_key=db_key, 
                 )
             )
-        
-        # for entity_type in actual_states:
-        #     for actual_state in actual_states[entity_type]:
-                # print(actual_state)
+
 
         # Compare actual and desired
+        # for entity_code in desired_states:
+        #     for actual_state in actual_states[entity_code]:
+        #         print(actual_state)
         
         # Seek confirmation
 

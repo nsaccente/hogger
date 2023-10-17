@@ -784,9 +784,6 @@ class Item(Entity, extra="allow"):
     ) -> dict[(str | int), int]:
         return EnumMapUtils.serialize(self, items, info)
     
-    def entity_type(self) -> int:
-        return 1
-
     def db_key(self) -> int:
         return self.id
 
@@ -827,3 +824,9 @@ class Item(Entity, extra="allow"):
         item_args["type"] = "Item"
         item_args["tag"] = hogger_identifier.replace(f"{sql_dict['name']}#", "", 1)
         return Item(**item_args)
+
+
+    def diff(self, other: "Item") -> "Item":
+        pass
+        # for field, field_properties in Item.model_fields.items():
+        # print(diff)

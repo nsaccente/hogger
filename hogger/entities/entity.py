@@ -27,13 +27,13 @@ class Entity(
         pass
 
     @abstractmethod
-    def entity_type() -> int:
-        pass
-
-    @abstractmethod
     def db_key(self) -> int:
         pass
 
     @abstractmethod
     def hogger_identifier(self) -> str:
+        pass
+
+    @abstractmethod
+    def diff(self, other: "Entity") -> "Entity":
         pass
