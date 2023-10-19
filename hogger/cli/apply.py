@@ -45,7 +45,7 @@ def apply(
         stack.callback(partial(print, "\nReleasing hoggerlock."))
 
         # Compare actual and desired
-        created, modified, unchanged, deleted = State.diff_state(
+        created, modified, changes, unchanged, deleted = State.diff_state(
             desired_state=State.get_desired_state(dir_or_file),
             actual_state=wt.get_hoggerstate(),
         )

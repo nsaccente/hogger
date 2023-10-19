@@ -4,7 +4,7 @@ from hogger.entities import Entity, EntityCodes
 from hogger.engine import Manifest
 
 
-class State(dict[int, dict[str, Entity]]):
+class State(dict[int, dict[str, (Entity | dict[str, any])]]):
     def __init__(self):
         super().__init__({
             entity_code: {} for entity_code, _ in EntityCodes.items()
@@ -48,6 +48,7 @@ class State(dict[int, dict[str, Entity]]):
     ) -> dict[str, "State"]:
         created = State()
         modified = State()
+        changes = State()
         unchanged = State()
         deleted = copy.deepcopy(actual_state)
         for entity_code in EntityCodes:
@@ -57,17 +58,18 @@ class State(dict[int, dict[str, Entity]]):
                 if hogger_id in actual_state[entity_code]:
                     # If the diff returned has contents in it, add to
                     # `modified`. Otherwise, no action necessary.
-                    entity_diff = des_entity.diff(
+                    modified_entity, mod_changes = des_entity.diff(
                         actual_state[entity_code][hogger_id],
                     )
-                    if len(entity_diff) > 0:
-                        modified[entity_code][hogger_id] = entity_diff
+                    if len(mod_changes) > 0:
+                        changes[entity_code][hogger_id] = mod_changes
+                        modified[entity_code][hogger_id] = modified_entity
                     else:
-                        unchanged[entity_code][hogger_id] = (
-                            actual_state[entity_code][hogger_id]
-                        )
+                        # We don't need to store the unchanged entity, since we
+                        # aren't going to do anything with it.
+                        unchanged[entity_code][hogger_id] = None
                     del deleted[entity_code][hogger_id]
                 else:
                     created[entity_code][hogger_id] = des_entity
         # Anything remaining in `actual_state` dict will be deleted.
-        return (created, modified, unchanged, deleted)
+        return (created, modified, changes, unchanged, deleted)

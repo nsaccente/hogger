@@ -66,7 +66,7 @@ def spells_from_sql(
 
 
 class Item(Entity, extra="allow"):
-    type: Literal["Item"]
+    type: Literal["Item"] = "Item"
 
     id: int = Field(
         default=-1,
@@ -826,8 +826,9 @@ class Item(Entity, extra="allow"):
         return Item(**item_args)
 
 
-    def diff(self, other: "Item") -> "Item":
-        print("ASDF")
+    def diff(self, other: "Item") -> ("Item", dict[str, any]):
+        self
         for field, field_properties in Item.model_fields.items():
             print(field)
-        return []
+        return Item(type="Item", name="asdf"), {"": ""}
+         
