@@ -45,7 +45,7 @@ def apply(
         stack.callback(partial(print, "\nReleasing hoggerlock."))
 
         # Compare actual and desired
-        created, modified, deleted = State.diff_state(
+        created, modified, unchanged, deleted = State.diff_state(
             desired_state=State.get_desired_state(dir_or_file),
             actual_state=wt.get_hoggerstate(),
         )
@@ -54,21 +54,32 @@ def apply(
         for entity_code in created:
             entity_type = EntityCodes[entity_code].__name__
             for hogger_id in created[entity_code]:
-                print(f"{entity_type}.{hogger_id}")
+                print(f"  {entity_type}.{hogger_id}")
 
         print("\nTo Be Modified:")
         for entity_code in modified:
             entity_type = EntityCodes[entity_code].__name__
             for hogger_id in modified[entity_code]:
-                print(f"{entity_type}.{hogger_id}")
+                print(f"  {entity_type}.{hogger_id}")
+
+        print("\nUnchanged:")
+        for entity_code in unchanged:
+            entity_type = EntityCodes[entity_code].__name__
+            for hogger_id in unchanged[entity_code]:
+                print(f"  {entity_type}.{hogger_id}")
 
         print("\nTo Be Deleted:")
         for entity_code in deleted:
             entity_type = EntityCodes[entity_code].__name__
             for hogger_id in deleted[entity_code]:
-                print(f"{entity_type}.{hogger_id}")
+                print(f"  {entity_type}.{hogger_id}")
 
-        # Seek confirmation
-
-        # Write
-
+        # response = input("\nApply these changes? (yes/no) ")
+        # if response == "yes":
+        #     wt.apply(
+        #         to_be_created=created,
+        #         to_be_modified=modified,
+        #         to_be_deleted=deleted,
+        #     )
+        # else:
+        #     print("Exiting")

@@ -175,3 +175,21 @@ class WorldTable:
                 """
             )
             self._cnx.commit()
+
+
+    def apply(
+        self,
+        to_be_created: State,
+        to_be_modified: State,
+        to_be_deleted: State,
+    ) -> None:
+        with self._cnx.cursor() as cursor:
+            for entity_code in EntityCodes:
+                for _, entity in to_be_created[entity_code].items():
+                    pass
+
+                for _, entity in to_be_modified[entity_code].items():
+                    pass
+
+                for _, entity in to_be_deleted[entity_code].items():
+                    pass

@@ -1,4 +1,5 @@
 import os
+import copy
 from hogger.entities import Entity, EntityCodes
 from hogger.engine import Manifest
 
@@ -47,6 +48,8 @@ class State(dict[int, dict[str, Entity]]):
     ) -> dict[str, "State"]:
         created = State()
         modified = State()
+        unchanged = State()
+        deleted = copy.deepcopy(actual_state)
         for entity_code in EntityCodes:
             for hogger_id, des_entity in desired_state[entity_code].items():
                 # If hogger_id from desired state exists in actual state,
@@ -58,9 +61,13 @@ class State(dict[int, dict[str, Entity]]):
                         actual_state[entity_code][hogger_id],
                     )
                     if len(entity_diff) > 0:
-                        modified[entity_code][hogger_id]
-                    del desired_state[entity_code][hogger_id]
+                        modified[entity_code][hogger_id] = entity_diff
+                    else:
+                        unchanged[entity_code][hogger_id] = (
+                            actual_state[entity_code][hogger_id]
+                        )
+                    del deleted[entity_code][hogger_id]
                 else:
                     created[entity_code][hogger_id] = des_entity
         # Anything remaining in `actual_state` dict will be deleted.
-        return (created, modified, actual_state)
+        return (created, modified, unchanged, deleted)

@@ -827,6 +827,7 @@ class Item(Entity, extra="allow"):
 
 
     def diff(self, other: "Item") -> "Item":
-        pass
-        # for field, field_properties in Item.model_fields.items():
-        # print(diff)
+        print("ASDF")
+        for field, field_properties in Item.model_fields.items():
+            print(field)
+        return []

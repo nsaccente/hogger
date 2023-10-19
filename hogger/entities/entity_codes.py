@@ -2,7 +2,7 @@ from .entity import Entity
 from .item.item import Item
 
 
-class EntityCodesDict(dict):
+class EntityCodesDict(dict[int, Entity]):
     def __getattr__(self, item):
         return super().__getitem__(item)
 
