@@ -5,6 +5,7 @@ import mysql.connector
 
 from hogger.entities import Entity
 from hogger.entities.entity_codes import EntityCodes
+from hogger.engine import State
 
 
 class WorldTable:
@@ -68,7 +69,7 @@ class WorldTable:
                 )
 
 
-    def get_hoggerstate(self):   
+    def get_hoggerstate(self) -> State:   
         with self._cnx.cursor(buffered=True) as cursor:
             cursor.execute(
                 """
@@ -76,8 +77,17 @@ class WorldTable:
                 FROM hoggerstate;
                 """
             )
-        hoggerstate = cursor.fetchall()
-        return hoggerstate
+        hoggerstates = cursor.fetchall()
+        actual = State()
+        for entity_code, hogger_identifier, db_key in hoggerstates:
+            actual[entity_code][hogger_identifier] = (
+                self.resolve_hoggerstate(
+                    entity_code=entity_code, 
+                    hogger_identifier=hogger_identifier,
+                    db_key=db_key, 
+                )
+            )
+        return actual
 
 
     def resolve_hoggerstate(

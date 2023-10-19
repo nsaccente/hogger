@@ -1,7 +1,9 @@
-from hogger.manifest import Manifest
 from hogger.entities import Entity, EntityCodes
-from hogger.sql import WorldTable
-from hogger.util import get_hoggerpaths
+from hogger.engine import (
+    Manifest, 
+    State, 
+    WorldTable, 
+)
 from contextlib import ExitStack
 from functools import partial
 
@@ -40,74 +42,31 @@ def apply(
         print("Acquiring hoggerlock.")
         wt.acquire_lock()
         stack.callback(wt.release_lock)
-        stack.callback(partial(print, "Releasing hoggerlock."))
-
-        # Load all entities 
-        desired_states: dict[int, dict[str, Entity]] = {
-            entity_code: {} for entity_code, _ in EntityCodes.items()
-        }
-        for hoggerfile in get_hoggerpaths(dir_or_file):
-            manifest = Manifest.from_file(hoggerfile)
-            entities: list[Entity] = manifest.entities
-            for entity in entities:
-                entity_code = EntityCodes(type(entity))
-                hogger_identifier = entity.hogger_identifier()
-                desired_states[entity_code][hogger_identifier] = entity
-        
-        # # Load entities from hoggerstate
-        hoggerstates = wt.get_hoggerstate()
-        actual_states: dict[int, dict[str, Entity]] = {
-            entity_code: {} for entity_code, _ in EntityCodes.items()
-        }
-        for entity_code, hogger_identifier, db_key in hoggerstates:
-            actual_states[entity_code][hogger_identifier] = (
-                wt.resolve_hoggerstate(
-                    entity_code=entity_code, 
-                    hogger_identifier=hogger_identifier,
-                    db_key=db_key, 
-                )
-            )
+        stack.callback(partial(print, "\nReleasing hoggerlock."))
 
         # Compare actual and desired
-        created : dict[int, dict[str, Entity]] = {
-            entity_code: {} for entity_code, _ in EntityCodes.items()
-        }
-        modified: dict[int, dict[str, Entity]] = {
-            entity_code: {} for entity_code, _ in EntityCodes.items()
-        }
-        for entity_code in EntityCodes:
-            for hogger_id, des_entity in desired_states[entity_code].items():
-                # If hogger_id from desired state exists in actual state,
-                # compute the diff; otherwise, add to `created`.
-                if hogger_id in actual_states[entity_code]:
-                    # If the diff returned has contents in it, add to
-                    # `modified`. Otherwise, no action necessary.
-                    entity_diff = des_entity.diff(
-                        actual_states[entity_code][hogger_id],
-                    )
-                    if len(entity_diff) > 0:
-                        modified[entity_code][hogger_id]
-                    del desired_states[entity_code][hogger_id]
-                else:
-                    created[entity_code][hogger_id] = des_entity
-        # Anything remaining in `actual_state` dict will be deleted.
-        deleted = actual_states
-
+        created, modified, deleted = State.diff_state(
+            desired_state=State.get_desired_state(dir_or_file),
+            actual_state=wt.get_hoggerstate(),
+        )
         
-        print()
-        print("To Be Created:")
-        for c in created[1]:
-            print(c)
+        print("\nTo Be Created:")
+        for entity_code in created:
+            entity_type = EntityCodes[entity_code].__name__
+            for hogger_id in created[entity_code]:
+                print(f"{entity_type}.{hogger_id}")
 
-        print()
-        print("To Be Modified:")
-        for m in modified[1]:
-            print(m)
+        print("\nTo Be Modified:")
+        for entity_code in modified:
+            entity_type = EntityCodes[entity_code].__name__
+            for hogger_id in modified[entity_code]:
+                print(f"{entity_type}.{hogger_id}")
 
-        print()
-        print("To Be Deleted:")
-        for d in deleted[1]:
-            print(d)
+        print("\nTo Be Deleted:")
+        for entity_code in deleted:
+            entity_type = EntityCodes[entity_code].__name__
+            for hogger_id in deleted[entity_code]:
+                print(f"{entity_type}.{hogger_id}")
 
         # Seek confirmation
 

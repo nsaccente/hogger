@@ -4,5 +4,5 @@ from .item import *
 
 __all__ = [
     "Entity",
-    "EntityCodes"
+    "EntityCodes",
 ]
