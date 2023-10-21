@@ -35,5 +35,5 @@ class Entity(
         pass
 
     @abstractmethod
-    def diff(self, other: "Entity") -> "Entity":
+    def diff(self, other: "Entity") -> ("Entity", dict[str, any]):
         pass

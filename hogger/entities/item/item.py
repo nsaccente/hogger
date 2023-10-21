@@ -822,13 +822,31 @@ class Item(Entity, extra="allow"):
                 )
 
         item_args["type"] = "Item"
-        item_args["tag"] = hogger_identifier.replace(f"{sql_dict['name']}#", "", 1)
+
+        tmp = sql_dict["name"].split("#")
+        if len(tmp) == 1:
+            tmp.append("")
+        item_args["tag"] = tmp[1]
         return Item(**item_args)
 
 
     def diff(self, other: "Item") -> ("Item", dict[str, any]):
-        self
-        for field, field_properties in Item.model_fields.items():
-            print(field)
-        return Item(type="Item", name="asdf"), {"": ""}
+        diffs = {}
+        # Reuse desired id if -1 (or less) is provided.
+        if self.id <= -1:
+            self.id = other.id
+
+        s = self.model_dump()
+        o = other.model_dump()
+
+        for field in Item.model_fields:
+            desired = self.__getattribute__(field)
+            actual = other.__getattribute__(field)
+            if s[field] != o[field]:
+                diffs[field] = {
+                    "desired": s[field],
+                    "actual": o[field],
+                }
+
+        return self, diffs
          

@@ -1,5 +1,6 @@
 import os
 import copy
+import yaml
 from hogger.entities import Entity, EntityCodes
 from hogger.engine import Manifest
 
@@ -62,8 +63,12 @@ class State(dict[int, dict[str, (Entity | dict[str, any])]]):
                         actual_state[entity_code][hogger_id],
                     )
                     if len(mod_changes) > 0:
-                        changes[entity_code][hogger_id] = mod_changes
                         modified[entity_code][hogger_id] = modified_entity
+                        changes[entity_code][hogger_id] = mod_changes
+
+                        for field_name, state_change in mod_changes.items():
+                            print(field_name)
+                            print(yaml.dump(state_change))
                     else:
                         # We don't need to store the unchanged entity, since we
                         # aren't going to do anything with it.
