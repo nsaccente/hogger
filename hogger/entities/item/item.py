@@ -831,19 +831,20 @@ class Item(Entity, extra="allow"):
 
 
     def diff(self, other: "Item") -> ("Item", dict[str, any]):
-        diffs = {}
-        # Reuse id of actual if desired is a negative number.
-        # This assignment won't be shown in the diff.
+        # Reuse id of self if other is a negative number. This change won't be
+        # shown in the diff, because it's an implied feature of the Item entity.
         if self.id <= -1:
             self.id = other.id
 
-        s = self.model_dump()
-        o = other.model_dump()
+        diffs = {}
+        desired = self.model_dump()
+        actual = other.model_dump()
+        
         for field in Item.model_fields:
-            if s[field] != o[field]:
+            if desired[field] != actual[field]:
                 diffs[field] = {
-                    "desired": s[field],
-                    "actual": o[field],
+                    "desired": desired[field],
+                    "actual": actual[field],
                 }
-                other.__setattr__(field, s[field])
+                other.__setattr__(field, desired[field])
         return other, diffs
