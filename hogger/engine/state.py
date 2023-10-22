@@ -68,7 +68,7 @@ class State(dict[int, dict[str, (Entity | dict[str, any])]]):
 
                         for field_name, state_change in mod_changes.items():
                             print(field_name)
-                            print(yaml.dump(state_change))
+                            print(yaml.dump(state_change, sort_keys=False))
                     else:
                         # We don't need to store the unchanged entity, since we
                         # aren't going to do anything with it.
