@@ -1,8 +1,10 @@
 from .entity import Entity
 from .item.item import Item
+from collections import OrderedDict
+import networkx as nx
 
 
-class EntityCodesDict(dict[int, Entity]):
+class EntityCodesDict(OrderedDict[int, Entity]):
     def __getattr__(self, item):
         return super().__getitem__(item)
 
@@ -17,10 +19,15 @@ class EntityCodesDict(dict[int, Entity]):
         return -1
 
 
-# When creating new entities, add them here with a unique code key.
+# When creating new entities, add them here with a unique code key. 
 EntityCodes = EntityCodesDict({
     1: Item,
 })
 
-
-
+# G = nx.DiGraph()
+# for cls in EntityCodes:
+#     if hasattr(cls, 'depends_on'):
+#         for dep_cls in cls.depends_on:
+#             G.add_edge(cls, dep_cls)
+# if not nx.is_directed_acyclic_graph(G):
+#     raise ValueError("Circular dependencies detected")

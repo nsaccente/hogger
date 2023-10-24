@@ -11,11 +11,12 @@ from pydantic import (
     field_validator,
 )
 
+from .item_spells import spells_from_sql
 from hogger.entities import Entity
 from hogger.entities.item import *
 from hogger.types import *
 from hogger.types import EnumUtils, LookupID, Money
-from hogger.util import direct_map
+from hogger.util import from_sql, to_sql
 
 _enum_fields = [
     "ammoType",
@@ -42,29 +43,6 @@ _enum_map_fields = [
 ]
 
 
-def spells_from_sql(
-    field_maps: list[dict[str, str]],
-):
-    def spells_from_sql(
-        sql_dict: dict[str, any],
-        cursor: Cursor,
-        field_type: type,
-    ) -> ItemSpell:
-        results = []
-        for field_map in field_maps:
-            if sql_dict[field_map["id"]] != 0:
-                results.append(
-                    ItemSpell.from_sql(**field_map)(
-                        sql_dict=sql_dict,
-                        cursor=cursor,
-                        field_type=field_type,
-                    )
-                )
-        return results
-
-    return spells_from_sql
-
-
 class Item(Entity, extra="allow"):
     type: Literal["Item"] = "Item"
 
@@ -80,7 +58,8 @@ class Item(Entity, extra="allow"):
             """
         ),
         json_schema_extra={
-            "from_sql": direct_map("entry"),
+            "from_sql": from_sql("entry"),
+            "to_sql": to_sql("entry"),
         },
     )
     name: str = Field(
@@ -90,7 +69,8 @@ class Item(Entity, extra="allow"):
             """
         ),
         json_schema_extra={
-            "from_sql": direct_map("name"),
+            "from_sql": from_sql("name"),
+            "to_sql": to_sql("name"),
         },
     )
     tag: str = Field(
@@ -111,7 +91,8 @@ class Item(Entity, extra="allow"):
             """
         ),
         json_schema_extra={
-            "from_sql": direct_map("description"),
+            "from_sql": from_sql("description"),
+            "to_sql": to_sql("description"),
         },
     )
     scriptName: str = Field(
@@ -123,7 +104,8 @@ class Item(Entity, extra="allow"):
             """
         ),
         json_schema_extra={
-            "from_sql": direct_map("ScriptName"),
+            "from_sql": from_sql("ScriptName"),
+            "to_sql": to_sql("ScriptName"),
         },
     )
     itemClass: (ItemClass | int) = Field(
@@ -136,6 +118,7 @@ class Item(Entity, extra="allow"):
         ),
         json_schema_extra={
             "from_sql": EnumUtils.from_sql("class"),
+            "to_sql": EnumUtils.to_sql("class"),
         },
     )
     itemSubclass: int = Field(
@@ -147,7 +130,8 @@ class Item(Entity, extra="allow"):
             """
         ),
         json_schema_extra={
-            "from_sql": direct_map("subclass"),
+            "from_sql": from_sql("subclass"),
+            "to_sql": to_sql("subclass"),
         },
     )
     soundOverride: int = Field(
@@ -160,7 +144,8 @@ class Item(Entity, extra="allow"):
             """
         ),
         json_schema_extra={
-            "from_sql": direct_map("SoundOverrideSubclass"),
+            "from_sql": from_sql("SoundOverrideSubclass"),
+            "to_sql": to_sql("SoundOverrideSubclass"),
         },
         ge=-1,
     )
@@ -172,7 +157,8 @@ class Item(Entity, extra="allow"):
             """
         ),
         json_schema_extra={
-            "from_sql": direct_map("displayid"),
+            "from_sql": from_sql("displayid"),
+            "to_sql": to_sql("displayid"),
         },
         ge=0,
     )
@@ -186,6 +172,7 @@ class Item(Entity, extra="allow"):
         ),
         json_schema_extra={
             "from_sql": EnumUtils.from_sql("Quality"),
+            "to_sql": EnumUtils.to_sql("Quality"),
         },
     )
     buyCount: int = Field(
@@ -199,7 +186,8 @@ class Item(Entity, extra="allow"):
             """
         ),
         json_schema_extra={
-            "from_sql": direct_map("BuyCount"),
+            "from_sql": from_sql("BuyCount"),
+            "to_sql": to_sql("BuyCount"),
         },
         ge=1,
     )
@@ -212,6 +200,7 @@ class Item(Entity, extra="allow"):
         ),
         json_schema_extra={
             "from_sql": Money.from_sql_copper("BuyPrice"),
+            # "to_sql": Money.to_sql_copper("BuyPrice"),
         },
     )
     # TODO: buyPriceExtra
@@ -224,6 +213,7 @@ class Item(Entity, extra="allow"):
         ),
         json_schema_extra={
             "from_sql": Money.from_sql_copper("SellPrice"),
+            # "to_sql": Money.to_sql_copper("SellPrice"),
         },
     )
     inventoryType: (InventoryType | int) = Field(
@@ -235,6 +225,7 @@ class Item(Entity, extra="allow"):
         ),
         json_schema_extra={
             "from_sql": EnumUtils.from_sql("InventoryType"),
+            "to_sql": EnumUtils.to_sql("InventoryType"),
         },
     )
     maxCount: int = Field(
@@ -245,7 +236,8 @@ class Item(Entity, extra="allow"):
             """
         ),
         json_schema_extra={
-            "from_sql": direct_map("maxcount"),
+            "from_sql": from_sql("maxcount"),
+            "to_sql": to_sql("maxcount"),
         },
         ge=0,
     )
@@ -257,7 +249,8 @@ class Item(Entity, extra="allow"):
             """
         ),
         json_schema_extra={
-            "from_sql": direct_map("stackable"),
+            "from_sql": from_sql("stackable"),
+            "to_sql": to_sql("stackable"),
         },
         ge=1,
     )
@@ -270,7 +263,8 @@ class Item(Entity, extra="allow"):
             """
         ),
         json_schema_extra={
-            "from_sql": direct_map("startquest"),
+            "from_sql": from_sql("startquest"),
+            "to_sql": to_sql("startquest"),
         },
     )
     # TODO: This could use a more intuitive name
@@ -282,7 +276,8 @@ class Item(Entity, extra="allow"):
             """
         ),
         json_schema_extra={
-            "from_sql": direct_map("Material"),
+            "from_sql": EnumUtils.from_sql("Material"),
+            "to_sql": EnumUtils.to_sql("Material"),
         },
     )
     randomStat: RandomStat = Field(
@@ -296,7 +291,11 @@ class Item(Entity, extra="allow"):
             "from_sql": RandomStat.from_sql(
                 RandomProperty="RandomProperty",
                 RandomSuffix="RandomSuffix",
-            )
+            ),
+            # "to_sql": RandomStat.to_sql(
+            #     RandomProperty="RandomProperty",
+            #     RandomSuffix="RandomSuffix",
+            # ),
         },
     )
     bagFamily: list[BagFamily | int] = Field(
@@ -308,6 +307,7 @@ class Item(Entity, extra="allow"):
         ),
         json_schema_extra={
             "from_sql": IntFlagUtils.from_sql("BagFamily"),
+            # "to_sql": IntFlagUtils.to_sql("BagFamily"),
         },
     )
     containerSlots: int = Field(
@@ -318,7 +318,8 @@ class Item(Entity, extra="allow"):
             """
         ),
         json_schema_extra={
-            "from_sql": direct_map("ContainerSlots"),
+            "from_sql": from_sql("ContainerSlots"),
+            "to_sql": to_sql("ContainerSlots"),
         },
     )
     totemCategory: (TotemCategory | int) = Field(
@@ -331,6 +332,7 @@ class Item(Entity, extra="allow"):
         ),
         json_schema_extra={
             "from_sql": EnumUtils.from_sql("TotemCategory"),
+            "to_sql": EnumUtils.to_sql("TotemCategory"),
         },
     )
     duration: Duration = Field(
@@ -344,6 +346,7 @@ class Item(Entity, extra="allow"):
         ),
         json_schema_extra={
             "from_sql": Duration.from_sql_seconds("duration"),
+            # "to_sql": Duration.to_sql_seconds("duration"),
         },
     )
     itemLimitCategory: LookupID = Field(
@@ -359,7 +362,8 @@ class Item(Entity, extra="allow"):
             """
         ),
         json_schema_extra={
-            "from_sql": direct_map("ItemLimitCategory"),
+            "from_sql": from_sql("ItemLimitCategory"),
+            "to_sql": to_sql("ItemLimitCategory"),
         },
     )
     disenchantId: LookupID = Field(
@@ -370,7 +374,8 @@ class Item(Entity, extra="allow"):
             """
         ),
         json_schema_extra={
-            "from_sql": direct_map("DisenchantID"),
+            "from_sql": from_sql("DisenchantID"),
+            "to_sql": to_sql("DisenchantID"),
         },
     )
     foodType: (FoodType | int) = Field(
@@ -384,6 +389,7 @@ class Item(Entity, extra="allow"):
         ),
         json_schema_extra={
             "from_sql": EnumUtils.from_sql("FoodType"),
+            "to_sql": EnumUtils.to_sql("FoodType"),
         },
     )
     minMoneyLoot: Money = Field(
@@ -395,7 +401,10 @@ class Item(Entity, extra="allow"):
             is the default for this field.
             """
         ),
-        json_schema_extra={"from_sql": Money.from_sql_copper("minMoneyLoot")},
+        json_schema_extra={
+            "from_sql": Money.from_sql_copper("minMoneyLoot"),
+            # "to_sql": Money.to_sql_copper("minMoneyLoot"),
+        },
     )
     maxMoneyLoot: Money = Field(
         default=Money(),
@@ -406,7 +415,10 @@ class Item(Entity, extra="allow"):
             is the default for this field.
             """
         ),
-        json_schema_extra={"from_sql": Money.from_sql_copper("maxMoneyLoot")},
+        json_schema_extra={
+            "from_sql": Money.from_sql_copper("maxMoneyLoot"),
+            # "to_sql": Money.to_sql_copper("maxMoneyLoot"),
+        },
     )
     itemSet: LookupID = Field(
         default=0,
@@ -416,7 +428,8 @@ class Item(Entity, extra="allow"):
             """
         ),
         json_schema_extra={
-            "from_sql": direct_map("itemset"),
+            "from_sql": from_sql("itemset"),
+            "to_sql": to_sql("itemset"),
         },
     )
     bonding: (ItemBinding | int) = Field(
@@ -428,6 +441,7 @@ class Item(Entity, extra="allow"):
         ),
         json_schema_extra={
             "from_sql": EnumUtils.from_sql("bonding"),
+            "to_sql": EnumUtils.to_sql("bonding"),
         },
     )
     flags: list[ItemFlag | int] = Field(
@@ -439,6 +453,7 @@ class Item(Entity, extra="allow"):
         ),
         json_schema_extra={
             "from_sql": IntFlagUtils.from_sql("Flags"),
+            # "to_sql": IntFlagUtils.to_sql("Flags"),
         },
     )
     flagsExtra: list[ItemFlagExtra | int] = Field(
@@ -450,6 +465,7 @@ class Item(Entity, extra="allow"):
         ),
         json_schema_extra={
             "from_sql": IntFlagUtils.from_sql("FlagsExtra"),
+            # "to_sql": IntFlagUtils.to_sql("FlagsExtra"),
         },
     )
     flagsCustom: list[ItemFlagExtra | int] = Field(
@@ -461,6 +477,7 @@ class Item(Entity, extra="allow"):
         ),
         json_schema_extra={
             "from_sql": IntFlagUtils.from_sql("flagsCustom"),
+            # "to_sql": IntFlagUtils.to_sql("flagsCustom"),
         },
     )
     readText: ItemText = Field(
@@ -471,12 +488,20 @@ class Item(Entity, extra="allow"):
                 pageMaterial="PageMaterial",
                 language="LanguageID",
             ),
+            # "to_sql": ItemText.to_sql(
+            #     id="PageText",
+            #     pageMaterial="PageMaterial",
+            #     language="LanguageID",
+            # ),
         },
     )
     requires: Requires = Field(
         default=Requires(),
         description="",
-        json_schema_extra={"from_sql": Requires.from_sql()},
+        json_schema_extra={
+            "from_sql": Requires.from_sql(),
+            # "to_sql": Requires.to_sql(),
+        },
     )
     # TODO: Add automatic item level calculation as default.
     itemLevel: int = Field(
@@ -488,7 +513,8 @@ class Item(Entity, extra="allow"):
             """
         ),
         json_schema_extra={
-            "from_sql": direct_map("ItemLevel"),
+            "from_sql": from_sql("ItemLevel"),
+            "to_sql": to_sql("ItemLevel"),
         },
     )
     unlocks: LookupID = Field(
@@ -500,7 +526,8 @@ class Item(Entity, extra="allow"):
             """
         ),
         json_schema_extra={
-            "from_sql": direct_map("lockid"),
+            "from_sql": from_sql("lockid"),
+            "to_sql": to_sql("lockid"),
         },
     )
     resistances: dict[(ItemResistance | int), int] = Field(
@@ -521,6 +548,16 @@ class Item(Entity, extra="allow"):
                     "arcane_res": "Arcane",
                 },
             ),
+            # "to_sql": EnumMapUtils.to_sql_named_fields(
+            #     {
+            #         "holy_res": "Holy",
+            #         "fire_res": "Fire",
+            #         "nature_res": "Nature",
+            #         "frost_res": "Frost",
+            #         "shadow_res": "Shadow",
+            #         "arcane_res": "Arcane",
+            #     },
+            # ),
         },
     )
     scalingStatDistribution: int = Field(
@@ -532,7 +569,8 @@ class Item(Entity, extra="allow"):
             """
         ),
         json_schema_extra={
-            "from_sql": direct_map("ScalingStatDistribution"),
+            "from_sql": from_sql("ScalingStatDistribution"),
+            "to_sql": to_sql("ScalingStatDistribution"),
         },
     )
     scalingStatValue: int = Field(
@@ -543,7 +581,8 @@ class Item(Entity, extra="allow"):
             """
         ),
         json_schema_extra={
-            "from_sql": direct_map("ScalingStatValue"),
+            "from_sql": from_sql("ScalingStatValue"),
+            "to_sql": to_sql("ScalingStatValue"),
         },
     )
     stats: dict[(ItemStat | int), int] = Field(
@@ -568,6 +607,19 @@ class Item(Entity, extra="allow"):
                     "stat_type10": "stat_value10",
                 },
             ),
+            # "to_sql": EnumMapUtils.stats_to_sql_kvpairs(
+            #     {
+            #         "stat_type1": "stat_value1",
+            #         "stat_type2": "stat_value2",
+            #         "stat_type3": "stat_value4",
+            #         "stat_type5": "stat_value5",
+            #         "stat_type6": "stat_value6",
+            #         "stat_type7": "stat_value7",
+            #         "stat_type8": "stat_value8",
+            #         "stat_type9": "stat_value9",
+            #         "stat_type10": "stat_value10",
+            #     },
+            # ),
         },
     )
     sockets: ItemSockets = Field(
@@ -579,6 +631,7 @@ class Item(Entity, extra="allow"):
         ),
         json_schema_extra={
             "from_sql": ItemSockets.from_sql(),
+            # "to_sql": ItemSockets.to_sql(),
         },
     )
     armor: int = Field(
@@ -589,7 +642,8 @@ class Item(Entity, extra="allow"):
             """
         ),
         json_schema_extra={
-            "from_sql": direct_map("armor"),
+            "from_sql": from_sql("armor"),
+            "to_sql": to_sql("armor"),
         },
     )
     armorDamageModifier: int = Field(
@@ -600,7 +654,8 @@ class Item(Entity, extra="allow"):
             """
         ),
         json_schema_extra={
-            "from_sql": direct_map("ArmorDamageModifier"),
+            "from_sql": from_sql("ArmorDamageModifier"),
+            "to_sql": to_sql("ArmorDamageModifier"),
         },
     )
     hitDelay: int = Field(
@@ -611,7 +666,8 @@ class Item(Entity, extra="allow"):
             """
         ),
         json_schema_extra={
-            "from_sql": direct_map("delay"),
+            "from_sql": from_sql("delay"),
+            "to_sql": to_sql("delay"),
         },
     )
     ammoType: (AmmoType | int) = Field(
@@ -623,6 +679,7 @@ class Item(Entity, extra="allow"):
         ),
         json_schema_extra={
             "from_sql": EnumUtils.from_sql("ammo_type"),
+            "to_sql": EnumUtils.to_sql("ammo_type"),
         },
     )
     weaponRange: int = Field(
@@ -634,7 +691,8 @@ class Item(Entity, extra="allow"):
             """
         ),
         json_schema_extra={
-            "from_sql": direct_map("RangedModRange"),
+            "from_sql": from_sql("RangedModRange"),
+            "to_sql": to_sql("RangedModRange"),
         },
     )
     block: int = Field(
@@ -646,7 +704,8 @@ class Item(Entity, extra="allow"):
             """
         ),
         json_schema_extra={
-            "from_sql": direct_map("block"),
+            "from_sql": from_sql("block"),
+            "to_sql": to_sql("block"),
         },
     )
     durability: int = Field(
@@ -657,7 +716,8 @@ class Item(Entity, extra="allow"):
             """
         ),
         json_schema_extra={
-            "from_sql": direct_map("MaxDurability"),
+            "from_sql": from_sql("MaxDurability"),
+            "to_sql": to_sql("MaxDurability"),
         },
     )
     sheath: (Sheath | int) = Field(
@@ -670,6 +730,7 @@ class Item(Entity, extra="allow"):
         ),
         json_schema_extra={
             "from_sql": EnumUtils.from_sql("sheath"),
+            "to_sql": EnumUtils.to_sql("sheath"),
         },
     )
     damage: Damage = Field(
@@ -681,6 +742,7 @@ class Item(Entity, extra="allow"):
         ),
         json_schema_extra={
             "from_sql": Damage.from_sql(),
+            # "to_sql": Damage.to_sql(),
         },
     )
     spells: list[ItemSpell] = Field(
@@ -740,13 +802,63 @@ class Item(Entity, extra="allow"):
                     },
                 ],
             ),
+            # "to_sql": spells_to_sql(
+            #     [
+            #         {
+            #             "id": "spellid_1",
+            #             "trigger": "spelltrigger_1",
+            #             "charges": "spellcharges_1",
+            #             "procsPerMinute": "spellppmRate_1",
+            #             "cooldown": "spellcooldown_1",
+            #             "category": "spellcategory_1",
+            #             "cooldownCategory": "spellcategorycooldown_1",
+            #         },
+            #         {
+            #             "id": "spellid_2",
+            #             "trigger": "spelltrigger_2",
+            #             "charges": "spellcharges_2",
+            #             "procsPerMinute": "spellppmRate_2",
+            #             "cooldown": "spellcooldown_2",
+            #             "category": "spellcategory_2",
+            #             "cooldownCategory": "spellcategorycooldown_2",
+            #         },
+            #         {
+            #             "id": "spellid_3",
+            #             "trigger": "spelltrigger_3",
+            #             "charges": "spellcharges_3",
+            #             "procsPerMinute": "spellppmRate_3",
+            #             "cooldown": "spellcooldown_3",
+            #             "category": "spellcategory_3",
+            #             "cooldownCategory": "spellcategorycooldown_3",
+            #         },
+            #         {
+            #             "id": "spellid_4",
+            #             "trigger": "spelltrigger_4",
+            #             "charges": "spellcharges_4",
+            #             "procsPerMinute": "spellppmRate_4",
+            #             "cooldown": "spellcooldown_4",
+            #             "category": "spellcategory_4",
+            #             "cooldownCategory": "spellcategorycooldown_4",
+            #         },
+            #         {
+            #             "id": "spellid_5",
+            #             "trigger": "spelltrigger_5",
+            #             "charges": "spellcharges_5",
+            #             "procsPerMinute": "spellppmRate_5",
+            #             "cooldown": "spellcooldown_5",
+            #             "category": "spellcategory_5",
+            #             "cooldownCategory": "spellcategorycooldown_5",
+            #         },
+            #     ],
+            # ),
         },
     )
     build: int = Field(
         default=0,
         description="Indicates the build version that the item was added in.",
         json_schema_extra={
-            "from_sql": direct_map("VerifiedBuild"),
+            "from_sql": from_sql("VerifiedBuild"),
+            "to_sql": to_sql("VerifiedBuild"),
         },
     )
 
@@ -839,7 +951,7 @@ class Item(Entity, extra="allow"):
         diffs = {}
         desired = self.model_dump()
         actual = other.model_dump()
-        
+
         for field in Item.model_fields:
             if desired[field] != actual[field]:
                 diffs[field] = {
@@ -848,3 +960,30 @@ class Item(Entity, extra="allow"):
                 }
                 other.__setattr__(field, desired[field])
         return other, diffs
+
+
+    def apply(self, cursor: Cursor) -> None:
+        args = {}
+        model_dict = self.model_dump()
+        for field, field_properties in Item.model_fields.items():
+            json_schema_extra = field_properties.json_schema_extra
+            if json_schema_extra is not None and "to_sql" in json_schema_extra:
+                to_sql_func = json_schema_extra["to_sql"]
+                args = args | to_sql_func(
+                    model_field=field,
+                    model_dict=model_dict,
+                    cursor=cursor,
+                    field_type=field_properties.annotation,
+                )
+
+        print(tuple(args.keys()))
+        print(tuple(args.values()))
+        # for k, v in args.items():
+        #     print(k, v) 
+        # cursor.execute
+        #     f"REPLACE INTO hoggerstate ()"
+        #     "VALUES"
+        # )
+        # self._cnx.commit()
+        print()
+        return None

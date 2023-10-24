@@ -71,5 +71,19 @@ class EnumUtils:
                     EnumType = t
                     break
             return EnumUtils.resolve(sql_dict[field], EnumType)
-
         return from_sql
+
+
+    @staticmethod
+    def to_sql(sql_field: str):
+        def to_sql(
+            model_field: str,
+            model_dict: dict[str, any],
+            cursor: Cursor,
+            field_type: type,
+        ) -> Enum:
+            res = model_dict[model_field]
+            if isinstance(res, Enum):
+                res = res.value
+            return {sql_field: res}
+        return to_sql

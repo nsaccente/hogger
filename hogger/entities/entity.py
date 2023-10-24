@@ -17,6 +17,7 @@ class Entity(
             """
         ),
     )
+    depends_on: list["Entity"] = []
 
     @abstractstaticmethod
     def from_hoggerstate(
@@ -36,4 +37,8 @@ class Entity(
 
     @abstractmethod
     def diff(self, other: "Entity") -> ("Entity", dict[str, any]):
+        pass
+
+    @abstractmethod
+    def apply(self, cursor: Cursor) -> None:
         pass

@@ -50,36 +50,38 @@ def apply(
             actual_state=wt.get_hoggerstate(),
         )
         
-        print("\nTo Be Created:")
-        for entity_code in created:
-            entity_type = EntityCodes[entity_code].__name__
-            for hogger_id in created[entity_code]:
-                print(f"  {entity_type}.{hogger_id}")
+        # print("\nTo Be Created:")
+        # for entity_code in created:
+        #     entity_type = EntityCodes[entity_code].__name__
+        #     for hogger_id in created[entity_code]:
+        #         print(f"  {entity_type}.{hogger_id}")
 
-        print("\nTo Be Modified:")
-        for entity_code in modified:
-            entity_type = EntityCodes[entity_code].__name__
-            for hogger_id in modified[entity_code]:
-                print(f"  {entity_type}.{hogger_id}")
+        # print("\nTo Be Modified:")
+        # for entity_code in modified:
+        #     entity_type = EntityCodes[entity_code].__name__
+        #     for hogger_id in modified[entity_code]:
+        #         print(f"  {entity_type}.{hogger_id}")
+        
+        # print("\nUnchanged:")
+        # for entity_code in unchanged:
+        #     entity_type = EntityCodes[entity_code].__name__
+        #     for hogger_id in unchanged[entity_code]:
+        #         print(f"  {entity_type}.{hogger_id}")
 
-        print("\nUnchanged:")
-        for entity_code in unchanged:
-            entity_type = EntityCodes[entity_code].__name__
-            for hogger_id in unchanged[entity_code]:
-                print(f"  {entity_type}.{hogger_id}")
-
-        print("\nTo Be Deleted:")
-        for entity_code in deleted:
-            entity_type = EntityCodes[entity_code].__name__
-            for hogger_id in deleted[entity_code]:
-                print(f"  {entity_type}.{hogger_id}")
+        # print("\nTo Be Deleted:")
+        # for entity_code in deleted:
+        #     entity_type = EntityCodes[entity_code].__name__
+        #     for hogger_id in deleted[entity_code]:
+        #         print(f"  {entity_type}.{hogger_id}")
 
         # response = input("\nApply these changes? (yes/no) ")
-        # if response == "yes":
-        #     wt.apply(
-        #         to_be_created=created,
-        #         to_be_modified=modified,
-        #         to_be_deleted=deleted,
-        #     )
-        # else:
-        #     print("Exiting")
+        response = "yes"
+        if response == "yes":
+            pass
+            wt.apply(
+                to_be_created=created,
+                to_be_modified=modified,
+                to_be_deleted=deleted,
+            )
+        else:
+            print("Exiting")

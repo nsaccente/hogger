@@ -63,12 +63,12 @@ class State(dict[int, dict[str, (Entity | dict[str, any])]]):
                         actual_state[entity_code][hogger_id],
                     )
                     if len(mod_changes) > 0:
+                        # If any changes are returned from the calling
+                        # Entity.diff, add add the item to the `modified` dict,
+                        # and store the changes in the dict that will be
+                        # returned.
                         modified[entity_code][hogger_id] = modified_entity
                         changes[entity_code][hogger_id] = mod_changes
-
-                        for field_name, state_change in mod_changes.items():
-                            print(field_name)
-                            print(yaml.dump(state_change, sort_keys=False))
                     else:
                         # We don't need to store the unchanged entity, since we
                         # aren't going to do anything with it.

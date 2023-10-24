@@ -20,12 +20,22 @@ def pydantic_annotation(cls) -> type:
     return FinalType
 
 
-def direct_map(sql_field: str):
-    def direct_map(
+def from_sql(sql_field: str):
+    def from_sql(
         sql_dict: dict[str, any],
         cursor: Cursor = None,
         field_type: type = None,
     ) -> any:
         return sql_dict[sql_field]
+    return from_sql
 
-    return direct_map
+
+def to_sql(sql_field: str):
+    def to_sql(
+        model_field: str,
+        model_dict: dict[str, any],
+        cursor: Cursor = None,
+        field_type: type = None,
+    ) -> dict[str, str]:
+        return {sql_field: model_dict[model_field]}
+    return to_sql

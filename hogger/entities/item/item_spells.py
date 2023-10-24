@@ -16,6 +16,28 @@ class SpellTrigger(Enum):
     LearnSpell: int = 6
 
 
+def spells_from_sql(
+    field_maps: list[dict[str, str]],
+):
+    def spells_from_sql(
+        sql_dict: dict[str, any],
+        cursor: Cursor,
+        field_type: type,
+    ) -> ItemSpell:
+        results = []
+        for field_map in field_maps:
+            if sql_dict[field_map["id"]] != 0:
+                results.append(
+                    ItemSpell.from_sql(**field_map)(
+                        sql_dict=sql_dict,
+                        cursor=cursor,
+                        field_type=field_type,
+                    )
+                )
+        return results
+    return spells_from_sql
+
+
 class ItemSpell(BaseModel):
     id: LookupID = Field(
         default=-1,

@@ -186,10 +186,10 @@ class WorldTable:
         with self._cnx.cursor() as cursor:
             for entity_code in EntityCodes:
                 for _, entity in to_be_created[entity_code].items():
-                    pass
+                    entity.apply(cursor)
 
                 for _, entity in to_be_modified[entity_code].items():
-                    pass
+                    entity.apply(cursor)
 
                 for _, entity in to_be_deleted[entity_code].items():
-                    pass
+                    entity.apply(cursor)
