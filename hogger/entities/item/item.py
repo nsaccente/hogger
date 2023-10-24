@@ -292,10 +292,10 @@ class Item(Entity, extra="allow"):
                 RandomProperty="RandomProperty",
                 RandomSuffix="RandomSuffix",
             ),
-            # "to_sql": RandomStat.to_sql(
-            #     RandomProperty="RandomProperty",
-            #     RandomSuffix="RandomSuffix",
-            # ),
+            "to_sql": RandomStat.to_sql(
+                RandomProperty="RandomProperty",
+                RandomSuffix="RandomSuffix",
+            ),
         },
     )
     bagFamily: list[BagFamily | int] = Field(
@@ -403,7 +403,7 @@ class Item(Entity, extra="allow"):
         ),
         json_schema_extra={
             "from_sql": Money.from_sql_copper("minMoneyLoot"),
-            # "to_sql": Money.to_sql_copper("minMoneyLoot"),
+            "to_sql": Money.to_sql_copper("minMoneyLoot"),
         },
     )
     maxMoneyLoot: Money = Field(
@@ -417,7 +417,7 @@ class Item(Entity, extra="allow"):
         ),
         json_schema_extra={
             "from_sql": Money.from_sql_copper("maxMoneyLoot"),
-            # "to_sql": Money.to_sql_copper("maxMoneyLoot"),
+            "to_sql": Money.to_sql_copper("maxMoneyLoot"),
         },
     )
     itemSet: LookupID = Field(

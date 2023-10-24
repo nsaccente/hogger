@@ -5,6 +5,9 @@ entities:
     description: "A sparkly axe."
     itemClass: Gem
     itemSubclass: 2
+    randomStat:
+      id: 25
+      withSuffix: False
     quality: 2
     displayId: 2334
     buyPrice:

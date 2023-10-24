@@ -81,7 +81,7 @@ class EnumUtils:
             model_dict: dict[str, any],
             cursor: Cursor,
             field_type: type,
-        ) -> Enum:
+        ) -> dict[str, int]:
             res = model_dict[model_field]
             if isinstance(res, Enum):
                 res = res.value

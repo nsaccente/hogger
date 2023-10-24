@@ -48,5 +48,26 @@ class RandomStat(BaseModel):
                 id=abs(max(random_property, random_suffix)),
                 withPrefix=with_prefix,
             )
-
         return from_sql
+
+    @staticmethod
+    def to_sql(
+        RandomProperty: str="RandomProperty",
+        RandomSuffix: str="RandomSuffix",
+    ):
+        def to_sql(
+            model_field: str,
+            model_dict: dict[str, any],
+            cursor: Cursor,
+            field_type: type,
+        ) -> dict[str, any]:
+            prop, suff = 0, 0
+            if model_dict[model_field]["withSuffix"] == False:
+                prop = model_dict[model_field]["id"]
+            else:
+                suff = model_dict[model_field]["id"]
+            return {
+                RandomProperty: prop,
+                RandomSuffix: suff,
+            }
+        return to_sql

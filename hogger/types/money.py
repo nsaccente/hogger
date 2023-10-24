@@ -40,6 +40,6 @@ class Money(BaseModel):
             model_dict: dict[str, any],
             cursor: Cursor,
             field_type: type,
-        ) -> int:
+        ) -> dict[str, int]:
             return {sql_field: Money(**model_dict[model_field]).to_copper()}
         return to_sql_copper
