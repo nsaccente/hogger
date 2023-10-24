@@ -7,15 +7,6 @@ from pydantic import BaseModel, Field
 from hogger.types import Duration, EnumUtils, LookupID
 
 
-class SpellTrigger(Enum):
-    Use: int = 0
-    OnEquip: int = 1
-    ChanceOnHit: int = 2
-    Soulstone: int = 4
-    OnUse: int = 5
-    LearnSpell: int = 6
-
-
 def spells_from_sql(
     field_maps: list[dict[str, str]],
 ):
@@ -36,6 +27,15 @@ def spells_from_sql(
                 )
         return results
     return spells_from_sql
+
+
+class SpellTrigger(Enum):
+    Use: int = 0
+    OnEquip: int = 1
+    ChanceOnHit: int = 2
+    Soulstone: int = 4
+    OnUse: int = 5
+    LearnSpell: int = 6
 
 
 class ItemSpell(BaseModel):

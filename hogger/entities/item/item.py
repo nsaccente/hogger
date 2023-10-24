@@ -200,7 +200,7 @@ class Item(Entity, extra="allow"):
         ),
         json_schema_extra={
             "from_sql": Money.from_sql_copper("BuyPrice"),
-            # "to_sql": Money.to_sql_copper("BuyPrice"),
+            "to_sql": Money.to_sql_copper("BuyPrice"),
         },
     )
     # TODO: buyPriceExtra
@@ -213,7 +213,7 @@ class Item(Entity, extra="allow"):
         ),
         json_schema_extra={
             "from_sql": Money.from_sql_copper("SellPrice"),
-            # "to_sql": Money.to_sql_copper("SellPrice"),
+            "to_sql": Money.to_sql_copper("SellPrice"),
         },
     )
     inventoryType: (InventoryType | int) = Field(

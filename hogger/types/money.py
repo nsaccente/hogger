@@ -30,5 +30,16 @@ class Money(BaseModel):
             field_type: type,
         ) -> "Money":
             return Money.from_copper(sql_dict[field])
-
         return from_sql_copper
+
+
+    @staticmethod
+    def to_sql_copper(sql_field: str):
+        def to_sql_copper(
+            model_field: str,
+            model_dict: dict[str, any],
+            cursor: Cursor,
+            field_type: type,
+        ) -> int:
+            return {sql_field: Money(**model_dict[model_field]).to_copper()}
+        return to_sql_copper
