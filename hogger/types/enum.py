@@ -15,7 +15,7 @@ class EnumUtils:
             filter(
                 lambda field_type: (issubclass(field_type, Enum)),
                 get_args(get_type_hints(cls)[info.field_name]),
-            )
+            ),
         )[0]
         domain = {i.name: i.value for i in EnumType}
         suggestion = None
@@ -71,8 +71,8 @@ class EnumUtils:
                     EnumType = t
                     break
             return EnumUtils.resolve(sql_dict[field], EnumType)
-        return from_sql
 
+        return from_sql
 
     @staticmethod
     def to_sql(sql_field: str):
@@ -86,4 +86,5 @@ class EnumUtils:
             if isinstance(res, Enum):
                 res = res.value
             return {sql_field: res}
+
         return to_sql

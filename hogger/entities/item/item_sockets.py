@@ -21,7 +21,7 @@ class ItemSockets(BaseModel):
         description=cleandoc(
             """
             The number of meta sockets. Default is 0.
-            """
+            """,
         ),
         ge=0,
     )
@@ -30,7 +30,7 @@ class ItemSockets(BaseModel):
         description=cleandoc(
             """
             The number of red sockets. Default is 0.
-            """
+            """,
         ),
         ge=0,
     )
@@ -48,7 +48,7 @@ class ItemSockets(BaseModel):
         description=cleandoc(
             """
             The number of blue sockets. Default is 0.
-            """
+            """,
         ),
         ge=0,
     )

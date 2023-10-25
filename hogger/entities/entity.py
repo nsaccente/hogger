@@ -1,4 +1,4 @@
-from abc import ABCMeta, abstractstaticmethod, abstractmethod
+from abc import ABCMeta, abstractmethod, abstractstaticmethod
 from inspect import cleandoc
 from typing import Any
 
@@ -14,7 +14,7 @@ class Entity(
         description=cleandoc(
             """
             This field tells the parser which object to use
-            """
+            """,
         ),
     )
     depends_on: list["Entity"] = []

@@ -1,6 +1,5 @@
 from typing import Union
 
-
 from mysql.connector.cursor_cext import CMySQLCursor as Cursor
 
 
@@ -27,6 +26,7 @@ def from_sql(sql_field: str):
         field_type: type = None,
     ) -> any:
         return sql_dict[sql_field]
+
     return from_sql
 
 
@@ -38,4 +38,5 @@ def to_sql(sql_field: str):
         field_type: type = None,
     ) -> dict[str, str]:
         return {sql_field: model_dict[model_field]}
+
     return to_sql

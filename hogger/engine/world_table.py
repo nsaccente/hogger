@@ -3,9 +3,9 @@ from inspect import cleandoc
 
 import mysql.connector
 
+from hogger.engine import State
 from hogger.entities import Entity
 from hogger.entities.entity_codes import EntityCodes
-from hogger.engine import State
 
 
 class WorldTable:
@@ -25,7 +25,7 @@ class WorldTable:
             user=user,
             password=password,
         )
-        self.database=database
+        self.database = database
         if not self._cnx.is_connected():
             raise Exception(f"Unable to connect to worldserver database '{database}'")
 
@@ -39,17 +39,17 @@ class WorldTable:
                     db_key INT NOT NULL,
                     PRIMARY KEY (entity_code, hogger_identifier)
                 );
-                """
+                """,
             )
 
             cursor.execute(
                 f"""
-                SELECT * 
+                SELECT *
                 FROM information_schema.tables
                 WHERE table_schema = '{self.database}'
                     AND table_name = 'hoggerlock'
                 LIMIT 1;
-                """
+                """,
             )
             exists = len(cursor.fetchall()) > 0
             if not exists:
@@ -60,35 +60,31 @@ class WorldTable:
                         v BIT NOT NULL,
                         PRIMARY KEY (k)
                     );
-                    """
+                    """,
                 )
                 cursor.execute(
                     """
                     INSERT INTO hoggerlock(k, v) values ("locked", 0);
-                    """
+                    """,
                 )
 
-
-    def get_hoggerstate(self) -> State:   
+    def get_hoggerstate(self) -> State:
         with self._cnx.cursor(buffered=True) as cursor:
             cursor.execute(
                 """
                 SELECT entity_code, hogger_identifier, db_key
                 FROM hoggerstate;
-                """
+                """,
             )
         hoggerstates = cursor.fetchall()
         actual = State()
         for entity_code, hogger_identifier, db_key in hoggerstates:
-            actual[entity_code][hogger_identifier] = (
-                self.resolve_hoggerstate(
-                    entity_code=entity_code, 
-                    hogger_identifier=hogger_identifier,
-                    db_key=db_key, 
-                )
+            actual[entity_code][hogger_identifier] = self.resolve_hoggerstate(
+                entity_code=entity_code,
+                hogger_identifier=hogger_identifier,
+                db_key=db_key,
             )
         return actual
-
 
     def resolve_hoggerstate(
         self,
@@ -100,13 +96,10 @@ class WorldTable:
         Gets all entities managed by Hogger from the world database.
         """
         if entity_code in EntityCodes:
-            return (
-                EntityCodes[entity_code]
-                .from_hoggerstate(
-                    db_key=db_key,
-                    hogger_identifier=hogger_identifier,
-                    cursor=self._cnx.cursor(),
-                )
+            return EntityCodes[entity_code].from_hoggerstate(
+                db_key=db_key,
+                hogger_identifier=hogger_identifier,
+                cursor=self._cnx.cursor(),
             )
         else:
             logging.warning(
@@ -121,16 +114,15 @@ class WorldTable:
                     Make sure that you're using a version that is compatible
                     with the version used to manage the hoggerstate table.
                     Check your version of hogger using `hogger version`.
-                    """
-                )
+                    """,
+                ),
             )
             return None
 
-
     def _write_hoggerstate(
-        self, 
-        entity_code: int, 
-        hogger_identifier: str, 
+        self,
+        entity_code: int,
+        hogger_identifier: str,
         db_key: int,
     ):
         with self._cnx.cursor(buffered=True) as cursor:
@@ -138,10 +130,9 @@ class WorldTable:
                 f"""
                 REPLACE INTO hoggerstate (entity_code, hogger_identifier, db_key)
                 VALUES ({entity_code}, "{hogger_identifier}", {db_key});
-                """
+                """,
             )
             self._cnx.commit()
-
 
     def is_locked(self) -> bool:
         with self._cnx.cursor() as cursor:
@@ -149,11 +140,10 @@ class WorldTable:
                 """
                 SELECT * FROM hoggerlock
                 WHERE k="locked";
-                """
+                """,
             )
             # TODO: Raise error if this returns nil
             return bool(cursor.fetchone()[1])
-
 
     def acquire_lock(self):
         with self._cnx.cursor() as cursor:
@@ -161,10 +151,9 @@ class WorldTable:
                 """
                 REPLACE INTO hoggerlock(k, v)
                 VALUES ("locked", 1);
-                """
+                """,
             )
             self._cnx.commit()
-
 
     def release_lock(self):
         with self._cnx.cursor() as cursor:
@@ -172,10 +161,9 @@ class WorldTable:
                 """
                 REPLACE INTO hoggerlock(k, v)
                 VALUES ("locked", 0);
-                """
+                """,
             )
             self._cnx.commit()
-
 
     def apply(
         self,

@@ -8,7 +8,7 @@ VERSION = "v0.1.0"
 
 def main():
     parser = argparse.ArgumentParser(
-        description="A declarative way to manage your WoW database"
+        description="A declarative way to manage your WoW database",
     )
     subparsers = parser.add_subparsers(dest="command", help="Subcommands")
 

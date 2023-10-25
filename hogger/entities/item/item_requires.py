@@ -70,7 +70,7 @@ class Requires(BaseModel):
         description=dedent(
             """
             Classes permitted to use the item.
-            """
+            """,
         ),
     )
     races: list[AllowableRace | int] = Field(
@@ -78,7 +78,7 @@ class Requires(BaseModel):
         description=dedent(
             """
             Races permitted to use the item.
-            """
+            """,
         ),
     )
     level: int = Field(
@@ -86,7 +86,7 @@ class Requires(BaseModel):
         description=dedent(
             """
             The minimum player level required to equip the item.
-            """
+            """,
         ),
     )
     skill: LookupID = Field(
@@ -94,7 +94,7 @@ class Requires(BaseModel):
         description=dedent(
             """
             The skill required to use this item.
-            """
+            """,
         ),
     )
     skillRank: int = Field(
@@ -102,7 +102,7 @@ class Requires(BaseModel):
         description=dedent(
             """
             The required skill rank the player needs to have to use this item.
-            """
+            """,
         ),
     )
     spell: LookupID = Field(
@@ -110,7 +110,7 @@ class Requires(BaseModel):
         description=dedent(
             """
             The required spell that the player needs to have to use this item.
-            """
+            """,
         ),
     )
     honorRank: (RequiredHonorRank | int) = Field(
@@ -119,7 +119,7 @@ class Requires(BaseModel):
             """
             The required PvP rank required to use the item.",
             serialization_alias="requiredhonorrank",
-            """
+            """,
         ),
     )
     cityRank: int = Field(
@@ -127,7 +127,7 @@ class Requires(BaseModel):
         description=dedent(
             """
             Unused. All items have this set to 0.
-            """
+            """,
         ),
     )
     reputationFaction: int = Field(
@@ -137,7 +137,7 @@ class Requires(BaseModel):
             The faction template ID of the faction that the player has to have
             a certain ranking with. If this value is 0, the faction of the
             seller of the item is used.
-            """
+            """,
         ),
     )
     reputationRank: (ReputationRank | int) = Field(
@@ -145,7 +145,7 @@ class Requires(BaseModel):
         description=dedent(
             """
             The required reputation rank to use the item.
-            """
+            """,
         ),
     )
     disenchantSkill: int = Field(
@@ -154,7 +154,7 @@ class Requires(BaseModel):
             """
             The required skill proficiency in disenchanting that the player must
             have in order to disenchant this item.
-            """
+            """,
         ),
     )
     map: LookupID = Field(
@@ -163,7 +163,7 @@ class Requires(BaseModel):
             """
             The ID of the map in which this item can be used. If you leave the
             map, the item will be deleted from the inventory.
-            """
+            """,
         ),
     )
     area: LookupID = Field(
@@ -172,7 +172,7 @@ class Requires(BaseModel):
             """
             The ID of the zone in which this item can be used. If you leave the
             area, the item will be deleted from the inventory.
-            """
+            """,
         ),
     )
     holiday: LookupID = Field(
@@ -180,7 +180,7 @@ class Requires(BaseModel):
         description=dedent(
             """
             The holiday event that must be active in order to use the item.
-            """
+            """,
         ),
     )
 
@@ -222,5 +222,48 @@ class Requires(BaseModel):
                 area=sql_dict[area],
                 holiday=sql_dict[holiday],
             )
-
         return from_sql
+
+    @staticmethod
+    def to_sql(
+        classes: str = "AllowableClass",
+        races: str = "AllowableRace",
+        level: str = "RequiredLevel",
+        skill: str = "RequiredSkill",
+        skillRank: str = "RequiredSkillRank",
+        spell: str = "requiredspell",
+        honorRank: str = "requiredhonorrank",
+        cityRank: str = "RequiredCityRank",
+        reputationFaction: str = "RequiredReputationFaction",
+        reputationRank: str = "RequiredReputationRank",
+        disenchantSkill: str = "RequiredDisenchantSkill",
+        map: str = "Map",
+        area: str = "area",
+        holiday: str = "HolidayId",
+    ):
+        def to_sql(
+            model_field: str,
+            model_dict: dict[str, any],
+            cursor: Cursor,
+            field_type: type,
+        ) -> dict[str, any]:
+            r: "Requires" = model_dict[model_field]
+            x = {
+                classes: sum(r.classes),
+                races: sum(r.races),
+                level: r.level,
+                skill: r.skill,
+                skillRank: r.skillRank,
+                spell: r.spell,
+                honorRank: r.honorRank,
+                cityRank: r.cityRank,
+                reputationFaction: r.reputationFaction,
+                reputationRank: r.reputationRank,
+                disenchantSkill: r.disenchantSkill,
+                map: r.map,
+                area: r.area,
+                holiday: r.holiday,
+            }
+            print(x)
+            return x
+        return to_sql

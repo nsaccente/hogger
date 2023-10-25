@@ -1,16 +1,15 @@
-import os
 import copy
+import os
+
 import yaml
-from hogger.entities import Entity, EntityCodes
+
 from hogger.engine import Manifest
+from hogger.entities import Entity, EntityCodes
 
 
 class State(dict[int, dict[str, (Entity | dict[str, any])]]):
     def __init__(self):
-        super().__init__({
-            entity_code: {} for entity_code, _ in EntityCodes.items()
-        })
-
+        super().__init__({entity_code: {} for entity_code, _ in EntityCodes.items()})
 
     @staticmethod
     def _get_manifest_paths(dir_or_file: str) -> list[str]:
@@ -23,11 +22,8 @@ class State(dict[int, dict[str, (Entity | dict[str, any])]]):
                     if name.endswith(".hogger"):
                         hoggerfiles.append(os.path.abspath(os.path.join(root, name)))
         else:
-            raise Exception(
-                "Path provided is neither a dir, nor a file."
-            )
+            raise Exception("Path provided is neither a dir, nor a file.")
         return hoggerfiles
-
 
     @staticmethod
     def get_desired_state(dir_or_file: str) -> "State":
@@ -41,10 +37,9 @@ class State(dict[int, dict[str, (Entity | dict[str, any])]]):
                 desired[entity_code][hogger_identifier] = entity
         return desired
 
-    
     @staticmethod
     def diff_state(
-        desired_state: "State", 
+        desired_state: "State",
         actual_state: "State",
     ) -> dict[str, "State"]:
         created = State()

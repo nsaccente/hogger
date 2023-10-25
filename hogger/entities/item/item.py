@@ -11,12 +11,13 @@ from pydantic import (
     field_validator,
 )
 
-from .item_spells import spells_from_sql
 from hogger.entities import Entity
 from hogger.entities.item import *
 from hogger.types import *
 from hogger.types import EnumUtils, LookupID, Money
 from hogger.util import from_sql, to_sql
+
+from .item_spells import spells_from_sql
 
 _enum_fields = [
     "ammoType",
@@ -42,7 +43,6 @@ _enum_map_fields = [
     "stats",
 ]
 
-
 class Item(Entity, extra="allow"):
     type: Literal["Item"] = "Item"
 
@@ -55,7 +55,7 @@ class Item(Entity, extra="allow"):
             If the id is defined, the item definition in the database will
             be pinned to the id defined, and will overwrite whatever entry
             has that id.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": from_sql("entry"),
@@ -66,7 +66,7 @@ class Item(Entity, extra="allow"):
         description=dedent(
             """
             The name of the item.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": from_sql("name"),
@@ -88,7 +88,7 @@ class Item(Entity, extra="allow"):
             """
             The description that appears in yellow letters at the bottom of
             the item tooltip. No description by default.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": from_sql("description"),
@@ -101,7 +101,7 @@ class Item(Entity, extra="allow"):
             """
             The name of the script that the item should use. No script by
             default.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": from_sql("ScriptName"),
@@ -114,7 +114,7 @@ class Item(Entity, extra="allow"):
             """
             The category the item belongs to; e.g. consumable, weapon, armor,
             etc.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": EnumUtils.from_sql("class"),
@@ -127,7 +127,7 @@ class Item(Entity, extra="allow"):
             """
             The subcategory the item belongs to, and is dependent upon the
             value of itemClass.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": from_sql("subclass"),
@@ -141,7 +141,7 @@ class Item(Entity, extra="allow"):
             Each weapon type plays a unique sound on impact, which can be
             overriden by the unique sound of a different weapon type.
             Use -1 to use the default sound for the item. Default is -1.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": from_sql("SoundOverrideSubclass"),
@@ -154,7 +154,7 @@ class Item(Entity, extra="allow"):
         description=dedent(
             """
             Controls both the model appearance and icon.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": from_sql("displayid"),
@@ -168,7 +168,7 @@ class Item(Entity, extra="allow"):
             """
             The quality of the item; valid values are: Poor, Uncommon,
             Common, Rare, Epic, Legendary, Artifact, BoA.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": EnumUtils.from_sql("Quality"),
@@ -183,7 +183,7 @@ class Item(Entity, extra="allow"):
             a limited number of this item available, the vendor's inventory
             will increase by this number when the vendor list is refreshed
             (see npc.vendor.incrtime).
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": from_sql("BuyCount"),
@@ -195,8 +195,8 @@ class Item(Entity, extra="allow"):
         default=Money(gold=0, silver=0, copper=0),
         description=dedent(
             """
-            The cost to purchase this item form a vendor
-            """
+            The cost to purchase this item from a vendor
+            """,
         ),
         json_schema_extra={
             "from_sql": Money.from_sql_copper("BuyPrice"),
@@ -209,7 +209,7 @@ class Item(Entity, extra="allow"):
         description=dedent(
             """
             The amount a vendor will purchase this item from you for.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": Money.from_sql_copper("SellPrice"),
@@ -221,7 +221,7 @@ class Item(Entity, extra="allow"):
         description=dedent(
             """
             Is the item equippable? A quest item?
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": EnumUtils.from_sql("InventoryType"),
@@ -233,7 +233,7 @@ class Item(Entity, extra="allow"):
         description=dedent(
             """
             The maximum amount that a player can have; use 0 for infinite.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": from_sql("maxcount"),
@@ -246,7 +246,7 @@ class Item(Entity, extra="allow"):
         description=dedent(
             """
             The maximum size of a stack of this item.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": from_sql("stackable"),
@@ -260,7 +260,7 @@ class Item(Entity, extra="allow"):
             """
             The ID of the quest that this item will start if right-clicked.
             See quest_template.id.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": from_sql("startquest"),
@@ -273,7 +273,7 @@ class Item(Entity, extra="allow"):
         description=dedent(
             """
             Controls the sound played when moving items in your inventory.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": EnumUtils.from_sql("Material"),
@@ -285,7 +285,7 @@ class Item(Entity, extra="allow"):
         description=dedent(
             """
             Adds a random stat bonus on the item.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": RandomStat.from_sql(
@@ -303,11 +303,11 @@ class Item(Entity, extra="allow"):
         description=dedent(
             """
             Dictates what kind of bags this item can be placed in.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": IntFlagUtils.from_sql("BagFamily"),
-            # "to_sql": IntFlagUtils.to_sql("BagFamily"),
+            "to_sql": IntFlagUtils.to_sql("BagFamily"),
         },
     )
     containerSlots: int = Field(
@@ -315,7 +315,7 @@ class Item(Entity, extra="allow"):
         description=dedent(
             """
             If this item is a bag, controls the number of slots it will have
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": from_sql("ContainerSlots"),
@@ -328,7 +328,7 @@ class Item(Entity, extra="allow"):
             """
             Some items are required to complete certain tasks, such as a
             shaman's totems, blacksmithing hammers, or enchanting rods.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": EnumUtils.from_sql("TotemCategory"),
@@ -342,11 +342,11 @@ class Item(Entity, extra="allow"):
             The amount of time an item will exist in a player's inventory
             before disappearing; setting the duration to 0 seconds will
             prevent the item from every disappearing.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": Duration.from_sql_seconds("duration"),
-            # "to_sql": Duration.to_sql_seconds("duration"),
+            "to_sql": Duration.to_sql_seconds("duration"),
         },
     )
     itemLimitCategory: LookupID = Field(
@@ -359,7 +359,7 @@ class Item(Entity, extra="allow"):
             Healthstone, there are several items like Lesser Healthstone,
             Greater Healthstone, etc. but you can have only one in your bag
             (check as example value 3 or 4).
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": from_sql("ItemLimitCategory"),
@@ -371,7 +371,7 @@ class Item(Entity, extra="allow"):
         description=dedent(
             """
             Corresponds to an entry in disenchant_loot_template.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": from_sql("DisenchantID"),
@@ -385,7 +385,7 @@ class Item(Entity, extra="allow"):
             Determines the category a fooditem falls into, if any. This is
             primarily used to determine what items hunter pet's will eat.
             Defaults to "Undefined".
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": EnumUtils.from_sql("FoodType"),
@@ -399,7 +399,7 @@ class Item(Entity, extra="allow"):
             Minimum amount of money contained in the item. If an item should
             not contain money, use Money(gold=0, silver=0, copper=0), which
             is the default for this field.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": Money.from_sql_copper("minMoneyLoot"),
@@ -413,7 +413,7 @@ class Item(Entity, extra="allow"):
             Max amount of money contained in the item. If an item should
             not contain money, use Money(gold=0, silver=0, copper=0), which
             is the default for this field.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": Money.from_sql_copper("maxMoneyLoot"),
@@ -425,7 +425,7 @@ class Item(Entity, extra="allow"):
         description=dedent(
             """
             The ID of the item set that this item belongs to.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": from_sql("itemset"),
@@ -437,7 +437,7 @@ class Item(Entity, extra="allow"):
         description=dedent(
             """
             Determines if the item binds to the character. Defaults to Never.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": EnumUtils.from_sql("bonding"),
@@ -449,11 +449,11 @@ class Item(Entity, extra="allow"):
         description=dedent(
             """
             A collection of flags to modify the behavior of the item.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": IntFlagUtils.from_sql("Flags"),
-            # "to_sql": IntFlagUtils.to_sql("Flags"),
+            "to_sql": IntFlagUtils.to_sql("Flags"),
         },
     )
     flagsExtra: list[ItemFlagExtra | int] = Field(
@@ -461,11 +461,11 @@ class Item(Entity, extra="allow"):
         description=dedent(
             """
             A collection of flags to modify the behavior of the item.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": IntFlagUtils.from_sql("FlagsExtra"),
-            # "to_sql": IntFlagUtils.to_sql("FlagsExtra"),
+            "to_sql": IntFlagUtils.to_sql("FlagsExtra"),
         },
     )
     flagsCustom: list[ItemFlagExtra | int] = Field(
@@ -473,26 +473,18 @@ class Item(Entity, extra="allow"):
         description=dedent(
             """
             A collection of flags to modify the behavior of the item.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": IntFlagUtils.from_sql("flagsCustom"),
-            # "to_sql": IntFlagUtils.to_sql("flagsCustom"),
+            "to_sql": IntFlagUtils.to_sql("flagsCustom"),
         },
     )
     readText: ItemText = Field(
         default=ItemText(),
         json_schema_extra={
-            "from_sql": ItemText.from_sql(
-                id="PageText",
-                pageMaterial="PageMaterial",
-                language="LanguageID",
-            ),
-            # "to_sql": ItemText.to_sql(
-            #     id="PageText",
-            #     pageMaterial="PageMaterial",
-            #     language="LanguageID",
-            # ),
+            "from_sql": ItemText.from_sql(),
+            "to_sql": ItemText.to_sql(),
         },
     )
     requires: Requires = Field(
@@ -500,7 +492,7 @@ class Item(Entity, extra="allow"):
         description="",
         json_schema_extra={
             "from_sql": Requires.from_sql(),
-            # "to_sql": Requires.to_sql(),
+            "to_sql": Requires.to_sql(),
         },
     )
     # TODO: Add automatic item level calculation as default.
@@ -510,7 +502,7 @@ class Item(Entity, extra="allow"):
             """
             The level of the item, not to be confused with the item required to
             equip or use the item.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": from_sql("ItemLevel"),
@@ -523,7 +515,7 @@ class Item(Entity, extra="allow"):
             """
             The lock entry ID that this item (which serves as a key) is tied to.
             This field is used in key-door mechanics.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": from_sql("lockid"),
@@ -535,7 +527,7 @@ class Item(Entity, extra="allow"):
         description=dedent(
             """
             Item resistances.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": EnumMapUtils.from_sql_named_fields(
@@ -566,7 +558,7 @@ class Item(Entity, extra="allow"):
             """
             Similar to Static Stats these are the Stats that grow along with the
             users level (mainly heirloom leveling gear) use like static stats.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": from_sql("ScalingStatDistribution"),
@@ -578,7 +570,7 @@ class Item(Entity, extra="allow"):
         description=dedent(
             """
             Final (level 80) value of the scaling-stat
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": from_sql("ScalingStatValue"),
@@ -591,7 +583,7 @@ class Item(Entity, extra="allow"):
         description=dedent(
             """
             Stats applied to the item in key-value pairs.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": EnumMapUtils.stats_from_sql_kvpairs(
@@ -627,7 +619,7 @@ class Item(Entity, extra="allow"):
         description=dedent(
             """
             Item socket details.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": ItemSockets.from_sql(),
@@ -639,7 +631,7 @@ class Item(Entity, extra="allow"):
         description=dedent(
             """
             The armor value of the item.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": from_sql("armor"),
@@ -651,7 +643,7 @@ class Item(Entity, extra="allow"):
         description=dedent(
             """
             This field is not well understood.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": from_sql("ArmorDamageModifier"),
@@ -663,7 +655,7 @@ class Item(Entity, extra="allow"):
         description=dedent(
             """
             The time in milliseconds between successive hits.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": from_sql("delay"),
@@ -675,7 +667,7 @@ class Item(Entity, extra="allow"):
         description=dedent(
             """
             The type of ammunition the item uses.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": EnumUtils.from_sql("ammo_type"),
@@ -688,7 +680,7 @@ class Item(Entity, extra="allow"):
             """
             The range modifier for bows, crossbows, and guns.
             All of Blizzard's ranged weapons have a default range of 100.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": from_sql("RangedModRange"),
@@ -701,7 +693,7 @@ class Item(Entity, extra="allow"):
             """
             If the item is a shield, this value will be the block chance of the
             shield.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": from_sql("block"),
@@ -713,7 +705,7 @@ class Item(Entity, extra="allow"):
         description=dedent(
             """
             The durability of the item. Defaults to 100.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": from_sql("MaxDurability"),
@@ -726,7 +718,7 @@ class Item(Entity, extra="allow"):
             """
             Controls how the item is put away on the character. Press the 'Z'
             hotkey to sheath and unsheathe your weapons.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": EnumUtils.from_sql("sheath"),
@@ -738,7 +730,7 @@ class Item(Entity, extra="allow"):
         description=dedent(
             """
             The damage values of the weapon.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": Damage.from_sql(),
@@ -750,7 +742,7 @@ class Item(Entity, extra="allow"):
         description=dedent(
             """
             Items can be used to invoke spells.
-            """
+            """,
         ),
         json_schema_extra={
             "from_sql": spells_from_sql(
@@ -868,34 +860,44 @@ class Item(Entity, extra="allow"):
 
     @field_serializer(*_enum_fields, when_used="json")
     def serialize_enum_json(
-        self, v: (Enum | int), info: SerializationInfo
+        self,
+        v: (Enum | int),
+        info: SerializationInfo,
     ) -> str | int:
         return EnumUtils.serialize(self, v, info)
 
     @field_validator(*_intflag_fields, mode="before")
     def parse_intflag(
-        cls, items: list[str | int], info: FieldValidationInfo
+        cls,
+        items: list[str | int],
+        info: FieldValidationInfo,
     ) -> list[IntFlag | int]:
         return IntFlagUtils.parse(cls, items, info)
 
     @field_serializer(*_intflag_fields, when_used="json")
     def serialize_intflag(
-        self, items: list[int | IntFlag], info: SerializationInfo
+        self,
+        items: list[int | IntFlag],
+        info: SerializationInfo,
     ) -> list[str | int]:
         return IntFlagUtils.serialize(self, items, info)
 
     @field_validator(*_enum_map_fields, mode="before")
     def parse_enum_map(
-        cls, dmap: dict[str, int], info: SerializationInfo
+        cls,
+        dmap: dict[str, int],
+        info: SerializationInfo,
     ) -> dict[Enum, int]:
         return EnumMapUtils.parse(cls, dmap, info)
 
     @field_serializer(*_enum_map_fields, when_used="json")
     def serialize_enum_map(
-        self, items: dict[(Enum | int), int], info: SerializationInfo
+        self,
+        items: dict[(Enum | int), int],
+        info: SerializationInfo,
     ) -> dict[(str | int), int]:
         return EnumMapUtils.serialize(self, items, info)
-    
+
     def db_key(self) -> int:
         return self.id
 
@@ -916,7 +918,7 @@ class Item(Entity, extra="allow"):
             f"""
             SELECT * FROM item_template
             WHERE entry={db_key};
-            """
+            """,
         )
         entity = cursor.fetchall()
         assert len(entity) == 1
@@ -941,7 +943,6 @@ class Item(Entity, extra="allow"):
         item_args["tag"] = tmp[1]
         return Item(**item_args)
 
-
     def diff(self, other: "Item") -> ("Item", dict[str, any]):
         # Reuse id of self if other is a negative number. This change won't be
         # shown in the diff, because it's an implied feature of the Item entity.
@@ -949,8 +950,8 @@ class Item(Entity, extra="allow"):
             self.id = other.id
 
         diffs = {}
-        desired = self.model_dump()
-        actual = other.model_dump()
+        desired = vars(self)
+        actual = vars(other)
 
         for field in Item.model_fields:
             if desired[field] != actual[field]:
@@ -961,10 +962,9 @@ class Item(Entity, extra="allow"):
                 other.__setattr__(field, desired[field])
         return other, diffs
 
-
     def apply(self, cursor: Cursor) -> None:
         args = {}
-        model_dict = self.model_dump()
+        model_dict = vars(self)
         for field, field_properties in Item.model_fields.items():
             json_schema_extra = field_properties.json_schema_extra
             if json_schema_extra is not None and "to_sql" in json_schema_extra:
@@ -976,14 +976,13 @@ class Item(Entity, extra="allow"):
                     field_type=field_properties.annotation,
                 )
 
-        print(tuple(args.keys()))
-        print(tuple(args.values()))
+        # print(tuple(args.keys()))
+        # print(tuple(args.values()))
         # for k, v in args.items():
-        #     print(k, v) 
+        #     print(k, v)
         # cursor.execute
         #     f"REPLACE INTO hoggerstate ()"
         #     "VALUES"
         # )
         # self._cnx.commit()
-        print()
         return None

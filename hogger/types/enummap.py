@@ -12,14 +12,16 @@ from hogger.util import InvalidValueException
 class EnumMapUtils:
     @staticmethod
     def parse(
-        cls, dmap: dict[(str | int), int], info: SerializationInfo
+        cls,
+        dmap: dict[(str | int), int],
+        info: SerializationInfo,
     ) -> dict[(Enum | int), int]:
         EnumKeyType = (
             list(
                 filter(
                     lambda field_type: (issubclass(field_type, Enum)),
                     get_args(get_args(get_type_hints(cls)[info.field_name])[0]),
-                )
+                ),
             )
         )[0]
 
@@ -51,7 +53,9 @@ class EnumMapUtils:
         return result
 
     def serialize(
-        self, items: dict[(Enum | int), int], info: SerializationInfo
+        self,
+        items: dict[(Enum | int), int],
+        info: SerializationInfo,
     ) -> dict[(str | int), int]:
         result = {}
         for k, v in items.items():
@@ -88,7 +92,6 @@ class EnumMapUtils:
                         result[enum_key] = 0
                     result[enum_key] += enum_value
             return result
-
         return stats_from_sql_kvpairs
 
     @staticmethod
@@ -100,7 +103,6 @@ class EnumMapUtils:
         The key should be the field in the sql table, and the value should map
         to the name for the enum it's mapped to.
         """
-
         def from_sql_named_fields(
             sql_dict: dict[str, any],
             cursor: Cursor,
@@ -113,5 +115,8 @@ class EnumMapUtils:
                     EnumUtils.resolve(model_field, EnumType)
                     result[model_field] = sql_dict[sql_field]
             return result
-
         return from_sql_named_fields
+
+    # @staticmethod
+    # def to_sql_named_fields(field_map: dict[str, str]):
+    #     pass

@@ -30,7 +30,7 @@ class Manifest(BaseModel):
                 self.model_dump_json(
                     by_alias=by_alias,
                     exclude_unset=exclude_unset,
-                )
+                ),
             ),
             indent=2,
             sort_keys=False,

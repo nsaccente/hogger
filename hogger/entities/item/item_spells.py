@@ -23,9 +23,10 @@ def spells_from_sql(
                         sql_dict=sql_dict,
                         cursor=cursor,
                         field_type=field_type,
-                    )
+                    ),
                 )
         return results
+
     return spells_from_sql
 
 
@@ -44,7 +45,7 @@ class ItemSpell(BaseModel):
         description=cleandoc(
             """
             The spell ID of the spell that the item can cast or trigger.
-            """
+            """,
         ),
         serialization_alias="spellid_{}",
     )
@@ -53,7 +54,7 @@ class ItemSpell(BaseModel):
         description=cleandoc(
             """
             The type of trigger for the spell.
-            """
+            """,
         ),
         serialization_alias="spelltrigger_{}",
     )
@@ -65,7 +66,7 @@ class ItemSpell(BaseModel):
             infinite charges are possible. If negative, then after the number of
             charges is depleted, the item is deleted as well. If positive, then
             the item is not deleted after all the charges are spent.
-            """
+            """,
         ),
         serialization_alias="spellcharges_{}",
     )
@@ -75,7 +76,7 @@ class ItemSpell(BaseModel):
             """
             The proc per minute rate controlling how often the spell is
             triggered. This field is only relevant if `trigger = ChanceOnHit`.
-            """
+            """,
         ),
         serialization_alias="spellppmRate_{}",
     )
@@ -88,7 +89,7 @@ class ItemSpell(BaseModel):
             cooldown.  Note: this is not the "internal cooldown" of procs
             commonly found on items such as trinkets with "Chance on hit"
             effects.
-            """
+            """,
         ),
         serialization_alias="spellcooldown_{}",
     )
@@ -97,7 +98,7 @@ class ItemSpell(BaseModel):
         description=cleandoc(
             """
             The category the spell is in. Default is 0.
-            """
+            """,
         ),
         serialization_alias="spellcategory_{}",
     )
@@ -111,7 +112,7 @@ class ItemSpell(BaseModel):
 
             Note: `ItemSpell` objects can have both a `cooldown` and a
             `spellCategoryCooldown`, they're not mutually exclusive.
-            """
+            """,
         ),
         serialization_alias="spellcategorycooldown_{}",
     )

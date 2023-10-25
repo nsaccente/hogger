@@ -1,11 +1,8 @@
-from hogger.entities import Entity, EntityCodes
-from hogger.engine import (
-    Manifest, 
-    State, 
-    WorldTable, 
-)
 from contextlib import ExitStack
 from functools import partial
+
+from hogger.engine import Manifest, State, WorldTable
+from hogger.entities import Entity, EntityCodes
 
 
 def apply(
@@ -49,7 +46,7 @@ def apply(
             desired_state=State.get_desired_state(dir_or_file),
             actual_state=wt.get_hoggerstate(),
         )
-        
+
         # print("\nTo Be Created:")
         # for entity_code in created:
         #     entity_type = EntityCodes[entity_code].__name__
@@ -61,7 +58,7 @@ def apply(
         #     entity_type = EntityCodes[entity_code].__name__
         #     for hogger_id in modified[entity_code]:
         #         print(f"  {entity_type}.{hogger_id}")
-        
+
         # print("\nUnchanged:")
         # for entity_code in unchanged:
         #     entity_type = EntityCodes[entity_code].__name__

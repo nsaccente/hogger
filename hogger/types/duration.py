@@ -22,7 +22,7 @@ class Duration(BaseModel):
                 (self.hours * 3600),
                 (self.minutes * 60),
                 (self.seconds),
-            ]
+            ],
         )
 
     def to_milli(self) -> int:
@@ -82,3 +82,14 @@ class Duration(BaseModel):
             return Duration.from_milli(sql_dict[field])
 
         return from_sql_seconds
+
+    @staticmethod
+    def to_sql_seconds(sql_field: str):
+        def to_sql_seconds(
+            model_field: str,
+            model_dict: dict[str, any],
+            cursor: Cursor,
+            field_type: type,
+        ) -> dict[str, any]:
+            return {sql_field: model_dict[model_field].to_seconds()}
+        return to_sql_seconds

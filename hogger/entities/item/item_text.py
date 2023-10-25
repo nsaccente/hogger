@@ -4,7 +4,7 @@ from inspect import cleandoc
 from mysql.connector.cursor_cext import CMySQLCursor as Cursor
 from pydantic import BaseModel, Field
 
-from hogger.types import LookupID
+from hogger.types import LookupID, EnumUtils
 
 
 class PageMaterial(Enum):
@@ -46,7 +46,7 @@ class ItemText(BaseModel):
             """
             The ID of the row in the `page_text` table corresponding to the text
             that will be shown to the player.
-            """
+            """,
         ),
         serialization_alias="PageText",
         ge=0,
@@ -57,7 +57,7 @@ class ItemText(BaseModel):
             """
             The material that the text will be displayed on to the player.
             Defaults to parchment.
-            """
+            """,
         ),
         serialization_alias="PageMaterial",
     )
@@ -69,16 +69,16 @@ class ItemText(BaseModel):
             players to be fluent in the document's language in order to read
             it correctly. Defaults to Universal, meaning all players will be
             able to interpret it, with no language requirements.
-            """
+            """,
         ),
         serialization_alias="LanguageID",
     )
 
     @staticmethod
     def from_sql(
-        id: str,
-        pageMaterial: str,
-        language: str,
+        id: str="PageText",
+        pageMaterial: str="PageMaterial",
+        language: str="LanguageID",
     ):
         def from_sql(
             sql_dict: dict[str, any],
@@ -92,3 +92,29 @@ class ItemText(BaseModel):
             )
 
         return from_sql
+
+    @staticmethod
+    def to_sql(
+        id: str="PageText",
+        pageMaterial: str="PageMaterial",
+        language: str="LanguageID",
+    ):
+        def to_sql(
+            model_field: str,
+            model_dict: dict[str, any],
+            cursor: Cursor,
+            field_type: type,
+        ) -> dict[str, any]:
+            t: "ItemText" = model_dict[model_field]
+            # TODO: Write a custom class for Enums and integrate this logic
+            # directly into __int__ magic method
+            if isinstance(t.pageMaterial, PageMaterial):
+                t.pageMaterial = t.pageMaterial.value
+            if isinstance(t.language, Language):
+                t.language = t.language.value
+            return {
+                id: t.id,
+                pageMaterial: t.pageMaterial,
+                language: t.language,
+            }
+        return to_sql

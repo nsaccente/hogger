@@ -27,14 +27,16 @@ class IntFlagUtils:
 
     @staticmethod
     def parse(
-        cls, items: list[IntFlag | str | int], info: FieldValidationInfo
+        cls,
+        items: list[IntFlag | str | int],
+        info: FieldValidationInfo,
     ) -> list[IntFlag | int]:
         IntFlagType = (
             list(
                 filter(
                     lambda field_type: (issubclass(field_type, Enum)),
                     get_args(get_args(get_type_hints(cls)[info.field_name])[0]),
-                )
+                ),
             )
         )[0]
         domain = {i.name: i.value for i in IntFlagType}
@@ -67,7 +69,9 @@ class IntFlagUtils:
         return list(set(result))
 
     def serialize(
-        self, items: list[int | IntFlag], info: SerializationInfo
+        self,
+        items: list[int | IntFlag],
+        info: SerializationInfo,
     ) -> list[str | int]:
         result = []
         for item in items:
@@ -98,6 +102,18 @@ class IntFlagUtils:
             return flags
 
         return from_sql
+
+    @staticmethod
+    def to_sql(sql_field: str):
+        def to_sql(
+            model_field: str,
+            model_dict: dict[str, any],
+            cursor: Cursor,
+            field_type: type,
+        ) -> dict[str, any]:
+            # TODO: Add __int__ magic method
+            return {sql_field: sum(model_dict[model_field])}
+        return to_sql
 
     @staticmethod
     def resolve(

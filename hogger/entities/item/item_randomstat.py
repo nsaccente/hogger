@@ -14,7 +14,7 @@ class RandomStat(BaseModel):
             Points to an entry in item_enchantment_template and ties an iteem's
             chance at having a random property attached to it when it shows up
             for the first time.
-            """
+            """,
         ),
         ge=0,
     )
@@ -24,7 +24,7 @@ class RandomStat(BaseModel):
             """
             Determines whether there will be a random suffix attached to the
             item name. Defaults to False.
-            """
+            """,
         ),
     )
 
@@ -48,12 +48,13 @@ class RandomStat(BaseModel):
                 id=abs(max(random_property, random_suffix)),
                 withPrefix=with_prefix,
             )
+
         return from_sql
 
     @staticmethod
     def to_sql(
-        RandomProperty: str="RandomProperty",
-        RandomSuffix: str="RandomSuffix",
+        RandomProperty: str = "RandomProperty",
+        RandomSuffix: str = "RandomSuffix",
     ):
         def to_sql(
             model_field: str,
@@ -62,10 +63,15 @@ class RandomStat(BaseModel):
             field_type: type,
         ) -> dict[str, any]:
             prop, suff = 0, 0
-            if model_dict[model_field]["withSuffix"] == False:
-                prop = model_dict[model_field]["id"]
-            else:
-                suff = model_dict[model_field]["id"]
+            withSuffix = model_dict[model_field].withSuffix
+            prop = model_dict[model_field].id * (not withSuffix)
+            suff = model_dict[model_field].id * (withSuffix)
+            if prop != 0 and suff != 0:
+                # TODO: Create more detailed exception
+                raise Exception(
+                    f"Both {RandomProperty} and {RandomSuffix} cannot be "
+                    "nonzero."
+                )
             return {
                 RandomProperty: prop,
                 RandomSuffix: suff,

@@ -1,7 +1,9 @@
+from collections import OrderedDict
+
+import networkx as nx
+
 from .entity import Entity
 from .item.item import Item
-from collections import OrderedDict
-import networkx as nx
 
 
 class EntityCodesDict(OrderedDict[int, Entity]):
@@ -19,10 +21,12 @@ class EntityCodesDict(OrderedDict[int, Entity]):
         return -1
 
 
-# When creating new entities, add them here with a unique code key. 
-EntityCodes = EntityCodesDict({
-    1: Item,
-})
+# When creating new entities, add them here with a unique code key.
+EntityCodes = EntityCodesDict(
+    {
+        1: Item,
+    },
+)
 
 # G = nx.DiGraph()
 # for cls in EntityCodes:
