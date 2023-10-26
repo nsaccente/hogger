@@ -1,5 +1,4 @@
 from inspect import cleandoc
-from typing import Any
 
 from mysql.connector.cursor_cext import CMySQLCursor as Cursor
 from pydantic import BaseModel, Field, model_validator
@@ -55,19 +54,24 @@ class ItemSockets(BaseModel):
 
     # TODO
     @model_validator(mode="after")
-    def ensure_3_of_4_socket_colors(cls, data: Any) -> Any:
+    def ensure_3_of_4_socket_colors(cls, data: any) -> any:
         return data
 
     @staticmethod
     def from_sql(
         GemProperties="GemProperties",
         socketBonus="socketBonus",
-        socketColor_1="socketColor_1",
-        socketColor_2="socketColor_2",
-        socketColor_3="socketColor_3",
-        socketContent_1="socketContent_1",
-        socketContent_2="socketContent_2",
-        socketContent_3="socketContent_3",
+        socket_map={
+            "socketColor_1": "socketContent_1",
+            "socketColor_2": "socketContent_2",
+            "socketColor_3": "socketContent_3",
+        },
+        # socketColor_1="socketColor_1",
+        # socketColor_2="socketColor_2",
+        # socketColor_3="socketColor_3",
+        # socketContent_1="socketContent_1",
+        # socketContent_2="socketContent_2",
+        # socketContent_3="socketContent_3",
     ):
         def from_sql(
             sql_dict: dict[str, any],
@@ -75,12 +79,9 @@ class ItemSockets(BaseModel):
             field_type: type,
         ) -> ItemSockets:
             args = {1: 0, 2: 0, 4: 0, 8: 0}
-            if socketColor_1 in args:
-                args[socketColor_1] += socketContent_1
-            if socketColor_2 in args:
-                args[socketColor_2] += socketContent_2
-            if socketColor_3 in args:
-                args[socketColor_3] += socketContent_3
+            for socketColor, socketContent in socket_map.items():
+                if socketColor in args:
+                    args[socketColor] += socketContent
             args["meta"] = args.pop(1)
             args["red"] = args.pop(2)
             args["yellow"] = args.pop(4)
@@ -90,5 +91,36 @@ class ItemSockets(BaseModel):
                 properties=sql_dict[GemProperties],
                 **args,
             )
-
         return from_sql
+
+
+    @staticmethod
+    def to_sql(
+        GemProperties="GemProperties",
+        socketBonus="socketBonus",
+        socket_map={
+            "socketColor_1": "socketContent_1",
+            "socketColor_2": "socketContent_2",
+            "socketColor_3": "socketContent_3",
+        }
+    ):
+        def to_sql(
+            model_field: str,
+            model_dict: dict[str, any],
+            cursor: Cursor,
+            field_type: type,
+        ) -> dict[str, any]:
+            attrs = {"meta": 1, "red": 2, "yellow": 4, "blue": 8}
+            s: "ItemSockets" = model_dict[model_field]
+            it = iter(socket_map.items())
+            result = dict()
+            for attr, bit in attrs.items():
+                socketColor, socketContent = next(it, (None, None))
+                if socketColor is None or socketContent is None:
+                    continue
+                num_sockets = s.__getattribute__(attr)
+                if num_sockets > 0:
+                    result[socketColor] = attr
+                    result[socketContent] = num_sockets
+            return result
+        return to_sql

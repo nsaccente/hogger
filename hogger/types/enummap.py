@@ -65,34 +65,6 @@ class EnumMapUtils:
                 result[k.name] = v
         return result
 
-    @staticmethod
-    def stats_from_sql_kvpairs(
-        kvpairs: dict[str, str],
-    ):
-        """
-        Takes a dictionary where each key is the sql field that indicates the
-        enum to use as the return key, and the value is the corresponding value in the returned dict.
-        """
-
-        def stats_from_sql_kvpairs(
-            sql_dict: dict[str, any],
-            cursor: Cursor,
-            field_type: type,
-        ) -> dict[dict[(Enum | int), int]]:
-            result = {}
-            for k, v in kvpairs.items():
-                EnumType = get_args(get_args(field_type)[0])[0]
-                try:
-                    enum_key = EnumType(sql_dict[k])
-                except:
-                    enum_key = sql_dict[k]
-                enum_value = sql_dict[v]
-                if enum_value != 0:
-                    if enum_key not in result:
-                        result[enum_key] = 0
-                    result[enum_key] += enum_value
-            return result
-        return stats_from_sql_kvpairs
 
     @staticmethod
     def from_sql_named_fields(field_map: dict[str, str]):
@@ -117,6 +89,17 @@ class EnumMapUtils:
             return result
         return from_sql_named_fields
 
-    # @staticmethod
-    # def to_sql_named_fields(field_map: dict[str, str]):
-    #     pass
+
+    @staticmethod
+    def to_sql_named_fields(field_map: dict[str, str]):
+        def to_sql_named_fields(
+            model_field: str,
+            model_dict: dict[str, any],
+            cursor: Cursor,
+            field_type: type,
+        ) -> dict[str, any]:
+            d = {value: 0 for value in field_map.values()}
+            for k, v in model_dict[model_field].items():
+                d[field_map[k.name]] =  v
+            return d
+        return to_sql_named_fields

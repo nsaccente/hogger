@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import IntEnum
 from inspect import cleandoc
 
 from mysql.connector.cursor_cext import CMySQLCursor as Cursor
@@ -30,7 +30,7 @@ def spells_from_sql(
     return spells_from_sql
 
 
-class SpellTrigger(Enum):
+class SpellTrigger(IntEnum):
     Use: int = 0
     OnEquip: int = 1
     ChanceOnHit: int = 2

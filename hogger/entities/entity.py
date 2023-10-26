@@ -1,6 +1,5 @@
 from abc import ABCMeta, abstractmethod, abstractstaticmethod
 from inspect import cleandoc
-from typing import Any
 
 from mysql.connector.cursor_cext import CMySQLCursor as Cursor
 from pydantic import BaseModel, Field

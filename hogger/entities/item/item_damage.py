@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import IntEnum
 from inspect import cleandoc
 
 from mysql.connector.cursor_cext import CMySQLCursor as Cursor
@@ -14,7 +14,7 @@ from pydantic import (
 from hogger.types import EnumUtils
 
 
-class DamageType(Enum):
+class DamageType(IntEnum):
     Normal = 0
     Holy = 1
     Fire = 2

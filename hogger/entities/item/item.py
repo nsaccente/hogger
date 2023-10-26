@@ -17,7 +17,12 @@ from hogger.types import *
 from hogger.types import EnumUtils, LookupID, Money
 from hogger.util import from_sql, to_sql
 
+from .utils import (
+    stats_from_sql_kvpairs,
+    stats_to_sql_kvpairs,
+)
 from .item_spells import spells_from_sql
+
 
 _enum_fields = [
     "ammoType",
@@ -42,6 +47,7 @@ _enum_map_fields = [
     "resistances",
     "stats",
 ]
+
 
 class Item(Entity, extra="allow"):
     type: Literal["Item"] = "Item"
@@ -540,16 +546,16 @@ class Item(Entity, extra="allow"):
                     "arcane_res": "Arcane",
                 },
             ),
-            # "to_sql": EnumMapUtils.to_sql_named_fields(
-            #     {
-            #         "holy_res": "Holy",
-            #         "fire_res": "Fire",
-            #         "nature_res": "Nature",
-            #         "frost_res": "Frost",
-            #         "shadow_res": "Shadow",
-            #         "arcane_res": "Arcane",
-            #     },
-            # ),
+            "to_sql": EnumMapUtils.to_sql_named_fields(
+                {
+                    "Holy": "holy_res",
+                    "Fire": "fire_res",
+                    "Nature": "nature_res",
+                    "Frost": "frost_res",
+                    "Shadow": "shadow_res",
+                    "Arcane": "arcane_res",
+                },
+            ),
         },
     )
     scalingStatDistribution: int = Field(
@@ -586,32 +592,8 @@ class Item(Entity, extra="allow"):
             """,
         ),
         json_schema_extra={
-            "from_sql": EnumMapUtils.stats_from_sql_kvpairs(
-                {
-                    "stat_type1": "stat_value1",
-                    "stat_type2": "stat_value2",
-                    "stat_type3": "stat_value4",
-                    "stat_type5": "stat_value5",
-                    "stat_type6": "stat_value6",
-                    "stat_type7": "stat_value7",
-                    "stat_type8": "stat_value8",
-                    "stat_type9": "stat_value9",
-                    "stat_type10": "stat_value10",
-                },
-            ),
-            # "to_sql": EnumMapUtils.stats_to_sql_kvpairs(
-            #     {
-            #         "stat_type1": "stat_value1",
-            #         "stat_type2": "stat_value2",
-            #         "stat_type3": "stat_value4",
-            #         "stat_type5": "stat_value5",
-            #         "stat_type6": "stat_value6",
-            #         "stat_type7": "stat_value7",
-            #         "stat_type8": "stat_value8",
-            #         "stat_type9": "stat_value9",
-            #         "stat_type10": "stat_value10",
-            #     },
-            # ),
+            "from_sql": stats_from_sql_kvpairs(),
+            "to_sql": stats_to_sql_kvpairs(),
         },
     )
     sockets: ItemSockets = Field(
@@ -623,7 +605,7 @@ class Item(Entity, extra="allow"):
         ),
         json_schema_extra={
             "from_sql": ItemSockets.from_sql(),
-            # "to_sql": ItemSockets.to_sql(),
+            "to_sql": ItemSockets.to_sql(),
         },
     )
     armor: int = Field(

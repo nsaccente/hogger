@@ -1,9 +1,8 @@
-from enum import Enum
-
-from mysql.connector.cursor_cext import CMySQLCursor as Cursor
+from enum import IntEnum
 
 
-class Quality(Enum):
+
+class Quality(IntEnum):
     Poor = 0
     Common = 1
     Uncommon = 2
@@ -14,7 +13,7 @@ class Quality(Enum):
     BoA = 7
 
 
-class ItemClass(Enum):
+class ItemClass(IntEnum):
     Consumable = 0
     Container = 1
     Weapon = 2
@@ -33,7 +32,7 @@ class ItemClass(Enum):
     Glyph = 16
 
 
-class InventoryType(Enum):
+class InventoryType(IntEnum):
     NoEquip = 0
     Head = 1
     Neck = 2
@@ -65,7 +64,7 @@ class InventoryType(Enum):
     Relic = 28
 
 
-class Material(Enum):
+class Material(IntEnum):
     Consumables = -1
     Undefined = 0
     Metal = 1
@@ -78,7 +77,7 @@ class Material(Enum):
     Leather = 8
 
 
-class ItemBinding(Enum):
+class ItemBinding(IntEnum):
     Never = 0
     OnPickup = 1
     OnEquip = 2
@@ -87,7 +86,7 @@ class ItemBinding(Enum):
     QuestItem1 = 5
 
 
-class FoodType(Enum):
+class FoodType(IntEnum):
     Undefined = 0
     Meat = 1
     Fish = 2
@@ -99,7 +98,7 @@ class FoodType(Enum):
     RawFish = 8
 
 
-class TotemCategory(Enum):
+class TotemCategory(IntEnum):
     Undefined = 0
     SkinningKnife_OLD = 1
     EarthTotem = 2
@@ -135,7 +134,7 @@ class TotemCategory(Enum):
     RunedTitaniumRod = 190
 
 
-class ItemStat(Enum):
+class ItemStat(IntEnum):
     Mana = 0
     Health = 1
     Agility = 3
@@ -182,7 +181,7 @@ class ItemStat(Enum):
     Block = 48
 
 
-class ItemResistance(Enum):
+class ItemResistance(IntEnum):
     Holy = 0
     Fire = 1
     Nature = 2
@@ -191,13 +190,13 @@ class ItemResistance(Enum):
     Arcane = 5
 
 
-class AmmoType(Enum):
+class AmmoType(IntEnum):
     Undefined = 0
     Arrows = 2
     Bullets = 3
 
 
-class Sheath(Enum):
+class Sheath(IntEnum):
     Undefined = 0
     TwoHanded = 1
     Staff = 2

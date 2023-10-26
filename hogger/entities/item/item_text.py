@@ -1,13 +1,13 @@
-from enum import Enum
+from enum import IntEnum
 from inspect import cleandoc
 
 from mysql.connector.cursor_cext import CMySQLCursor as Cursor
 from pydantic import BaseModel, Field
 
-from hogger.types import LookupID, EnumUtils
+from hogger.types import LookupID
 
 
-class PageMaterial(Enum):
+class PageMaterial(IntEnum):
     Undefined = 0
     Parchment = 1
     Stone = 2
@@ -18,7 +18,7 @@ class PageMaterial(Enum):
     Illidan = 7
 
 
-class Language(Enum):
+class Language(IntEnum):
     Universal = 0
     Orcish = 1
     Darnassian = 2

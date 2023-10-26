@@ -1,4 +1,4 @@
-from enum import Enum, IntFlag, auto
+from enum import IntFlag, auto, IntEnum
 from textwrap import dedent
 
 from mysql.connector.cursor_cext import CMySQLCursor as Cursor
@@ -35,7 +35,7 @@ class AllowableRace(IntFlag):
     Draenei: int = auto()
 
 
-class RequiredHonorRank(Enum):
+class RequiredHonorRank(IntEnum):
     Undefined = 0
     Private_Scout = 1
     Corporal_Grunt = 2
@@ -53,7 +53,7 @@ class RequiredHonorRank(Enum):
     GrandMarshal_HighWarlord = 14
 
 
-class ReputationRank(Enum):
+class ReputationRank(IntEnum):
     Hated = 0
     Hostile = 1
     Unfriendly = 2
@@ -248,22 +248,20 @@ class Requires(BaseModel):
             field_type: type,
         ) -> dict[str, any]:
             r: "Requires" = model_dict[model_field]
-            x = {
+            return {
                 classes: sum(r.classes),
                 races: sum(r.races),
                 level: r.level,
-                skill: r.skill,
-                skillRank: r.skillRank,
-                spell: r.spell,
-                honorRank: r.honorRank,
-                cityRank: r.cityRank,
-                reputationFaction: r.reputationFaction,
-                reputationRank: r.reputationRank,
-                disenchantSkill: r.disenchantSkill,
-                map: r.map,
-                area: r.area,
-                holiday: r.holiday,
+                skill: int(r.skill),
+                skillRank: int(r.skillRank),
+                spell: int(r.spell),
+                honorRank: int(r.honorRank),
+                cityRank: int(r.cityRank),
+                reputationFaction: int(r.reputationFaction),
+                reputationRank: int(r.reputationRank),
+                disenchantSkill: int(r.disenchantSkill),
+                map: int(r.map),
+                area: int(r.area),
+                holiday: int(r.holiday),
             }
-            print(x)
-            return x
         return to_sql

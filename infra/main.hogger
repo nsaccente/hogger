@@ -4,6 +4,11 @@ entities:
     name: 1-Handed Hatchet
     description: "A sparkly axe."
     itemClass: Gem
+    sockets:
+      meta: 44
+      yellow: 42
+      red: 11
+      blue: 22
     itemSubclass: 2
     randomStat:
       id: 255
