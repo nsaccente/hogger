@@ -716,7 +716,7 @@ class Item(Entity, extra="allow"):
         ),
         json_schema_extra={
             "from_sql": Damage.from_sql(),
-            # "to_sql": Damage.to_sql(),
+            "to_sql": Damage.to_sql(model_field="damage"),
         },
     )
     spells: list[ItemSpell] = Field(
@@ -776,7 +776,7 @@ class Item(Entity, extra="allow"):
                     },
                 ],
             ),
-            # "to_sql": spells_to_sql(
+            # "to_sql": ItemSpell.to_sql(
             #     [
             #         {
             #             "id": "spellid_1",
@@ -836,9 +836,11 @@ class Item(Entity, extra="allow"):
         },
     )
 
+
     @field_validator(*_enum_fields, mode="before")
     def parse_enum(cls, v: (str | int), info: FieldValidationInfo) -> Enum | int:
         return EnumUtils.parse(cls, v, info)
+
 
     @field_serializer(*_enum_fields, when_used="json")
     def serialize_enum_json(
@@ -848,6 +850,7 @@ class Item(Entity, extra="allow"):
     ) -> str | int:
         return EnumUtils.serialize(self, v, info)
 
+
     @field_validator(*_intflag_fields, mode="before")
     def parse_intflag(
         cls,
@@ -855,6 +858,7 @@ class Item(Entity, extra="allow"):
         info: FieldValidationInfo,
     ) -> list[IntFlag | int]:
         return IntFlagUtils.parse(cls, items, info)
+
 
     @field_serializer(*_intflag_fields, when_used="json")
     def serialize_intflag(
@@ -864,6 +868,7 @@ class Item(Entity, extra="allow"):
     ) -> list[str | int]:
         return IntFlagUtils.serialize(self, items, info)
 
+
     @field_validator(*_enum_map_fields, mode="before")
     def parse_enum_map(
         cls,
@@ -871,6 +876,7 @@ class Item(Entity, extra="allow"):
         info: SerializationInfo,
     ) -> dict[Enum, int]:
         return EnumMapUtils.parse(cls, dmap, info)
+
 
     @field_serializer(*_enum_map_fields, when_used="json")
     def serialize_enum_map(
@@ -889,6 +895,7 @@ class Item(Entity, extra="allow"):
         if len(tag) > 0:
             suffix = f"#{tag}"
         return f"{self.name}{suffix}"
+
 
     @staticmethod
     def from_hoggerstate(
@@ -918,12 +925,12 @@ class Item(Entity, extra="allow"):
                 )
 
         item_args["type"] = "Item"
-
         tmp = sql_dict["name"].split("#")
         if len(tmp) == 1:
             tmp.append("")
         item_args["tag"] = tmp[1]
         return Item(**item_args)
+
 
     def diff(self, other: "Item") -> ("Item", dict[str, any]):
         # Reuse id of self if other is a negative number. This change won't be
@@ -943,6 +950,7 @@ class Item(Entity, extra="allow"):
                 }
                 other.__setattr__(field, desired[field])
         return other, diffs
+
 
     def apply(self, cursor: Cursor) -> None:
         args = {}

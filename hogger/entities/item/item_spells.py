@@ -26,7 +26,6 @@ def spells_from_sql(
                     ),
                 )
         return results
-
     return spells_from_sql
 
 
@@ -117,6 +116,7 @@ class ItemSpell(BaseModel):
         serialization_alias="spellcategorycooldown_{}",
     )
 
+
     @staticmethod
     def from_sql(
         id: str,
@@ -144,5 +144,16 @@ class ItemSpell(BaseModel):
                 category=sql_dict[category],
                 cooldownCategory=sql_dict[cooldownCategory],
             )
-
         return from_sql
+    
+
+    # @staticmethod
+    # def to_sql(
+    #     model_field: str,
+    # ):
+    #     def to_sql(
+    #         model_field: str,
+    #         model_dict: dict[str, any],
+    #         cursor: Cursor,
+    #         field_type: type,
+    #     ) -> dict[str, any]:

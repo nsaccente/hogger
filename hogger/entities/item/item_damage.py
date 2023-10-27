@@ -84,6 +84,7 @@ class Damage(BaseModel):
         serialization_alias="dmg_type2",
     )
 
+
     @field_validator(
         "type1",
         "type2",
@@ -107,6 +108,7 @@ class Damage(BaseModel):
         else:
             raise Exception(f'"{v}" is not a valid damage type')
 
+
     @field_serializer(
         "type1",
         "type2",
@@ -120,6 +122,7 @@ class Damage(BaseModel):
         if isinstance(v, DamageType):
             return v.name
         return v
+
 
     @staticmethod
     def from_sql(
@@ -143,5 +146,32 @@ class Damage(BaseModel):
                 max2=sql_dict[max2],
                 type2=EnumUtils.resolve(sql_dict[type2], DamageType),
             )
-
         return from_sql
+
+
+    @staticmethod
+    def to_sql(
+        model_field: str,
+        min1: str = "dmg_min1",
+        max1: str = "dmg_max1",
+        type1: str = "dmg_type1",
+        min2: str = "dmg_min2",
+        max2: str = "dmg_max2",
+        type2: str = "dmg_type2",
+    ):
+        def to_sql(
+            model_field: str,
+            model_dict: dict[str, any],
+            cursor: Cursor,
+            field_type: type,
+        ) -> dict[str, any]:
+            d: "Damage" = model_dict[model_field]
+            return {
+                min1: int(d.min1),
+                max1: int(d.max1),
+                type1: int(d.type1),
+                min2: int(d.min2),
+                max2: int(d.max2),
+                type2: int(d.type2),
+            }
+        return to_sql
