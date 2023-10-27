@@ -59,19 +59,13 @@ class ItemSockets(BaseModel):
 
     @staticmethod
     def from_sql(
-        GemProperties="GemProperties",
-        socketBonus="socketBonus",
-        socket_map={
+        GemProperties: str = "GemProperties",
+        socketBonus: str = "socketBonus",
+        socket_map: dict[str, str] = {
             "socketColor_1": "socketContent_1",
             "socketColor_2": "socketContent_2",
             "socketColor_3": "socketContent_3",
         },
-        # socketColor_1="socketColor_1",
-        # socketColor_2="socketColor_2",
-        # socketColor_3="socketColor_3",
-        # socketContent_1="socketContent_1",
-        # socketContent_2="socketContent_2",
-        # socketContent_3="socketContent_3",
     ):
         def from_sql(
             sql_dict: dict[str, any],
@@ -96,9 +90,9 @@ class ItemSockets(BaseModel):
 
     @staticmethod
     def to_sql(
-        GemProperties="GemProperties",
-        socketBonus="socketBonus",
-        socket_map={
+        GemProperties: str = "GemProperties",
+        socketBonus: str = "socketBonus",
+        socket_map: dict[str, str] = {
             "socketColor_1": "socketContent_1",
             "socketColor_2": "socketContent_2",
             "socketColor_3": "socketContent_3",
@@ -113,15 +107,24 @@ class ItemSockets(BaseModel):
             attrs = {"meta": 1, "red": 2, "yellow": 4, "blue": 8}
             s: "ItemSockets" = model_dict[model_field]
             it = iter(socket_map.items())
-            result = dict()
+            result = {
+                GemProperties: s.properties,
+                socketBonus: s.socketBonus,
+            }
             for attr, bit in attrs.items():
                 socketColor, socketContent = next(it, (None, None))
-                if socketColor is None or socketContent is None:
-                    continue
-                num_sockets = s.__getattribute__(attr)
-                if num_sockets > 0:
-                    result[socketColor] = attr
-                    result[socketContent] = num_sockets
+                if socketColor is not None and socketContent is not None:
+                    num_sockets = s.__getattribute__(attr)
+                else:
+                    num_sockets = 0
+
+                # if num_sockets > 0:
+                #     result[socketColor] = attr
+                #     result[socketContent] = num_sockets
+                # else:
+                #     result[socketColor] = 0
+                #     result[socketContent] = 0
+            print(result)
             return result
 
         return to_sql

@@ -139,7 +139,7 @@ class ItemSpell(BaseModel):
 
     @staticmethod
     def to_sql(
-        field_maps: dict[str, str],
+        field_maps: list[dict[str, str]],
     ):
         def to_sql(
             model_field: str,
@@ -156,9 +156,6 @@ class ItemSpell(BaseModel):
                         d[sql_field] = s0.__getattribute__(obj_field)
                     except IndexError:
                         d[sql_field] = 0
-
-            for k, v in d.items():
-                print(f"{k}: {v}")
             return d
 
         return to_sql

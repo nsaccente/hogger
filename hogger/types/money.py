@@ -42,6 +42,6 @@ class Money(BaseModel):
             field_type: type,
         ) -> dict[str, int]:
             m: "Money" = model_dict[model_field]
-            return {"": m.to_copper()}
+            return {sql_field: m.to_copper()}
 
         return to_sql_copper

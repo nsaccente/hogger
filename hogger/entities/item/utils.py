@@ -3,12 +3,15 @@ from typing import get_args
 
 from mysql.connector.cursor_cext import CMySQLCursor as Cursor
 
+from hogger.entities.item import ItemStat
+
 
 def stats_from_sql_kvpairs(
     kvpairs: dict[str, str] = {
         "stat_type1": "stat_value1",
         "stat_type2": "stat_value2",
-        "stat_type3": "stat_value4",
+        "stat_type3": "stat_value3",
+        "stat_type4": "stat_value4",
         "stat_type5": "stat_value5",
         "stat_type6": "stat_value6",
         "stat_type7": "stat_value7",
@@ -43,7 +46,8 @@ def stats_to_sql_kvpairs(
     kvpairs: dict[str, str] = {
         "stat_type1": "stat_value1",
         "stat_type2": "stat_value2",
-        "stat_type3": "stat_value4",
+        "stat_type3": "stat_value3",
+        "stat_type4": "stat_value4",
         "stat_type5": "stat_value5",
         "stat_type6": "stat_value6",
         "stat_type7": "stat_value7",
@@ -58,6 +62,18 @@ def stats_to_sql_kvpairs(
         cursor: Cursor,
         field_type: type,
     ) -> dict[str, any]:
-        return {}
+        s: tuple[ItemStat, int] = tuple(model_dict[model_field].items())
+        res = {}
+        i = 0
+        for stat_type, stat_value in kvpairs.items():
+            if i < len(s):
+                res[stat_type] = int(s[i][0])
+                res[stat_value] = int(s[i][1])
+                i += 1
+            else:
+                res[stat_type] = 0
+                res[stat_value] = 0
+        res["StatsCount"] = i
+        return res
 
     return stats_to_sql_kvpairs

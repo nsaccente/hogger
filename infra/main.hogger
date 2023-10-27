@@ -39,16 +39,15 @@ entities:
     - BloodElf
     - 4
     stats:
-      Agility: 10
-      Stamina: 25
-      Mana: 25
-      Health: 25
-      Strength: 25
-      Spirit: 10
-      BlockRating: 10
-      MeleeHitRating: 10
-      SpellHitRating: 10
-      SpellCritRating: 20
+      Agility: 1
+      Stamina: 2
+      Mana: 3
+      Health: 4
+      Strength: 5
+      Spirit: 6
+      BlockRating: 7
+      MeleeHitRating: 8
+      MeleeCritRating: 9
     resistances:
       Frost: 10
     damage:
