@@ -113,6 +113,7 @@ class IntFlagUtils:
         ) -> dict[str, any]:
             # TODO: Add __int__ magic method
             return {sql_field: sum(model_dict[model_field])}
+
         return to_sql
 
     @staticmethod

@@ -17,12 +17,7 @@ from hogger.types import *
 from hogger.types import EnumUtils, LookupID, Money
 from hogger.util import from_sql, to_sql
 
-from .utils import (
-    stats_from_sql_kvpairs,
-    stats_to_sql_kvpairs,
-)
-from .item_spells import spells_from_sql
-
+from .utils import stats_from_sql_kvpairs, stats_to_sql_kvpairs
 
 _enum_fields = [
     "ammoType",
@@ -727,7 +722,7 @@ class Item(Entity, extra="allow"):
             """,
         ),
         json_schema_extra={
-            "from_sql": spells_from_sql(
+            "from_sql": ItemSpell.from_sql(
                 [
                     {
                         "id": "spellid_1",
@@ -776,55 +771,55 @@ class Item(Entity, extra="allow"):
                     },
                 ],
             ),
-            # "to_sql": ItemSpell.to_sql(
-            #     [
-            #         {
-            #             "id": "spellid_1",
-            #             "trigger": "spelltrigger_1",
-            #             "charges": "spellcharges_1",
-            #             "procsPerMinute": "spellppmRate_1",
-            #             "cooldown": "spellcooldown_1",
-            #             "category": "spellcategory_1",
-            #             "cooldownCategory": "spellcategorycooldown_1",
-            #         },
-            #         {
-            #             "id": "spellid_2",
-            #             "trigger": "spelltrigger_2",
-            #             "charges": "spellcharges_2",
-            #             "procsPerMinute": "spellppmRate_2",
-            #             "cooldown": "spellcooldown_2",
-            #             "category": "spellcategory_2",
-            #             "cooldownCategory": "spellcategorycooldown_2",
-            #         },
-            #         {
-            #             "id": "spellid_3",
-            #             "trigger": "spelltrigger_3",
-            #             "charges": "spellcharges_3",
-            #             "procsPerMinute": "spellppmRate_3",
-            #             "cooldown": "spellcooldown_3",
-            #             "category": "spellcategory_3",
-            #             "cooldownCategory": "spellcategorycooldown_3",
-            #         },
-            #         {
-            #             "id": "spellid_4",
-            #             "trigger": "spelltrigger_4",
-            #             "charges": "spellcharges_4",
-            #             "procsPerMinute": "spellppmRate_4",
-            #             "cooldown": "spellcooldown_4",
-            #             "category": "spellcategory_4",
-            #             "cooldownCategory": "spellcategorycooldown_4",
-            #         },
-            #         {
-            #             "id": "spellid_5",
-            #             "trigger": "spelltrigger_5",
-            #             "charges": "spellcharges_5",
-            #             "procsPerMinute": "spellppmRate_5",
-            #             "cooldown": "spellcooldown_5",
-            #             "category": "spellcategory_5",
-            #             "cooldownCategory": "spellcategorycooldown_5",
-            #         },
-            #     ],
-            # ),
+            "to_sql": ItemSpell.to_sql(
+                [
+                    {
+                        "id": "spellid_1",
+                        "trigger": "spelltrigger_1",
+                        "charges": "spellcharges_1",
+                        "procsPerMinute": "spellppmRate_1",
+                        "cooldown": "spellcooldown_1",
+                        "category": "spellcategory_1",
+                        "cooldownCategory": "spellcategorycooldown_1",
+                    },
+                    {
+                        "id": "spellid_2",
+                        "trigger": "spelltrigger_2",
+                        "charges": "spellcharges_2",
+                        "procsPerMinute": "spellppmRate_2",
+                        "cooldown": "spellcooldown_2",
+                        "category": "spellcategory_2",
+                        "cooldownCategory": "spellcategorycooldown_2",
+                    },
+                    {
+                        "id": "spellid_3",
+                        "trigger": "spelltrigger_3",
+                        "charges": "spellcharges_3",
+                        "procsPerMinute": "spellppmRate_3",
+                        "cooldown": "spellcooldown_3",
+                        "category": "spellcategory_3",
+                        "cooldownCategory": "spellcategorycooldown_3",
+                    },
+                    {
+                        "id": "spellid_4",
+                        "trigger": "spelltrigger_4",
+                        "charges": "spellcharges_4",
+                        "procsPerMinute": "spellppmRate_4",
+                        "cooldown": "spellcooldown_4",
+                        "category": "spellcategory_4",
+                        "cooldownCategory": "spellcategorycooldown_4",
+                    },
+                    {
+                        "id": "spellid_5",
+                        "trigger": "spelltrigger_5",
+                        "charges": "spellcharges_5",
+                        "procsPerMinute": "spellppmRate_5",
+                        "cooldown": "spellcooldown_5",
+                        "category": "spellcategory_5",
+                        "cooldownCategory": "spellcategorycooldown_5",
+                    },
+                ],
+            ),
         },
     )
     build: int = Field(
@@ -836,11 +831,9 @@ class Item(Entity, extra="allow"):
         },
     )
 
-
     @field_validator(*_enum_fields, mode="before")
     def parse_enum(cls, v: (str | int), info: FieldValidationInfo) -> Enum | int:
         return EnumUtils.parse(cls, v, info)
-
 
     @field_serializer(*_enum_fields, when_used="json")
     def serialize_enum_json(
@@ -850,7 +843,6 @@ class Item(Entity, extra="allow"):
     ) -> str | int:
         return EnumUtils.serialize(self, v, info)
 
-
     @field_validator(*_intflag_fields, mode="before")
     def parse_intflag(
         cls,
@@ -858,7 +850,6 @@ class Item(Entity, extra="allow"):
         info: FieldValidationInfo,
     ) -> list[IntFlag | int]:
         return IntFlagUtils.parse(cls, items, info)
-
 
     @field_serializer(*_intflag_fields, when_used="json")
     def serialize_intflag(
@@ -868,7 +859,6 @@ class Item(Entity, extra="allow"):
     ) -> list[str | int]:
         return IntFlagUtils.serialize(self, items, info)
 
-
     @field_validator(*_enum_map_fields, mode="before")
     def parse_enum_map(
         cls,
@@ -876,7 +866,6 @@ class Item(Entity, extra="allow"):
         info: SerializationInfo,
     ) -> dict[Enum, int]:
         return EnumMapUtils.parse(cls, dmap, info)
-
 
     @field_serializer(*_enum_map_fields, when_used="json")
     def serialize_enum_map(
@@ -895,7 +884,6 @@ class Item(Entity, extra="allow"):
         if len(tag) > 0:
             suffix = f"#{tag}"
         return f"{self.name}{suffix}"
-
 
     @staticmethod
     def from_hoggerstate(
@@ -931,7 +919,6 @@ class Item(Entity, extra="allow"):
         item_args["tag"] = tmp[1]
         return Item(**item_args)
 
-
     def diff(self, other: "Item") -> ("Item", dict[str, any]):
         # Reuse id of self if other is a negative number. This change won't be
         # shown in the diff, because it's an implied feature of the Item entity.
@@ -950,7 +937,6 @@ class Item(Entity, extra="allow"):
                 }
                 other.__setattr__(field, desired[field])
         return other, diffs
-
 
     def apply(self, cursor: Cursor) -> None:
         args = {}

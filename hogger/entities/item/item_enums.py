@@ -1,7 +1,6 @@
 from enum import IntEnum
 
 
-
 class Quality(IntEnum):
     Poor = 0
     Common = 1

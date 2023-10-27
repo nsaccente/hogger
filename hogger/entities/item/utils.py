@@ -1,10 +1,11 @@
-from typing import get_args
 from enum import Enum
+from typing import get_args
+
 from mysql.connector.cursor_cext import CMySQLCursor as Cursor
 
 
 def stats_from_sql_kvpairs(
-    kvpairs: dict[str, str]={
+    kvpairs: dict[str, str] = {
         "stat_type1": "stat_value1",
         "stat_type2": "stat_value2",
         "stat_type3": "stat_value4",
@@ -14,7 +15,7 @@ def stats_from_sql_kvpairs(
         "stat_type8": "stat_value8",
         "stat_type9": "stat_value9",
         "stat_type10": "stat_value10",
-    }
+    },
 ):
     def stats_from_sql_kvpairs(
         sql_dict: dict[str, any],
@@ -34,11 +35,12 @@ def stats_from_sql_kvpairs(
                     result[enum_key] = 0
                 result[enum_key] += enum_value
         return result
+
     return stats_from_sql_kvpairs
 
 
 def stats_to_sql_kvpairs(
-    kvpairs: dict[str, str]={
+    kvpairs: dict[str, str] = {
         "stat_type1": "stat_value1",
         "stat_type2": "stat_value2",
         "stat_type3": "stat_value4",
@@ -57,4 +59,5 @@ def stats_to_sql_kvpairs(
         field_type: type,
     ) -> dict[str, any]:
         return {}
+
     return stats_to_sql_kvpairs

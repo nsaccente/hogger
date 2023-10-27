@@ -65,7 +65,6 @@ class EnumMapUtils:
                 result[k.name] = v
         return result
 
-
     @staticmethod
     def from_sql_named_fields(field_map: dict[str, str]):
         """
@@ -75,6 +74,7 @@ class EnumMapUtils:
         The key should be the field in the sql table, and the value should map
         to the name for the enum it's mapped to.
         """
+
         def from_sql_named_fields(
             sql_dict: dict[str, any],
             cursor: Cursor,
@@ -87,8 +87,8 @@ class EnumMapUtils:
                     EnumUtils.resolve(model_field, EnumType)
                     result[model_field] = sql_dict[sql_field]
             return result
-        return from_sql_named_fields
 
+        return from_sql_named_fields
 
     @staticmethod
     def to_sql_named_fields(field_map: dict[str, str]):
@@ -100,6 +100,7 @@ class EnumMapUtils:
         ) -> dict[str, any]:
             d = {value: 0 for value in field_map.values()}
             for k, v in model_dict[model_field].items():
-                d[field_map[k.name]] =  v
+                d[field_map[k.name]] = v
             return d
+
         return to_sql_named_fields

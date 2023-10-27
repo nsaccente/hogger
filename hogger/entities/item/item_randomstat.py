@@ -69,11 +69,11 @@ class RandomStat(BaseModel):
             if prop != 0 and suff != 0:
                 # TODO: Create more detailed exception
                 raise Exception(
-                    f"Both {RandomProperty} and {RandomSuffix} cannot be "
-                    "nonzero."
+                    f"Both {RandomProperty} and {RandomSuffix} cannot be " "nonzero.",
                 )
             return {
                 RandomProperty: prop,
                 RandomSuffix: suff,
             }
+
         return to_sql

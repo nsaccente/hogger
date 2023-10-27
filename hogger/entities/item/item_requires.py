@@ -1,4 +1,4 @@
-from enum import IntFlag, auto, IntEnum
+from enum import IntEnum, IntFlag, auto
 from textwrap import dedent
 
 from mysql.connector.cursor_cext import CMySQLCursor as Cursor
@@ -222,6 +222,7 @@ class Requires(BaseModel):
                 area=sql_dict[area],
                 holiday=sql_dict[holiday],
             )
+
         return from_sql
 
     @staticmethod
@@ -264,4 +265,5 @@ class Requires(BaseModel):
                 area: int(r.area),
                 holiday: int(r.holiday),
             }
+
         return to_sql

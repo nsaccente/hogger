@@ -92,4 +92,5 @@ class Duration(BaseModel):
             field_type: type,
         ) -> dict[str, any]:
             return {sql_field: model_dict[model_field].to_seconds()}
+
         return to_sql_seconds

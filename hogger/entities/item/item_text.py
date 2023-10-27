@@ -76,9 +76,9 @@ class ItemText(BaseModel):
 
     @staticmethod
     def from_sql(
-        id: str="PageText",
-        pageMaterial: str="PageMaterial",
-        language: str="LanguageID",
+        id: str = "PageText",
+        pageMaterial: str = "PageMaterial",
+        language: str = "LanguageID",
     ):
         def from_sql(
             sql_dict: dict[str, any],
@@ -95,9 +95,9 @@ class ItemText(BaseModel):
 
     @staticmethod
     def to_sql(
-        id: str="PageText",
-        pageMaterial: str="PageMaterial",
-        language: str="LanguageID",
+        id: str = "PageText",
+        pageMaterial: str = "PageMaterial",
+        language: str = "LanguageID",
     ):
         def to_sql(
             model_field: str,
@@ -117,4 +117,5 @@ class ItemText(BaseModel):
                 pageMaterial: t.pageMaterial,
                 language: t.language,
             }
+
         return to_sql

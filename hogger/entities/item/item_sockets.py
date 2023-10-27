@@ -91,8 +91,8 @@ class ItemSockets(BaseModel):
                 properties=sql_dict[GemProperties],
                 **args,
             )
-        return from_sql
 
+        return from_sql
 
     @staticmethod
     def to_sql(
@@ -102,7 +102,7 @@ class ItemSockets(BaseModel):
             "socketColor_1": "socketContent_1",
             "socketColor_2": "socketContent_2",
             "socketColor_3": "socketContent_3",
-        }
+        },
     ):
         def to_sql(
             model_field: str,
@@ -123,4 +123,5 @@ class ItemSockets(BaseModel):
                     result[socketColor] = attr
                     result[socketContent] = num_sockets
             return result
+
         return to_sql

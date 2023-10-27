@@ -7,28 +7,6 @@ from pydantic import BaseModel, Field
 from hogger.types import Duration, EnumUtils, LookupID
 
 
-def spells_from_sql(
-    field_maps: list[dict[str, str]],
-):
-    def spells_from_sql(
-        sql_dict: dict[str, any],
-        cursor: Cursor,
-        field_type: type,
-    ) -> ItemSpell:
-        results = []
-        for field_map in field_maps:
-            if sql_dict[field_map["id"]] != 0:
-                results.append(
-                    ItemSpell.from_sql(**field_map)(
-                        sql_dict=sql_dict,
-                        cursor=cursor,
-                        field_type=field_type,
-                    ),
-                )
-        return results
-    return spells_from_sql
-
-
 class SpellTrigger(IntEnum):
     Use: int = 0
     OnEquip: int = 1
@@ -46,7 +24,6 @@ class ItemSpell(BaseModel):
             The spell ID of the spell that the item can cast or trigger.
             """,
         ),
-        serialization_alias="spellid_{}",
     )
     trigger: SpellTrigger = Field(
         default=0,
@@ -55,7 +32,6 @@ class ItemSpell(BaseModel):
             The type of trigger for the spell.
             """,
         ),
-        serialization_alias="spelltrigger_{}",
     )
     charges: int = Field(
         default=0,
@@ -67,7 +43,6 @@ class ItemSpell(BaseModel):
             the item is not deleted after all the charges are spent.
             """,
         ),
-        serialization_alias="spellcharges_{}",
     )
     procsPerMinute: int = Field(
         default=0,
@@ -77,7 +52,6 @@ class ItemSpell(BaseModel):
             triggered. This field is only relevant if `trigger = ChanceOnHit`.
             """,
         ),
-        serialization_alias="spellppmRate_{}",
     )
     cooldown: Duration = Field(
         default=Duration(),
@@ -90,7 +64,6 @@ class ItemSpell(BaseModel):
             effects.
             """,
         ),
-        serialization_alias="spellcooldown_{}",
     )
     category: LookupID = Field(
         default=0,
@@ -99,7 +72,6 @@ class ItemSpell(BaseModel):
             The category the spell is in. Default is 0.
             """,
         ),
-        serialization_alias="spellcategory_{}",
     )
     cooldownCategory: int = Field(
         default=-1,
@@ -113,12 +85,13 @@ class ItemSpell(BaseModel):
             `spellCategoryCooldown`, they're not mutually exclusive.
             """,
         ),
-        serialization_alias="spellcategorycooldown_{}",
     )
 
-
     @staticmethod
-    def from_sql(
+    def _from_sql(
+        sql_dict: dict[str, any],
+        cursor: Cursor,
+        field_type: type,
         id: str,
         trigger: str,
         charges: str,
@@ -126,34 +99,66 @@ class ItemSpell(BaseModel):
         cooldown: str,
         category: str,
         cooldownCategory: str,
+    ) -> "ItemSpell":
+        duration = Duration()
+        if sql_dict[cooldown] > 0:
+            duration = Duration.from_milli(sql_dict[cooldown])
+        return ItemSpell(
+            id=sql_dict[id],
+            trigger=EnumUtils.resolve(sql_dict[trigger], SpellTrigger),
+            charges=sql_dict[charges],
+            procsPerMinute=sql_dict[procsPerMinute],
+            cooldown=duration,
+            category=sql_dict[category],
+            cooldownCategory=sql_dict[cooldownCategory],
+        )
+
+    @staticmethod
+    def from_sql(
+        field_maps: list[dict[str, str]],
     ):
         def from_sql(
             sql_dict: dict[str, any],
             cursor: Cursor,
             field_type: type,
         ) -> ItemSpell:
-            duration = Duration()
-            if sql_dict[cooldown] > 0:
-                duration = Duration.from_milli(sql_dict[cooldown])
-            return ItemSpell(
-                id=sql_dict[id],
-                trigger=EnumUtils.resolve(sql_dict[trigger], SpellTrigger),
-                charges=sql_dict[charges],
-                procsPerMinute=sql_dict[procsPerMinute],
-                cooldown=duration,
-                category=sql_dict[category],
-                cooldownCategory=sql_dict[cooldownCategory],
-            )
-        return from_sql
-    
+            results = []
+            for field_map in field_maps:
+                if sql_dict[field_map["id"]] != 0:
+                    results.append(
+                        ItemSpell._from_sql(
+                            sql_dict=sql_dict,
+                            cursor=cursor,
+                            field_type=field_type,
+                            **field_map,
+                        ),
+                    )
+            return results
 
-    # @staticmethod
-    # def to_sql(
-    #     model_field: str,
-    # ):
-    #     def to_sql(
-    #         model_field: str,
-    #         model_dict: dict[str, any],
-    #         cursor: Cursor,
-    #         field_type: type,
-    #     ) -> dict[str, any]:
+        return from_sql
+
+    @staticmethod
+    def to_sql(
+        field_maps: dict[str, str],
+    ):
+        def to_sql(
+            model_field: str,
+            model_dict: dict[str, any],
+            cursor: Cursor,
+            field_type: type,
+        ) -> dict[str, any]:
+            d = {}
+            s = model_dict[model_field]
+            for i, field_map in enumerate(field_maps):
+                for obj_field, sql_field in field_map.items():
+                    try:
+                        s0: "ItemSpell" = s[i]
+                        d[sql_field] = s0.__getattribute__(obj_field)
+                    except IndexError:
+                        d[sql_field] = 0
+
+            for k, v in d.items():
+                print(f"{k}: {v}")
+            return d
+
+        return to_sql
