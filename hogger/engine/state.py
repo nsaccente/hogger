@@ -70,6 +70,7 @@ class State(dict[int, dict[str, (Entity | dict[str, any])]]):
                         unchanged[entity_code][hogger_id] = None
                     del deleted[entity_code][hogger_id]
                 else:
+                    des_entity.set_db_key(60000)
                     created[entity_code][hogger_id] = des_entity
         # Anything remaining in `actual_state` dict will be deleted.
         return (created, modified, changes, unchanged, deleted)

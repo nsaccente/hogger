@@ -875,8 +875,11 @@ class Item(Entity, extra="allow"):
     ) -> dict[(str | int), int]:
         return EnumMapUtils.serialize(self, items, info)
 
-    def db_key(self) -> int:
+    def get_db_key(self) -> int:
         return self.id
+
+    def set_db_key(self, new_id: int) -> None:
+        self.id = new_id
 
     def hogger_identifier(self) -> str:
         tag = self.tag.strip()
@@ -941,6 +944,7 @@ class Item(Entity, extra="allow"):
     def apply(self, cursor: Cursor) -> None:
         args = {}
         model_dict = vars(self)
+
         for field, field_properties in Item.model_fields.items():
             json_schema_extra = field_properties.json_schema_extra
             if json_schema_extra is not None and "to_sql" in json_schema_extra:
@@ -952,156 +956,19 @@ class Item(Entity, extra="allow"):
                     field_type=field_properties.annotation,
                 )
 
-        # print(tuple(args.keys()))
-        # print(tuple(args.values()))
-        # for k, v in args.items():
-        #     print(k, v)
-        # cursor.execute
-        #     f"REPLACE INTO hoggerstate ()"
-        #     "VALUES"
-        # )
-        # self._cnx.commit()
 
-        a = {
-            "entry",
-            "class",
-            "subclass",
-            "SoundOverrideSubclass",
-            "name",
-            "displayid",
-            "Quality",
-            "Flags",
-            "FlagsExtra",
-            "BuyCount",
-            "BuyPrice",
-            "SellPrice",
-            "InventoryType",
-            "AllowableClass",
-            "AllowableRace",
-            "ItemLevel",
-            "RequiredLevel",
-            "RequiredSkill",
-            "RequiredSkillRank",
-            "requiredspell",
-            "requiredhonorrank",
-            "RequiredCityRank",
-            "RequiredReputationFaction",
-            "RequiredReputationRank",
-            "maxcount",
-            "stackable",
-            "ContainerSlots",
-            "StatsCount",
-            "stat_type1",
-            "stat_value1",
-            "stat_type2",
-            "stat_value2",
-            "stat_type3",
-            "stat_value3",
-            "stat_type4",
-            "stat_value4",
-            "stat_type5",
-            "stat_value5",
-            "stat_type6",
-            "stat_value6",
-            "stat_type7",
-            "stat_value7",
-            "stat_type8",
-            "stat_value8",
-            "stat_type9",
-            "stat_value9",
-            "stat_type10",
-            "stat_value10",
-            "ScalingStatDistribution",
-            "ScalingStatValue",
-            "dmg_min1",
-            "dmg_max1",
-            "dmg_type1",
-            "dmg_min2",
-            "dmg_max2",
-            "dmg_type2",
-            "armor",
-            "holy_res",
-            "fire_res",
-            "nature_res",
-            "frost_res",
-            "shadow_res",
-            "arcane_res",
-            "delay",
-            "ammo_type",
-            "RangedModRange",
-            "spellid_1",
-            "spelltrigger_1",
-            "spellcharges_1",
-            "spellppmRate_1",
-            "spellcooldown_1",
-            "spellcategory_1",
-            "spellcategorycooldown_1",
-            "spellid_2",
-            "spelltrigger_2",
-            "spellcharges_2",
-            "spellppmRate_2",
-            "spellcooldown_2",
-            "spellcategory_2",
-            "spellcategorycooldown_2",
-            "spellid_3",
-            "spelltrigger_3",
-            "spellcharges_3",
-            "spellppmRate_3",
-            "spellcooldown_3",
-            "spellcategory_3",
-            "spellcategorycooldown_3",
-            "spellid_4",
-            "spelltrigger_4",
-            "spellcharges_4",
-            "spellppmRate_4",
-            "spellcooldown_4",
-            "spellcategory_4",
-            "spellcategorycooldown_4",
-            "spellid_5",
-            "spelltrigger_5",
-            "spellcharges_5",
-            "spellppmRate_5",
-            "spellcooldown_5",
-            "spellcategory_5",
-            "spellcategorycooldown_5",
-            "bonding",
-            "description",
-            "PageText",
-            "LanguageID",
-            "PageMaterial",
-            "startquest",
-            "lockid",
-            "Material",
-            "sheath",
-            "RandomProperty",
-            "RandomSuffix",
-            "block",
-            "itemset",
-            "MaxDurability",
-            "area",
-            "Map",
-            "BagFamily",
-            "TotemCategory",
-            "socketColor_1",
-            "socketContent_1",
-            "socketColor_2",
-            "socketContent_2",
-            "socketColor_3",
-            "socketContent_3",
-            "socketBonus",
-            "GemProperties",
-            "RequiredDisenchantSkill",
-            "ArmorDamageModifier",
-            "duration",
-            "ItemLimitCategory",
-            "HolidayId",
-            "ScriptName",
-            "DisenchantID",
-            "FoodType",
-            "minMoneyLoot",
-            "maxMoneyLoot",
-            "flagsCustom",
-            "VerifiedBuild",
-        }
-
+        db_key = args["entry"]
+        keys = ("(`") + ("`, `".join(args.keys())) + ("`)")
+        values = str(tuple(args.values()))
+        # cursor.execute(
+        print(
+            f"REPLACE INTO item_template{keys} "
+            f"VALUES {values}; "
+        )
+        # cursor.execute(
+        print(
+            f"REPLACE INTO hoggerstate(entity_code, hogger_identifier, db_key) "
+            f"VALUES (1, '{self.hogger_identifier}', {db_key})"
+        )
+        print()
         return None

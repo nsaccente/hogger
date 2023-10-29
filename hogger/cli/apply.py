@@ -74,7 +74,6 @@ def apply(
         # response = input("\nApply these changes? (yes/no) ")
         response = "yes"
         if response == "yes":
-            pass
             wt.apply(
                 to_be_created=created,
                 to_be_modified=modified,

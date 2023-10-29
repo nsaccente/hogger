@@ -16,7 +16,7 @@ class Entity(
             """,
         ),
     )
-    depends_on: list["Entity"] = []
+    # depends_on: list["Entity"] = []
 
     @abstractstaticmethod
     def from_hoggerstate(
@@ -27,7 +27,11 @@ class Entity(
         pass
 
     @abstractmethod
-    def db_key(self) -> int:
+    def get_db_key(self) -> int:
+        pass
+
+    @abstractmethod
+    def set_db_key(self) -> None:
         pass
 
     @abstractmethod

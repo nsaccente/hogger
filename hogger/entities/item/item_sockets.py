@@ -104,27 +104,33 @@ class ItemSockets(BaseModel):
             cursor: Cursor,
             field_type: type,
         ) -> dict[str, any]:
-            attrs = {"meta": 1, "red": 2, "yellow": 4, "blue": 8}
             s: "ItemSockets" = model_dict[model_field]
-            it = iter(socket_map.items())
+            color_codes = {"meta": 1, "red": 2, "yellow": 4, "blue": 8}
+            sockets = dict()
+            for color_name, color_number in color_codes.items():
+                sockets[color_number] = s.__getattribute__(color_name)
+
+            # Remove the first 0 to get us from 4 sockets to 3.
+            for color_number, gem_count in sockets.items():
+                if gem_count <= 0:
+                    del sockets[color_number]
+                    break
+            if len(sockets) > 3:
+                # TODO: Create proper exception for when number of gems is
+                # greater than 3.
+                raise Exception("Cannot have more than 3 gem colors on an item.")
+
             result = {
                 GemProperties: s.properties,
                 socketBonus: s.socketBonus,
             }
-            for attr, bit in attrs.items():
-                socketColor, socketContent = next(it, (None, None))
-                if socketColor is not None and socketContent is not None:
-                    num_sockets = s.__getattribute__(attr)
-                else:
-                    num_sockets = 0
 
-                # if num_sockets > 0:
-                #     result[socketColor] = attr
-                #     result[socketContent] = num_sockets
-                # else:
-                #     result[socketColor] = 0
-                #     result[socketContent] = 0
-            print(result)
+            socks = iter(sockets.items())
+            for socketColor, socketContent in socket_map.items():
+                socket_number, gem_count = next(socks)
+                result[socketColor] = socket_number
+                result[socketContent] = gem_count
+
             return result
 
         return to_sql

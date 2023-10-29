@@ -153,7 +153,7 @@ class ItemSpell(BaseModel):
                 for obj_field, sql_field in field_map.items():
                     try:
                         s0: "ItemSpell" = s[i]
-                        d[sql_field] = s0.__getattribute__(obj_field)
+                        d[sql_field] = int(s0.__getattribute__(obj_field))
                     except IndexError:
                         d[sql_field] = 0
             return d

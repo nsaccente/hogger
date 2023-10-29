@@ -26,7 +26,11 @@ class Duration(BaseModel):
         )
 
     def to_milli(self) -> int:
-        return sum([(self.to_seconds * 1000), self.milli])
+        return (self.to_seconds() * 1000) + self.milli
+        
+
+    def __int__(self) -> int:
+        return self.to_milli()
 
     @staticmethod
     def from_seconds(s) -> "Duration":
@@ -91,6 +95,7 @@ class Duration(BaseModel):
             cursor: Cursor,
             field_type: type,
         ) -> dict[str, any]:
-            return {sql_field: model_dict[model_field].to_seconds()}
+            d: Duration = model_dict[model_field]
+            return {sql_field: d.to_seconds()}
 
         return to_sql_seconds
