@@ -1,11 +1,16 @@
+import copy
 import logging
 from inspect import cleandoc
 
 import mysql.connector
 
-from hogger.engine import State
 from hogger.entities import Entity
 from hogger.entities.entity_codes import EntityCodes
+
+
+class State(dict[int, dict[str, (Entity | dict[str, any])]]):
+    def __init__(self):
+        super().__init__({entity_code: {} for entity_code, _ in EntityCodes.items()})
 
 
 class WorldTable:
@@ -25,6 +30,13 @@ class WorldTable:
             user=user,
             password=password,
         )
+        self._actual_state: State = self._get_actual_state()
+        self._desired_state: State = State()
+        self._created = None
+        self._modified = None
+        self._changes = None
+        self._unchanged = None
+        self._deleted = None
         self.database = database
         if not self._cnx.is_connected():
             # TODO: Add better description
@@ -69,7 +81,7 @@ class WorldTable:
                     """,
                 )
 
-    def get_hoggerstate(self) -> State:
+    def _get_actual_state(self) -> State:
         with self._cnx.cursor(buffered=True) as cursor:
             cursor.execute(
                 """
@@ -165,6 +177,44 @@ class WorldTable:
                 """,
             )
             self._cnx.commit()
+
+    def add_desired(self, *entities: Entity) -> None:
+        for entity in entities:
+            entity_code = EntityCodes(type(entity))
+            hogger_identifier = entity.hogger_identifier()
+            self._desired_state[entity_code][hogger_identifier] = entity
+        
+    def stage(self) -> dict[str, State]:
+        self._created = State()
+        self._modified = State()
+        self._changes = State()
+        self._unchanged = State()
+        self._deleted = copy.deepcopy(self._actual_state)
+        for entity_code in EntityCodes:
+            for hogger_id, des_entity in self._desired_state[entity_code].items():
+                # If hogger_id from desired state exists in actual state,
+                # compute the diff; otherwise, add to `created`.
+                if hogger_id in self._actual_state[entity_code]:
+                    # If the diff returned has contents in it, add to
+                    # `modified`. Otherwise, no action necessary.
+                    modified_entity, mod_changes = des_entity.diff(
+                        self._actual_state[entity_code][hogger_id],
+                    )
+                    if len(mod_changes) > 0:
+                        # If any changes are returned from the calling
+                        # Entity.diff, add add the item to the `modified` dict,
+                        # and store the changes in the dict that will be
+                        # returned.
+                        self._modified[entity_code][hogger_id] = modified_entity
+                        self._changes[entity_code][hogger_id] = mod_changes
+                    else:
+                        # We don't need to store the unchanged entity, since we
+                        # aren't going to do anything with it.
+                        self._unchanged[entity_code][hogger_id] = None
+                    del self._deleted[entity_code][hogger_id]
+                else:
+                    des_entity.set_db_key(60000)
+                    self._created[entity_code][hogger_id] = des_entity
 
     def apply(
         self,

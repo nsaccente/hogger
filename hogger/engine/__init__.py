@@ -1,12 +1,12 @@
 from .manifest import Manifest
-from .state import State
+from .util import get_hoggerfiles
 from .world_table import WorldTable
 
 __all__ = [
     # manifest
     "Manifest",
-    # state
-    "State",
+    #util
+    "get_hoggerfiles",
     # world_table
     "WorldTable",
 ]

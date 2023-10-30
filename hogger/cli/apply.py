@@ -1,8 +1,8 @@
 from contextlib import ExitStack
 from functools import partial
 
-from hogger.engine import Manifest, State, WorldTable
-from hogger.entities import Entity, EntityCodes
+from hogger.engine import Manifest, WorldTable, get_hoggerfiles
+from hogger.entities import EntityCodes
 
 
 def apply(
@@ -41,43 +41,44 @@ def apply(
         stack.callback(wt.release_lock)
         stack.callback(partial(print, "\nReleasing hoggerlock."))
 
-        # Compare actual and desired
-        created, modified, changes, unchanged, deleted = State.diff_state(
-            desired_state=State.get_desired_state(dir_or_file),
-            actual_state=wt.get_hoggerstate(),
-        )
+        # Load manifests and add them to the WorldTable object's desired state.
+        for hoggerfile in get_hoggerfiles(dir_or_file):
+            manifest = Manifest.from_file(hoggerfile)
+            wt.add_desired(*manifest.entities)
+        
+        wt.stage()
 
-        # print("\nTo Be Created:")
-        # for entity_code in created:
-        #     entity_type = EntityCodes[entity_code].__name__
-        #     for hogger_id in created[entity_code]:
-        #         print(f"  {entity_type}.{hogger_id}")
+        print("\nTo Be Created:")
+        for entity_code in wt._created:
+            entity_type = EntityCodes[entity_code].__name__
+            for hogger_id in wt._created[entity_code]:
+                print(f"  {entity_type}.{hogger_id}")
 
-        # print("\nTo Be Modified:")
-        # for entity_code in modified:
-        #     entity_type = EntityCodes[entity_code].__name__
-        #     for hogger_id in modified[entity_code]:
-        #         print(f"  {entity_type}.{hogger_id}")
+        print("\nTo Be Modified:")
+        for entity_code in wt._modified:
+            entity_type = EntityCodes[entity_code].__name__
+            for hogger_id in wt._modified[entity_code]:
+                print(f"  {entity_type}.{hogger_id}")
 
-        # print("\nUnchanged:")
-        # for entity_code in unchanged:
-        #     entity_type = EntityCodes[entity_code].__name__
-        #     for hogger_id in unchanged[entity_code]:
-        #         print(f"  {entity_type}.{hogger_id}")
+        print("\nUnchanged:")
+        for entity_code in wt._unchanged:
+            entity_type = EntityCodes[entity_code].__name__
+            for hogger_id in wt._unchanged[entity_code]:
+                print(f"  {entity_type}.{hogger_id}")
 
-        # print("\nTo Be Deleted:")
-        # for entity_code in deleted:
-        #     entity_type = EntityCodes[entity_code].__name__
-        #     for hogger_id in deleted[entity_code]:
-        #         print(f"  {entity_type}.{hogger_id}")
+        print("\nTo Be Deleted:")
+        for entity_code in wt._deleted:
+            entity_type = EntityCodes[entity_code].__name__
+            for hogger_id in wt._deleted[entity_code]:
+                print(f"  {entity_type}.{hogger_id}")
 
         # response = input("\nApply these changes? (yes/no) ")
-        response = "yes"
-        if response == "yes":
-            wt.apply(
-                to_be_created=created,
-                to_be_modified=modified,
-                to_be_deleted=deleted,
-            )
-        else:
-            print("Exiting")
+        # response = "yes"
+        # if response == "yes":
+        #     wt.apply(
+        #         to_be_created=created,
+        #         to_be_modified=modified,
+        #         to_be_deleted=deleted,
+        #     )
+        # else:
+        #     print("Exiting")

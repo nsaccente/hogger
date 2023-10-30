@@ -1,6 +1,6 @@
 from enum import Enum, IntFlag
 from textwrap import dedent
-from typing import Literal
+from typing import Literal, Optional
 
 from mysql.connector.cursor_cext import CMySQLCursor as Cursor
 from pydantic import (
@@ -922,7 +922,11 @@ class Item(Entity, extra="allow"):
         item_args["tag"] = tmp[1]
         return Item(**item_args)
 
-    def diff(self, other: "Item") -> ("Item", dict[str, any]):
+    def diff(
+        self, 
+        other: "Item", 
+        cursor: Optional[Cursor]=None
+    ) -> ("Item", dict[str, any]):
         # Reuse id of self if other is a negative number. This change won't be
         # shown in the diff, because it's an implied feature of the Item entity.
         if self.id <= -1:
@@ -960,10 +964,10 @@ class Item(Entity, extra="allow"):
         keys = ("(`") + ("`, `".join(args.keys())) + ("`)")
         values = str(tuple(args.values()))
         # cursor.execute(
-        print(f"REPLACE INTO item_template{keys} " f"VALUES {values}; ")
+        # print(f"REPLACE INTO item_template{keys} " f"VALUES {values}; ")
         # cursor.execute(
-        print(
-            f"REPLACE INTO hoggerstate(entity_code, hogger_identifier, db_key) "
-            f"VALUES (1, '{self.hogger_identifier()}', {db_key})",
-        )
+        # print(
+        #     f"REPLACE INTO hoggerstate(entity_code, hogger_identifier, db_key) "
+        #     f"VALUES (1, '{self.hogger_identifier()}', {db_key});",
+        # )
         return None
