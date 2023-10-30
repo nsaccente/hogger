@@ -1,6 +1,6 @@
 apiVersion: 1.0.1
 entities:
-  - type: Item 
+  - type: Item
     name: 1-Handed Hatchet
     description: "A sparkly axe."
     itemClass: Gem

@@ -956,19 +956,14 @@ class Item(Entity, extra="allow"):
                     field_type=field_properties.annotation,
                 )
 
-
         db_key = args["entry"]
         keys = ("(`") + ("`, `".join(args.keys())) + ("`)")
         values = str(tuple(args.values()))
         # cursor.execute(
-        print(
-            f"REPLACE INTO item_template{keys} "
-            f"VALUES {values}; "
-        )
+        print(f"REPLACE INTO item_template{keys} " f"VALUES {values}; ")
         # cursor.execute(
         print(
             f"REPLACE INTO hoggerstate(entity_code, hogger_identifier, db_key) "
-            f"VALUES (1, '{self.hogger_identifier}', {db_key})"
+            f"VALUES (1, '{self.hogger_identifier()}', {db_key})",
         )
-        print()
         return None

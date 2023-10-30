@@ -27,6 +27,7 @@ class WorldTable:
         )
         self.database = database
         if not self._cnx.is_connected():
+            # TODO: Add better description
             raise Exception(f"Unable to connect to worldserver database '{database}'")
 
         # Initialize the hoggerstate table if one doesn't already exist.
