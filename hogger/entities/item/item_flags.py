@@ -65,31 +65,3 @@ class ItemFlagCustom(IntFlag):
     GlobalDuration: int = auto()
     IgnoreQuestStatus: int = auto()
     FollowLootRules: int = auto()
-
-
-class AllowableClass(IntFlag):
-    Warrior: int = auto()
-    Paladin: int = auto()
-    Hunter: int = auto()
-    Rogue: int = auto()
-    Priest: int = auto()
-    DeathKnight: int = auto()
-    Shaman: int = auto()
-    Mage: int = auto()
-    Warlock: int = auto()
-    UNUSED: int = auto()
-    Druid: int = auto()
-
-
-class AllowableRace(IntFlag):
-    Human: int = auto()
-    Orc: int = auto()
-    Dwarf: int = auto()
-    NightElf: int = auto()
-    Undead: int = auto()
-    Tauren: int = auto()
-    Gnome: int = auto()
-    Troll: int = auto()
-    Goblin: int = auto()
-    BloodElf: int = auto()
-    Draenei: int = auto()

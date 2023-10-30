@@ -1,0 +1,60 @@
+apiVersion: 1.0.1
+entities:
+  - type: Item
+    id: 60000
+    name: 1-Handed Hatchet
+    description: "A sparkly axe."
+    itemClass: Gem
+    sockets:
+      meta: 44
+      yellow: 42
+      blue: 22
+    itemSubclass: 2
+    randomStat:
+      id: 255
+      withSuffix: True
+    quality: 2
+    displayId: 2334
+    buyPrice:
+      gold: 0
+      silver: 0
+      copper: 20
+    inventoryType: Head
+    bagFamily:
+    - Herbs
+    - 3
+    - 13
+    - 230
+    bonding: OnEquip
+    flags:
+    - IsHeroic
+    - HasLoot
+    - 5
+    flagsExtra:
+    - AllianceOnly
+    classes:
+    - Warrior
+    - 3
+    races:
+    - BloodElf
+    - 4
+    stats:
+      Agility: 1
+      Stamina: 2
+      Mana: 3
+      Health: 4
+      Strength: 5
+      Spirit: 6
+      BlockRating: 7
+      MeleeHitRating: 8
+      MeleeCritRating: 9
+    resistances:
+      Frost: 10
+    damage:
+      min1: 10
+      max1: 30
+      type1: 1
+      min2: 10
+      max2: 30
+      type2: 4
+    requiredSkillRank: 20

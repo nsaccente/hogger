@@ -1,13 +1,12 @@
 import json
-from typing import Union
 
 import yaml
 from pydantic import BaseModel, Field
-from typing_extensions import Annotated
 
-from hogger.entities.items import OneHandedAxe, TwoHandedAxe
+from hogger.entities import Entity
+from hogger.util.utils import pydantic_annotation
 
-Entity = Annotated[Union[OneHandedAxe, TwoHandedAxe], Field(discriminator="type")]
+Entity = pydantic_annotation(Entity)
 
 
 class Manifest(BaseModel):
@@ -30,8 +29,8 @@ class Manifest(BaseModel):
             json.loads(
                 self.model_dump_json(
                     by_alias=by_alias,
-                    exclude_unset=True,
-                )
+                    exclude_unset=exclude_unset,
+                ),
             ),
             indent=2,
             sort_keys=False,

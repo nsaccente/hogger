@@ -10,10 +10,15 @@ python = "^3.11"
 pydantic = "^2.3.0"
 mysql-connector-python = "^8.1.0"
 pyyaml = "^6.0.1"
+networkx = "^3.2"
 
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.4.0"
+
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.4.2"
 
 [build-system]
 requires = ["poetry-core"]
