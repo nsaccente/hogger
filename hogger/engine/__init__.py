@@ -5,7 +5,7 @@ from .world_table import WorldTable
 __all__ = [
     # manifest
     "Manifest",
-    #util
+    # util
     "get_hoggerfiles",
     # world_table
     "WorldTable",

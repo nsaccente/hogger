@@ -1,6 +1,7 @@
 apiVersion: 1.0.1
 entities:
   - type: Item
+    id: 60000
     name: 1-Handed Hatchet
     description: "A sparkly axe."
     itemClass: Gem
@@ -15,8 +16,8 @@ entities:
     quality: 2
     displayId: 2334
     buyPrice:
-      gold: 10
-      silver: 10
+      gold: 0
+      silver: 0
       copper: 20
     inventoryType: Head
     bagFamily:

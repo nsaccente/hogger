@@ -923,9 +923,9 @@ class Item(Entity, extra="allow"):
         return Item(**item_args)
 
     def diff(
-        self, 
-        other: "Item", 
-        cursor: Optional[Cursor]=None
+        self,
+        other: "Item",
+        cursor: Optional[Cursor] = None,
     ) -> ("Item", dict[str, any]):
         # Reuse id of self if other is a negative number. This change won't be
         # shown in the diff, because it's an implied feature of the Item entity.
@@ -963,11 +963,12 @@ class Item(Entity, extra="allow"):
         db_key = args["entry"]
         keys = ("(`") + ("`, `".join(args.keys())) + ("`)")
         values = str(tuple(args.values()))
-        # cursor.execute(
-        # print(f"REPLACE INTO item_template{keys} " f"VALUES {values}; ")
-        # cursor.execute(
-        # print(
-        #     f"REPLACE INTO hoggerstate(entity_code, hogger_identifier, db_key) "
-        #     f"VALUES (1, '{self.hogger_identifier()}', {db_key});",
-        # )
+        cursor.execute(
+            f"REPLACE INTO item_template{keys} " 
+            f"VALUES {values}; "
+        )
+        cursor.execute(
+            f"REPLACE INTO hoggerstate(entity_code, hogger_identifier, db_key) "
+            f"VALUES (1, '{self.hogger_identifier()}', {db_key});",
+        )
         return None

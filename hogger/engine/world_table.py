@@ -22,6 +22,7 @@ class WorldTable:
         user: str,
         password: str,
     ) -> None:
+        super().__init__()
         # Create a connection tied to the WorldTable object.
         self._cnx = mysql.connector.connect(
             host=host,
@@ -37,11 +38,12 @@ class WorldTable:
         self._changes = None
         self._unchanged = None
         self._deleted = None
+
         self.database = database
         if not self._cnx.is_connected():
             # TODO: Add better description
             raise Exception(f"Unable to connect to worldserver database '{database}'")
-
+        
         # Initialize the hoggerstate table if one doesn't already exist.
         with self._cnx.cursor() as cursor:
             cursor.execute(
@@ -54,7 +56,6 @@ class WorldTable:
                 );
                 """,
             )
-
             cursor.execute(
                 f"""
                 SELECT *
@@ -80,6 +81,37 @@ class WorldTable:
                     INSERT INTO hoggerlock(k, v) values ("locked", 0);
                     """,
                 )
+
+    def is_locked(self) -> bool:
+        with self._cnx.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT * FROM hoggerlock
+                WHERE k="locked";
+                """,
+            )
+            # TODO: Raise error if this returns nil
+            return bool(cursor.fetchone()[1])
+
+    def acquire_lock(self):
+        with self._cnx.cursor() as cursor:
+            cursor.execute(
+                """
+                REPLACE INTO hoggerlock(k, v)
+                VALUES ("locked", 1);
+                """,
+            )
+            self._cnx.commit()
+
+    def release_lock(self) -> None:
+        with self._cnx.cursor() as cursor:
+            cursor.execute(
+                """
+                REPLACE INTO hoggerlock(k, v)
+                VALUES ("locked", 0);
+                """,
+            )
+            self._cnx.commit()
 
     def _get_actual_state(self) -> State:
         with self._cnx.cursor(buffered=True) as cursor:
@@ -147,44 +179,48 @@ class WorldTable:
             )
             self._cnx.commit()
 
-    def is_locked(self) -> bool:
-        with self._cnx.cursor() as cursor:
-            cursor.execute(
-                """
-                SELECT * FROM hoggerlock
-                WHERE k="locked";
-                """,
-            )
-            # TODO: Raise error if this returns nil
-            return bool(cursor.fetchone()[1])
-
-    def acquire_lock(self):
-        with self._cnx.cursor() as cursor:
-            cursor.execute(
-                """
-                REPLACE INTO hoggerlock(k, v)
-                VALUES ("locked", 1);
-                """,
-            )
-            self._cnx.commit()
-
-    def release_lock(self):
-        with self._cnx.cursor() as cursor:
-            cursor.execute(
-                """
-                REPLACE INTO hoggerlock(k, v)
-                VALUES ("locked", 0);
-                """,
-            )
-            self._cnx.commit()
 
     def add_desired(self, *entities: Entity) -> None:
         for entity in entities:
             entity_code = EntityCodes(type(entity))
             hogger_identifier = entity.hogger_identifier()
             self._desired_state[entity_code][hogger_identifier] = entity
-        
-    def stage(self) -> dict[str, State]:
+
+    def _stage_str(self) -> str:
+        s: list[str] = []
+
+        s.append("To be Created:")
+        for entity_code in self._created:
+            entity_type = EntityCodes[entity_code].__name__
+            for hogger_id in self._created[entity_code]:
+                s.append(f"  {entity_type}.{hogger_id}")
+
+        s.append("\nTo Be Modified:")
+        for entity_code in self._modified:
+            entity_type = EntityCodes[entity_code].__name__
+            for hogger_id in self._modified[entity_code]:
+                s.append(f"  {entity_type}.{hogger_id}")
+                for f, delta in self._changes[entity_code][hogger_id].items():
+                    s.append(f"    {f}")
+                    # TODO: Format changes in a clearer fashion.
+                    s.append(f"      desired: {str(delta['desired'])}")
+                    s.append(f"      actual:  {str(delta['actual'])}")
+
+        s.append("\nUnchanged:")
+        for entity_code in self._unchanged:
+            entity_type = EntityCodes[entity_code].__name__
+            for hogger_id in self._unchanged[entity_code]:
+                s.append(f"  {entity_type}.{hogger_id}")
+
+        s.append("\nTo Be Deleted:")
+        for entity_code in self._deleted:
+            entity_type = EntityCodes[entity_code].__name__
+            for hogger_id in self._deleted[entity_code]:
+                s.append(f"  {entity_type}.{hogger_id}")
+
+        return "\n".join(s)
+
+    def stage(self) -> str:
         self._created = State()
         self._modified = State()
         self._changes = State()
@@ -215,20 +251,19 @@ class WorldTable:
                 else:
                     des_entity.set_db_key(60000)
                     self._created[entity_code][hogger_id] = des_entity
+        return self._stage_str()
 
     def apply(
         self,
-        to_be_created: State,
-        to_be_modified: State,
-        to_be_deleted: State,
     ) -> None:
         with self._cnx.cursor() as cursor:
             for entity_code in EntityCodes:
-                for _, entity in to_be_created[entity_code].items():
+                for _, entity in self._created[entity_code].items():
                     entity.apply(cursor)
 
-                for _, entity in to_be_modified[entity_code].items():
+                for _, entity in self._modified[entity_code].items():
                     entity.apply(cursor)
 
-                for _, entity in to_be_deleted[entity_code].items():
+                for _, entity in self._deleted[entity_code].items():
                     entity.apply(cursor)
+        self._cnx.commit()
