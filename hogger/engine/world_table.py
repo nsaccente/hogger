@@ -22,7 +22,6 @@ class WorldTable:
         user: str,
         password: str,
     ) -> None:
-        super().__init__()
         # Create a connection tied to the WorldTable object.
         self._cnx = mysql.connector.connect(
             host=host,

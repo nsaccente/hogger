@@ -1,0 +1,1 @@
+docker run  -p 53306:3306 --env MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=1 --env MARIADB_USER=test --env MARIADB_ALLOW_EMPTY_PASSWORD=1 --env MARIADB_DATABASE="world_table" -d mariadb:11.1.2
