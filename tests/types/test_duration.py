@@ -36,4 +36,3 @@ def test_from_seconds():
     assert a.minutes == 5
     assert a.seconds == 22
     assert a.milli == 0
-    print(a)

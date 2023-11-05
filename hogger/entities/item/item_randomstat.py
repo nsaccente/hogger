@@ -40,13 +40,13 @@ class RandomStat(BaseModel):
         ):
             random_property = sql_dict[RandomProperty]
             random_suffix = sql_dict[RandomSuffix]
-            with_prefix = random_suffix != 0
+            with_suffix = (random_suffix != 0)
             if min(random_property, random_suffix) != 0:
+                # TODO: raise exception
                 pass
-                # raise Exception("Unable to create ")
             return RandomStat(
                 id=abs(max(random_property, random_suffix)),
-                withPrefix=with_prefix,
+                withSuffix=with_suffix,
             )
 
         return from_sql
@@ -63,17 +63,17 @@ class RandomStat(BaseModel):
             field_type: type,
         ) -> dict[str, any]:
             prop, suff = 0, 0
-            withSuffix = model_dict[model_field].withSuffix
-            prop = model_dict[model_field].id * (not withSuffix)
-            suff = model_dict[model_field].id * (withSuffix)
+            r: RandomStat = model_dict[model_field]
+            prop = r.id * (not r.withSuffix)
+            suff = r.id * (r.withSuffix)
             if prop != 0 and suff != 0:
                 # TODO: Create more detailed exception
                 raise Exception(
                     f"Both {RandomProperty} and {RandomSuffix} cannot be " "nonzero.",
                 )
             return {
-                RandomProperty: prop,
-                RandomSuffix: suff,
+                RandomProperty: int(prop),
+                RandomSuffix: int(suff),
             }
 
         return to_sql

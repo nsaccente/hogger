@@ -11,7 +11,7 @@ entities:
       blue: 22
     itemSubclass: 2
     randomStat:
-      id: 255
+      id: 220
       withSuffix: True
     quality: 2
     displayId: 2334
@@ -22,9 +22,8 @@ entities:
     inventoryType: Head
     bagFamily:
     - Herbs
+    - Arrows
     - 3
-    - 13
-    - 230
     bonding: OnEquip
     flags:
     - IsHeroic
@@ -50,6 +49,8 @@ entities:
       MeleeCritRating: 9
     resistances:
       Frost: 10
+    flags:
+      - IsHeroic
     damage:
       min1: 10
       max1: 30

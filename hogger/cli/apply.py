@@ -4,11 +4,11 @@ from functools import partial
 from hogger.engine import Manifest, WorldTable, get_hoggerfiles
 from hogger.entities import EntityCodes
 
-
 # wt._write_hoggerstate(1, "Martin Fury", 17)
 # wt._write_hoggerstate(1, "Worn Shortsword", 25)
 # wt._write_hoggerstate(1, "Bent Staff", 35)
 # wt._write_hoggerstate(1, "Spellfire Belt#asdf", 21846)
+
 
 def apply(
     host: str,
@@ -27,7 +27,7 @@ def apply(
         user=user,
         password=password,
         database=world,
-    ) 
+    )
 
     # Confirm unlocked, then Lock hogger.
     if wt.is_locked():

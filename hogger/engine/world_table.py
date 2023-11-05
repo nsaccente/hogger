@@ -43,7 +43,7 @@ class WorldTable:
         if not self._cnx.is_connected():
             # TODO: Add better description
             raise Exception(f"Unable to connect to worldserver database '{database}'")
-        
+
         # Initialize the hoggerstate table if one doesn't already exist.
         with self._cnx.cursor() as cursor:
             cursor.execute(
@@ -178,7 +178,6 @@ class WorldTable:
                 """,
             )
             self._cnx.commit()
-
 
     def add_desired(self, *entities: Entity) -> None:
         for entity in entities:

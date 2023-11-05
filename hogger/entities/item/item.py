@@ -937,6 +937,12 @@ class Item(Entity, extra="allow"):
         actual = vars(other)
 
         for field in Item.model_fields:
+            if type(desired[field]) == list[IntFlag]:
+                print("ASDF")
+                print("ASDF")
+                print(desired[field])
+                print("ASDF")
+                print("ASDF")
             if desired[field] != actual[field]:
                 diffs[field] = {
                     "desired": desired[field],
@@ -963,10 +969,7 @@ class Item(Entity, extra="allow"):
         db_key = args["entry"]
         keys = ("(`") + ("`, `".join(args.keys())) + ("`)")
         values = str(tuple(args.values()))
-        cursor.execute(
-            f"REPLACE INTO item_template{keys} " 
-            f"VALUES {values}; "
-        )
+        cursor.execute(f"REPLACE INTO item_template{keys} VALUES {values};")
         cursor.execute(
             f"REPLACE INTO hoggerstate(entity_code, hogger_identifier, db_key) "
             f"VALUES (1, '{self.hogger_identifier()}', {db_key});",
