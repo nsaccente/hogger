@@ -938,11 +938,7 @@ class Item(Entity, extra="allow"):
 
         for field in Item.model_fields:
             if type(desired[field]) == list[IntFlag]:
-                print("ASDF")
-                print("ASDF")
                 print(desired[field])
-                print("ASDF")
-                print("ASDF")
             if desired[field] != actual[field]:
                 diffs[field] = {
                     "desired": desired[field],

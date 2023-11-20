@@ -13,7 +13,7 @@
 
 # Quality Standards
 - [ ] Follows the guidelines in [CONTRIBUTING.md](CONTRIBUTING.md)
-- [ ] There are no open [Pull Requests](../../../pulls) for the same change 
+- [ ] There are no open [Pull Requests](../../../pulls) for the same change
 - [ ] Code has been linted with `pre-commit`
 - [ ] New tests have been written for changes where necessary
 - [ ] Reasoning about changes is easy

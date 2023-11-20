@@ -1,0 +1,19 @@
+services:
+  hogger-mariadb:
+    container_name: "hogger-mariadb"
+    image: "mariadb:11.1.2"
+    environment:
+      - MARIADB_USER=acore
+      - MARIADB_PASSWORD=acore
+      - MARIADB_ROOT_PASSWORD=acore
+      - MARIADB_DATABASE=acore_world
+    ports:
+      - 3306:3306
+
+  test-mariadb:
+    container_name: "test-mariadb"
+    build: ./docker/test-mariadb
+    profiles:
+      - "test"
+    ports:
+      - 53306:3306

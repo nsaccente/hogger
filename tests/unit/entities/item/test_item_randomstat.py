@@ -13,7 +13,7 @@ def test_to_sql():
             "randomStat": RandomStat(
                 id=100,
                 withSuffix=False,
-            )
+            ),
         },
         "cursor": None,
         "field_type": RandomStat,
@@ -25,4 +25,3 @@ def test_to_sql():
     # Then:
     assert sql["RandomProperty"] == 100
     assert sql["RandomSuffix"] == 0
-    

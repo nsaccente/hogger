@@ -7,6 +7,8 @@ import mysql.connector
 from hogger.entities import Entity
 from hogger.entities.entity_codes import EntityCodes
 
+from .sql import Queries
+
 
 class State(dict[int, dict[str, (Entity | dict[str, any])]]):
     def __init__(self):
@@ -30,8 +32,6 @@ class WorldTable:
             user=user,
             password=password,
         )
-        self._actual_state: State = self._get_actual_state()
-        self._desired_state: State = State()
         self._created = None
         self._modified = None
         self._changes = None
@@ -45,41 +45,10 @@ class WorldTable:
 
         # Initialize the hoggerstate table if one doesn't already exist.
         with self._cnx.cursor() as cursor:
-            cursor.execute(
-                """
-                CREATE TABLE IF NOT EXISTS hoggerstate (
-                    entity_code INT NOT NULL,
-                    hogger_identifier VARCHAR(128) NOT NULL,
-                    db_key INT NOT NULL,
-                    PRIMARY KEY (entity_code, hogger_identifier)
-                );
-                """,
-            )
-            cursor.execute(
-                f"""
-                SELECT *
-                FROM information_schema.tables
-                WHERE table_schema = '{self.database}'
-                    AND table_name = 'hoggerlock'
-                LIMIT 1;
-                """,
-            )
-            exists = len(cursor.fetchall()) > 0
-            if not exists:
-                cursor.execute(
-                    """
-                    CREATE TABLE IF NOT EXISTS hoggerlock (
-                        k VARCHAR(32) NOT NULL,
-                        v BIT NOT NULL,
-                        PRIMARY KEY (k)
-                    );
-                    """,
-                )
-                cursor.execute(
-                    """
-                    INSERT INTO hoggerlock(k, v) values ("locked", 0);
-                    """,
-                )
+            for init_query in Queries.init():
+                cursor.execute(init_query)
+        self._actual_state: State = self._get_actual_state()
+        self._desired_state: State = State()
 
     def is_locked(self) -> bool:
         with self._cnx.cursor() as cursor:

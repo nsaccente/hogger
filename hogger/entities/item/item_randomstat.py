@@ -40,7 +40,7 @@ class RandomStat(BaseModel):
         ):
             random_property = sql_dict[RandomProperty]
             random_suffix = sql_dict[RandomSuffix]
-            with_suffix = (random_suffix != 0)
+            with_suffix = random_suffix != 0
             if min(random_property, random_suffix) != 0:
                 # TODO: raise exception
                 pass
