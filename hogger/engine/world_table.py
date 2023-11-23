@@ -32,16 +32,9 @@ class WorldTable:
             user=user,
             password=password,
         )
-        self._created = None
-        self._modified = None
-        self._changes = None
-        self._unchanged = None
-        self._deleted = None
-
         self.database = database
         if not self._cnx.is_connected():
-            # TODO: Add better description
-            raise Exception(f"Unable to connect to worldserver database '{database}'")
+            raise Exception(f"Unable to connect to world database '{database}'")
 
         # Initialize the hoggerstate table if one doesn't already exist.
         with self._cnx.cursor() as cursor:
@@ -153,46 +146,53 @@ class WorldTable:
             hogger_identifier = entity.hogger_identifier()
             self._desired_state[entity_code][hogger_identifier] = entity
 
-    def _stage_str(self) -> str:
+    def _stage_str(
+        self,
+        created: State(),
+        modified: State(),
+        changes: State(),
+        unchanged: State(),
+        deleted: State(),
+    ) -> str:
         s: list[str] = []
 
         s.append("To be Created:")
-        for entity_code in self._created:
+        for entity_code in created:
             entity_type = EntityCodes[entity_code].__name__
-            for hogger_id in self._created[entity_code]:
+            for hogger_id in created[entity_code]:
                 s.append(f"  {entity_type}.{hogger_id}")
 
         s.append("\nTo Be Modified:")
-        for entity_code in self._modified:
+        for entity_code in modified:
             entity_type = EntityCodes[entity_code].__name__
-            for hogger_id in self._modified[entity_code]:
+            for hogger_id in modified[entity_code]:
                 s.append(f"  {entity_type}.{hogger_id}")
-                for f, delta in self._changes[entity_code][hogger_id].items():
+                for f, delta in changes[entity_code][hogger_id].items():
                     s.append(f"    {f}")
                     # TODO: Format changes in a clearer fashion.
                     s.append(f"      desired: {str(delta['desired'])}")
                     s.append(f"      actual:  {str(delta['actual'])}")
 
         s.append("\nUnchanged:")
-        for entity_code in self._unchanged:
+        for entity_code in unchanged:
             entity_type = EntityCodes[entity_code].__name__
-            for hogger_id in self._unchanged[entity_code]:
+            for hogger_id in unchanged[entity_code]:
                 s.append(f"  {entity_type}.{hogger_id}")
 
         s.append("\nTo Be Deleted:")
-        for entity_code in self._deleted:
+        for entity_code in deleted:
             entity_type = EntityCodes[entity_code].__name__
-            for hogger_id in self._deleted[entity_code]:
+            for hogger_id in deleted[entity_code]:
                 s.append(f"  {entity_type}.{hogger_id}")
 
         return "\n".join(s)
 
     def stage(self) -> str:
-        self._created = State()
-        self._modified = State()
-        self._changes = State()
-        self._unchanged = State()
-        self._deleted = copy.deepcopy(self._actual_state)
+        created = State()
+        modified = State()
+        changes = State()
+        unchanged = State()
+        deleted = copy.deepcopy(self._actual_state)
         for entity_code in EntityCodes:
             for hogger_id, des_entity in self._desired_state[entity_code].items():
                 # If hogger_id from desired state exists in actual state,
@@ -208,33 +208,30 @@ class WorldTable:
                         # Entity.diff, add add the item to the `modified` dict,
                         # and store the changes in the dict that will be
                         # returned.
-                        self._modified[entity_code][hogger_id] = modified_entity
-                        self._changes[entity_code][hogger_id] = mod_changes
+                        modified[entity_code][hogger_id] = modified_entity
+                        changes[entity_code][hogger_id] = mod_changes
                     else:
                         # We don't need to store the unchanged entity, since we
                         # aren't going to do anything with it.
-                        self._unchanged[entity_code][hogger_id] = None
-                    del self._deleted[entity_code][hogger_id]
+                        unchanged[entity_code][hogger_id] = None
+                    del deleted[entity_code][hogger_id]
                 else:
                     # TODO: Dynamic ID resolution should go here.
-                    des_entity.set_db_key(60000)
-                    self._created[entity_code][hogger_id] = des_entity
-        return self._stage_str()
+                    des_entity.set_db_key(30000)
+                    created[entity_code][hogger_id] = des_entity
+        return self._stage_str(
+            created=created,
+            modified=modified,
+            changes=changes,
+            unchanged=unchanged,
+            deleted=deleted,
+        )
 
     def apply(
         self,
     ) -> None:
         with self._cnx.cursor() as cursor:
             for entity_code in EntityCodes:
-                for _, entity in self._created[entity_code].items():
-                    print(entity)
-                    entity.apply(cursor)
-
-                for _, entity in self._modified[entity_code].items():
-                    print(entity)
-                    entity.apply(cursor)
-
-                for _, entity in self._deleted[entity_code].items():
-                    print(entity.hogger_identifier)
+                for _, entity in self._desired_state[entity_code].items():
                     entity.apply(cursor)
         self._cnx.commit()

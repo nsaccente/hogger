@@ -60,13 +60,6 @@ def main():
         default=os.getenv("HOGGER_WORLD", "acore_world"),
     )
     apply_parser.add_argument(
-        "-s",
-        "--skip-staging",
-        dest="skip_staging",
-        action="store_true",
-        help="Hogger will skip displaying the diff between desired and actual",
-    )
-    apply_parser.add_argument(
         "-y",
         "--skip-confirmation",
         dest="skip_confirmation",

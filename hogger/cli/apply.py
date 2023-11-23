@@ -48,10 +48,8 @@ def apply(
             manifest = Manifest.from_file(hoggerfile)
             wt.add_desired(*manifest.entities)
 
-        # Check for -s/--skip-staging
-        if not kwargs["skip_staging"]:
-            pending = wt.stage()
-            print(pending)
+        pending = wt.stage()
+        print(pending)
 
         # Check for -y/--skip_confirmation
         response = "yes"
@@ -59,6 +57,7 @@ def apply(
             response = input("\nApply these changes? (yes/no) ")
 
         if response == "yes":
+            print("Applying Hoggerstate changes")
             wt.apply()
         else:
             print("Exiting")
