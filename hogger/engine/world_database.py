@@ -15,7 +15,7 @@ class State(dict[int, dict[str, (Entity | dict[str, any])]]):
         super().__init__({entity_code: {} for entity_code, _ in EntityCodes.items()})
 
 
-class WorldTable:
+class WorldDatabase:
     def __init__(
         self,
         host: str,
@@ -24,7 +24,7 @@ class WorldTable:
         user: str,
         password: str,
     ) -> None:
-        # Create a connection tied to the WorldTable object.
+        # Create a connection tied to the WorldDatabase object.
         self._cnx = mysql.connector.connect(
             host=host,
             port=port,
@@ -42,6 +42,25 @@ class WorldTable:
                 cursor.execute(init_query)
         self._actual_state: State = self._get_actual_state()
         self._desired_state: State = State()
+        self._id_iters: dict[str, dict[str, iter]] = dict()
+
+    def next_id(self, table: str, field: str) -> iter:
+        def _next_id_iter(ids: list):
+            id = 0
+            while True:
+                # TODO: This can probably be more efficient.
+                if id not in ids:
+                    yield id
+                id += 1
+
+        if table not in self._id_iters:
+            self._id_iters[table] = {}
+        if field not in self._id_iters[table]:
+            with self._cnx.cursor(buffered=True) as cursor:
+                cursor.execute(f"SELECT {field} FROM {table} ORDER BY {field};")
+                ids = list(zip(*cursor.fetchall()))[0]
+                self._id_iters[table][field] = _next_id_iter(ids)
+        yield next(self._id_iters[table][field])
 
     def is_locked(self) -> bool:
         with self._cnx.cursor() as cursor:
@@ -216,8 +235,6 @@ class WorldTable:
                         unchanged[entity_code][hogger_id] = None
                     del deleted[entity_code][hogger_id]
                 else:
-                    # TODO: Dynamic ID resolution should go here.
-                    des_entity.set_db_key(30000)
                     created[entity_code][hogger_id] = des_entity
         return self._stage_str(
             created=created,

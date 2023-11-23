@@ -1,8 +1,9 @@
 apiVersion: 1.0.1
 entities:
   - type: Item
-    id: 60000
+    id: 3
     name: 1-Handed Hatchet
+    tag: asdf
     description: "A sparkly axe."
     itemClass: Gem
     sockets:

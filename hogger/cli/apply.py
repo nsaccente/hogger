@@ -1,7 +1,7 @@
 from contextlib import ExitStack
 from functools import partial
 
-from hogger.engine import Manifest, WorldTable, get_hoggerfiles
+from hogger.engine import Manifest, WorldDatabase, get_hoggerfiles
 from hogger.entities import EntityCodes
 
 # wt._write_hoggerstate(1, "Martin Fury", 17)
@@ -22,7 +22,7 @@ def apply(
     print(kwargs)
     # All of your database interactions through the WorldTable object.
     # Connect to WorldTable before bothering with parsing anything.
-    wt = WorldTable(
+    db = WorldDatabase(
         host=host,
         port=port,
         user=user,
@@ -31,7 +31,7 @@ def apply(
     )
 
     # Confirm unlocked, then Lock hogger.
-    if wt.is_locked():
+    if db.is_locked():
         # TODO: Can't do anything while it's not locked.
         print("Hogger is locked.")
         exit(1)
@@ -39,16 +39,16 @@ def apply(
     # Enter an ExitStack to defer releasing hoggerlock.
     with ExitStack() as stack:
         print("Acquiring hoggerlock.")
-        wt.acquire_lock()
-        stack.callback(wt.release_lock)
+        db.acquire_lock()
+        stack.callback(db.release_lock)
         stack.callback(partial(print, "\nReleasing hoggerlock."))
 
         # Load manifests and add them to the WorldTable object's desired state.
         for hoggerfile in get_hoggerfiles(dir_or_file):
             manifest = Manifest.from_file(hoggerfile)
-            wt.add_desired(*manifest.entities)
+            db.add_desired(*manifest.entities)
 
-        pending = wt.stage()
+        pending = db.stage()
         print(pending)
 
         # Check for -y/--skip_confirmation
@@ -58,6 +58,6 @@ def apply(
 
         if response == "yes":
             print("Applying Hoggerstate changes")
-            wt.apply()
+            db.apply()
         else:
             print("Exiting")
