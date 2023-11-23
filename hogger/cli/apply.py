@@ -19,6 +19,7 @@ def apply(
     dir_or_file: str,
     **kwargs,
 ) -> None:
+    print(kwargs)
     # All of your database interactions through the WorldTable object.
     # Connect to WorldTable before bothering with parsing anything.
     wt = WorldTable(
@@ -47,11 +48,16 @@ def apply(
             manifest = Manifest.from_file(hoggerfile)
             wt.add_desired(*manifest.entities)
 
-        pending = wt.stage()
-        print(pending)
+        # Check for -s/--skip-staging
+        if not kwargs["skip_staging"]:
+            pending = wt.stage()
+            print(pending)
 
-        # response = input("\nApply these changes? (yes/no) ")
+        # Check for -y/--skip_confirmation
         response = "yes"
+        if not kwargs["skip_confirmation"]:
+            response = input("\nApply these changes? (yes/no) ")
+
         if response == "yes":
             wt.apply()
         else:

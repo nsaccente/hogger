@@ -216,6 +216,7 @@ class WorldTable:
                         self._unchanged[entity_code][hogger_id] = None
                     del self._deleted[entity_code][hogger_id]
                 else:
+                    # TODO: Dynamic ID resolution should go here.
                     des_entity.set_db_key(60000)
                     self._created[entity_code][hogger_id] = des_entity
         return self._stage_str()
@@ -226,11 +227,14 @@ class WorldTable:
         with self._cnx.cursor() as cursor:
             for entity_code in EntityCodes:
                 for _, entity in self._created[entity_code].items():
+                    print(entity)
                     entity.apply(cursor)
 
                 for _, entity in self._modified[entity_code].items():
+                    print(entity)
                     entity.apply(cursor)
 
                 for _, entity in self._deleted[entity_code].items():
+                    print(entity.hogger_identifier)
                     entity.apply(cursor)
         self._cnx.commit()

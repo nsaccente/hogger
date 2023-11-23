@@ -1,7 +1,5 @@
 from collections import OrderedDict
 
-import networkx as nx
-
 from .entity import Entity
 from .item.item import Item
 
@@ -27,11 +25,3 @@ EntityCodes = EntityCodesDict(
         1: Item,
     },
 )
-
-# G = nx.DiGraph()
-# for cls in EntityCodes:
-#     if hasattr(cls, 'depends_on'):
-#         for dep_cls in cls.depends_on:
-#             G.add_edge(cls, dep_cls)
-# if not nx.is_directed_acyclic_graph(G):
-#     raise ValueError("Circular dependencies detected")

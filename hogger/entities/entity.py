@@ -16,7 +16,6 @@ class Entity(
             """,
         ),
     )
-    # depends_on: list["Entity"] = []
 
     @abstractstaticmethod
     def from_hoggerstate(
