@@ -43,6 +43,8 @@ class WorldDatabase:
         self._actual_state: State = self._get_actual_state()
         self._desired_state: State = State()
         self._id_iters: dict[str, dict[str, iter]] = dict()
+        self.staged_inserts: list[str] = []
+        self.staged_deletes: list[str] = []
 
     def next_id(self, table: str, field: str) -> iter:
         def _next_id_iter(ids: list):
@@ -55,12 +57,17 @@ class WorldDatabase:
 
         if table not in self._id_iters:
             self._id_iters[table] = {}
+        ids = []
         if field not in self._id_iters[table]:
             with self._cnx.cursor(buffered=True) as cursor:
                 cursor.execute(f"SELECT {field} FROM {table} ORDER BY {field};")
-                ids = list(zip(*cursor.fetchall()))[0]
+                fetchall = cursor.fetchall()
+                # If there are no entries in `table`, fetchall returns an empty
+                # list. If there are entries, we parse them out to list[int]
+                if len(fetchall) > 0:
+                    ids.extend(list(zip(*fetchall))[0])
                 self._id_iters[table][field] = _next_id_iter(ids)
-        yield next(self._id_iters[table][field])
+        return next(self._id_iters[table][field])
 
     def is_locked(self) -> bool:
         with self._cnx.cursor() as cursor:
@@ -212,30 +219,43 @@ class WorldDatabase:
         changes = State()
         unchanged = State()
         deleted = copy.deepcopy(self._actual_state)
-        for entity_code in EntityCodes:
-            for hogger_id, des_entity in self._desired_state[entity_code].items():
-                # If hogger_id from desired state exists in actual state,
-                # compute the diff; otherwise, add to `created`.
-                if hogger_id in self._actual_state[entity_code]:
-                    # If the diff returned has contents in it, add to
-                    # `modified`. Otherwise, no action necessary.
-                    modified_entity, mod_changes = des_entity.diff(
-                        self._actual_state[entity_code][hogger_id],
-                    )
-                    if len(mod_changes) > 0:
-                        # If any changes are returned from the calling
-                        # Entity.diff, add add the item to the `modified` dict,
-                        # and store the changes in the dict that will be
-                        # returned.
-                        modified[entity_code][hogger_id] = modified_entity
-                        changes[entity_code][hogger_id] = mod_changes
+        des_entity: Entity
+
+        with self._cnx.cursor() as cursor:
+            self._cnx.commit()
+            for entity_code in EntityCodes:
+                for hogger_id, des_entity in self._desired_state[entity_code].items():
+                    # If hogger_id from desired state exists in actual state,
+                    # compute the diff; otherwise, add to `created`.
+                    if hogger_id in self._actual_state[entity_code]:
+                        actual_entity: Entity = self._actual_state[entity_code][
+                            hogger_id
+                        ]
+                        mod_changes: dict[str, any]
+                        des_entity, mod_changes = des_entity.diff(actual_entity)
+                        if len(mod_changes) > 0:
+                            # MODIFY
+                            changes[entity_code][hogger_id] = mod_changes
+                            modified[entity_code][hogger_id] = des_entity
+                            self.staged_deletes.extend(actual_entity.delete(cursor))
+                            self.staged_inserts.extend(des_entity.insert(cursor))
+                        else:
+                            # UNCHANGED
+                            unchanged[entity_code][hogger_id] = None
+                        # Finally, remove from `deleted`
+                        del deleted[entity_code][hogger_id]
                     else:
-                        # We don't need to store the unchanged entity, since we
-                        # aren't going to do anything with it.
-                        unchanged[entity_code][hogger_id] = None
-                    del deleted[entity_code][hogger_id]
-                else:
-                    created[entity_code][hogger_id] = des_entity
+                        # CREATE
+                        if des_entity.id < 0:
+                            des_entity.update_id(cursor, next_id_iterfunc=self.next_id)
+                        created[entity_code][hogger_id] = des_entity
+                        self.staged_inserts.extend(des_entity.insert(cursor))
+
+            # DELETE
+            for entity_code in EntityCodes:
+                for _, entity in deleted[entity_code].items():
+                    self.staged_deletes.extend(entity.delete(cursor))
+
         return self._stage_str(
             created=created,
             modified=modified,
@@ -244,11 +264,18 @@ class WorldDatabase:
             deleted=deleted,
         )
 
-    def apply(
-        self,
-    ) -> None:
-        with self._cnx.cursor() as cursor:
-            for entity_code in EntityCodes:
-                for _, entity in self._desired_state[entity_code].items():
-                    entity.apply(cursor)
-        self._cnx.commit()
+    def commit(self) -> None:
+        try:
+            cursor = self._cnx.cursor()
+            for query in self.staged_inserts:
+                # print(query)
+                cursor.execute(query)
+            for query in self.staged_deletes:
+                # print(query)
+                cursor.execute(query)
+            self._cnx.commit()
+        except Exception as e:
+            self._cnx.rollback()
+            raise
+        finally:
+            cursor.close()

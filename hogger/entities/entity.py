@@ -1,5 +1,6 @@
 from abc import ABCMeta, abstractmethod, abstractstaticmethod
 from inspect import cleandoc
+from typing import Optional
 
 from mysql.connector.cursor_cext import CMySQLCursor as Cursor
 from pydantic import BaseModel, Field
@@ -16,6 +17,15 @@ class Entity(
             """,
         ),
     )
+    id: int = Field(
+        default=-1,
+        description=cleandoc(
+            """
+            The primary identifier for the entity in it's respective table.
+            This is effectively the db_key in the Hoggerstate table.
+            """,
+        ),
+    )
 
     @abstractstaticmethod
     def from_hoggerstate(
@@ -26,15 +36,16 @@ class Entity(
         pass
 
     @abstractmethod
-    def get_db_key(self) -> int:
-        pass
-
-    @abstractmethod
-    def set_db_key(self) -> None:
-        pass
-
-    @abstractmethod
     def hogger_identifier(self) -> str:
+        pass
+
+    @abstractmethod
+    def update_id(
+        self,
+        cursor: Cursor,
+        new_id: Optional[int] = None,
+        next_id_iterfunc: Optional[callable] = None,
+    ) -> None:
         pass
 
     @abstractmethod
@@ -42,5 +53,9 @@ class Entity(
         pass
 
     @abstractmethod
-    def apply(self, cursor: Cursor) -> None:
+    def delete(self, cursor: Cursor) -> str:
+        pass
+
+    @abstractmethod
+    def insert(self, cursor: Cursor) -> str:
         pass

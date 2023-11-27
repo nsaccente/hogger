@@ -19,7 +19,6 @@ def apply(
     dir_or_file: str,
     **kwargs,
 ) -> None:
-    print(kwargs)
     # All of your database interactions through the WorldTable object.
     # Connect to WorldTable before bothering with parsing anything.
     db = WorldDatabase(
@@ -41,7 +40,7 @@ def apply(
         print("Acquiring hoggerlock.")
         db.acquire_lock()
         stack.callback(db.release_lock)
-        stack.callback(partial(print, "\nReleasing hoggerlock."))
+        stack.callback(partial(print, "Releasing hoggerlock."))
 
         # Load manifests and add them to the WorldTable object's desired state.
         for hoggerfile in get_hoggerfiles(dir_or_file):
@@ -49,15 +48,19 @@ def apply(
             db.add_desired(*manifest.entities)
 
         pending = db.stage()
-        print(pending)
+        # for query in db.staged_queries:
+        #     print(query)
+        # TODO: Item diff isn't working correctly because lists aren't serializable,
+        # which -- I think -- is causing older hoggerids to not work.
+        # TODO: Old hoggerids aren't being deleted
 
         # Check for -y/--skip_confirmation
         response = "yes"
         if not kwargs["skip_confirmation"]:
-            response = input("\nApply these changes? (yes/no) ")
+            response = input(f"{pending}\nApply these changes? (yes/no) ")
 
         if response == "yes":
             print("Applying Hoggerstate changes")
-            db.apply()
+            db.commit()
         else:
             print("Exiting")

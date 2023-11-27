@@ -1,3 +1,4 @@
+from copy import deepcopy
 from enum import Enum, IntFlag
 from textwrap import dedent
 from typing import Literal, Optional
@@ -82,6 +83,7 @@ class Item(Entity, extra="allow"):
             "The name, tag, and item type will all be used to identify the "
             "entity."
         ),
+        # TODO: Requires custom parser to decode tag
     )
     description: str = Field(
         default="",
@@ -875,12 +877,6 @@ class Item(Entity, extra="allow"):
     ) -> dict[(str | int), int]:
         return EnumMapUtils.serialize(self, items, info)
 
-    def get_db_key(self) -> int:
-        return self.id
-
-    def set_db_key(self, new_id: int) -> None:
-        self.id = new_id
-
     def hogger_identifier(self) -> str:
         tag = self.tag.strip()
         suffix = ""
@@ -922,6 +918,22 @@ class Item(Entity, extra="allow"):
         item_args["tag"] = tmp[1]
         return Item(**item_args)
 
+    def update_id(
+        self,
+        cursor: Cursor,
+        new_id: Optional[int] = None,
+        next_id_iterfunc: Optional[callable] = None,
+    ) -> None:
+        if new_id is not None:
+            self.id = new_id
+        elif next_id_iterfunc is not None:
+            self.id = next_id_iterfunc("item_template", "entry")
+        else:
+            raise Exception(
+                "Invoking `Item.update_id()` requires exactly one of: "
+                "`new_id` or `next_id_iterfunc`",
+            )
+
     def diff(
         self,
         other: "Item",
@@ -937,9 +949,13 @@ class Item(Entity, extra="allow"):
         actual = vars(other)
 
         for field in Item.model_fields:
-            if type(desired[field]) == list[IntFlag]:
-                print(desired[field])
             if desired[field] != actual[field]:
+                print(
+                    f"""type={type(desired[field])}
+    field={field}
+    desire={desired[field]}
+    actual={actual[field]}""",
+                )
                 diffs[field] = {
                     "desired": desired[field],
                     "actual": actual[field],
@@ -947,7 +963,16 @@ class Item(Entity, extra="allow"):
                 other.__setattr__(field, desired[field])
         return other, diffs
 
-    def apply(self, cursor: Cursor) -> None:
+    def delete(self, cursor: Cursor) -> list[str]:
+        return [
+            rf"DELETE FROM item_template WHERE entry={self.id};",
+            rf"""
+            DELETE FROM hoggerstate
+            WHERE hogger_identifier='{self.hogger_identifier()}';
+            """,
+        ]
+
+    def insert(self, cursor: Cursor) -> list[str]:
         args = {}
         model_dict = vars(self)
 
@@ -965,9 +990,10 @@ class Item(Entity, extra="allow"):
         db_key = args["entry"]
         keys = ("(`") + ("`, `".join(args.keys())) + ("`)")
         values = str(tuple(args.values()))
-        cursor.execute(f"REPLACE INTO item_template{keys} VALUES {values};")
-        cursor.execute(
-            f"REPLACE INTO hoggerstate(entity_code, hogger_identifier, db_key) "
-            f"VALUES (1, '{self.hogger_identifier()}', {db_key});",
-        )
-        return None
+        return [
+            rf"""
+            REPLACE INTO hoggerstate(entity_code, hogger_identifier, db_key)
+            VALUES (1, '{self.hogger_identifier()}', {db_key});
+            """,
+            rf"REPLACE INTO item_template{keys} VALUES {values};",
+        ]
