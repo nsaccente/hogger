@@ -24,6 +24,7 @@ def stats_from_sql_kvpairs(
         sql_dict: dict[str, any],
         cursor: Cursor,
         field_type: type,
+        hogger_identifier: str,
     ) -> dict[dict[(Enum | int), int]]:
         result = {}
         for k, v in kvpairs.items():
@@ -77,3 +78,18 @@ def stats_to_sql_kvpairs(
         return res
 
     return stats_to_sql_kvpairs
+
+
+def tag_from_sql():
+    def tag_from_sql(
+        sql_dict: dict[str, any],
+        cursor: Cursor,
+        field_type: type,
+        hogger_identifier: str,
+    ) -> dict[str, any]:
+        tups = hogger_identifier.rsplit("#", 1)
+        if len(tups) == 2:
+            return tups[1]
+        return ""
+
+    return tag_from_sql

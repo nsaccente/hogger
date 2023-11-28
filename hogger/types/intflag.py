@@ -85,6 +85,7 @@ class IntFlagUtils:
     def from_sql(field: str):
         def from_sql(
             sql_dict: dict[str, any],
+            hogger_identifier: str,
             cursor: Cursor,
             field_type: type,
         ) -> IntFlag:

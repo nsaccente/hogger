@@ -26,6 +26,7 @@ class Money(BaseModel):
     def from_sql_copper(field: str):
         def from_sql_copper(
             sql_dict: dict[str, any],
+            hogger_identifier: str,
             cursor: Cursor,
             field_type: type,
         ) -> "Money":

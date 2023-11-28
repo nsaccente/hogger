@@ -68,6 +68,7 @@ class Duration(BaseModel):
     def from_sql_seconds(field: str):
         def from_sql_seconds(
             sql_dict: dict[str, any],
+            hogger_identifier: str,
             cursor: Cursor,
             field_type: type,
         ) -> Duration:
@@ -79,6 +80,7 @@ class Duration(BaseModel):
     def from_sql_milli(field: str):
         def from_sql_seconds(
             sql_dict: dict[str, any],
+            hogger_identifier: str,
             cursor: Cursor,
             field_type: type,
         ) -> Duration:

@@ -22,6 +22,7 @@ def pydantic_annotation(cls) -> type:
 def from_sql(sql_field: str):
     def from_sql(
         sql_dict: dict[str, any],
+        hogger_identifier: str,
         cursor: Cursor = None,
         field_type: type = None,
     ) -> any:

@@ -203,6 +203,7 @@ class Requires(BaseModel):
     ):
         def from_sql(
             sql_dict: dict[str, any],
+            hogger_identifier: str,
             cursor: Cursor,
             field_type: type,
         ) -> "Requires":

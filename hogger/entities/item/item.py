@@ -18,7 +18,7 @@ from hogger.types import *
 from hogger.types import EnumUtils, LookupID, Money
 from hogger.util import from_sql, to_sql
 
-from .utils import stats_from_sql_kvpairs, stats_to_sql_kvpairs
+from .utils import *
 
 _enum_fields = [
     "ammoType",
@@ -83,7 +83,6 @@ class Item(Entity, extra="allow"):
             "The name, tag, and item type will all be used to identify the "
             "entity."
         ),
-        # TODO: Requires custom parser to decode tag
     )
     description: str = Field(
         default="",
@@ -581,7 +580,6 @@ class Item(Entity, extra="allow"):
         },
     )
     stats: dict[(ItemStat | int), int] = Field(
-        # TODO: must include `statCount` in serialization
         default=dict(),
         description=dedent(
             """
@@ -907,12 +905,13 @@ class Item(Entity, extra="allow"):
                 from_sql_func = json_schema_extra["from_sql"]
                 item_args[field] = from_sql_func(
                     sql_dict=sql_dict,
+                    hogger_identifier=hogger_identifier,
                     cursor=cursor,
                     field_type=field_properties.annotation,
                 )
 
         item_args["type"] = "Item"
-        tmp = sql_dict["name"].split("#")
+        tmp = hogger_identifier.split("#")
         if len(tmp) == 1:
             tmp.append("")
         item_args["tag"] = tmp[1]

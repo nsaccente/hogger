@@ -77,6 +77,7 @@ class EnumMapUtils:
 
         def from_sql_named_fields(
             sql_dict: dict[str, any],
+            hogger_identifier: str,
             cursor: Cursor,
             field_type: type,
         ) -> dict[dict[(Enum | int), int]]:

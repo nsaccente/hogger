@@ -69,22 +69,25 @@ class ItemSockets(BaseModel):
     ):
         def from_sql(
             sql_dict: dict[str, any],
+            hogger_identifier: str,
             cursor: Cursor,
             field_type: type,
         ) -> ItemSockets:
             args = {1: 0, 2: 0, 4: 0, 8: 0}
             for socketColor, socketContent in socket_map.items():
-                if socketColor in args:
-                    args[socketColor] += socketContent
-            args["meta"] = args.pop(1)
-            args["red"] = args.pop(2)
-            args["yellow"] = args.pop(4)
-            args["blue"] = args.pop(8)
-            return ItemSockets(
+                color = sql_dict[socketColor]
+                content = sql_dict[socketContent]
+                if color in args:
+                    args[color] += content
+            sockets = ItemSockets(
                 socketBonus=sql_dict[socketBonus],
                 properties=sql_dict[GemProperties],
-                **args,
+                meta=args[1],
+                red=args[2],
+                yellow=args[4],
+                blue=args[8],
             )
+            return sockets
 
         return from_sql
 
