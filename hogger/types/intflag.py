@@ -88,7 +88,7 @@ class IntFlagUtils:
             hogger_identifier: str,
             cursor: Cursor,
             field_type: type,
-        ) -> IntFlag:
+        ) -> set[IntFlag]:
             for t in get_args(get_args(field_type)[0]):
                 if issubclass(t, IntFlag):
                     IntFlagType = t
@@ -100,7 +100,7 @@ class IntFlagUtils:
                 flags = [
                     flag for flag in IntFlagType if flag in IntFlagType(sql_dict[field])
                 ]
-            return flags
+            return set(flags)
 
         return from_sql
 
@@ -112,7 +112,6 @@ class IntFlagUtils:
             cursor: Cursor,
             field_type: type,
         ) -> dict[str, any]:
-            # TODO: Add __int__ magic method
             return {sql_field: sum(model_dict[model_field])}
 
         return to_sql
@@ -121,7 +120,7 @@ class IntFlagUtils:
     def resolve(
         value: int,
         IntFlagType: type[IntFlag],
-    ) -> list[IntFlag | int]:
+    ) -> set[IntFlag | int]:
         flags = {flag.value: flag for flag in IntFlagType}
         powers = []
         i = 1
@@ -132,4 +131,4 @@ class IntFlagUtils:
                 except KeyError:
                     powers.append(i)
             i <<= 1
-        return powers
+        return set(powers)

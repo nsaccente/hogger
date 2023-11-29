@@ -300,8 +300,8 @@ class Item(Entity, extra="allow"):
             ),
         },
     )
-    bagFamily: list[BagFamily | int] = Field(
-        default=[],
+    bagFamily: set[BagFamily | int] = Field(
+        default={},
         description=dedent(
             """
             Dictates what kind of bags this item can be placed in.
@@ -446,8 +446,8 @@ class Item(Entity, extra="allow"):
             "to_sql": EnumUtils.to_sql("bonding"),
         },
     )
-    flags: list[ItemFlag | int] = Field(
-        default=[],
+    flags: set[ItemFlag | int] = Field(
+        default={},
         description=dedent(
             """
             A collection of flags to modify the behavior of the item.
@@ -458,8 +458,8 @@ class Item(Entity, extra="allow"):
             "to_sql": IntFlagUtils.to_sql("Flags"),
         },
     )
-    flagsExtra: list[ItemFlagExtra | int] = Field(
-        default=[],
+    flagsExtra: set[ItemFlagExtra | int] = Field(
+        default={},
         description=dedent(
             """
             A collection of flags to modify the behavior of the item.
@@ -470,8 +470,8 @@ class Item(Entity, extra="allow"):
             "to_sql": IntFlagUtils.to_sql("FlagsExtra"),
         },
     )
-    flagsCustom: list[ItemFlagExtra | int] = Field(
-        default=[],
+    flagsCustom: set[ItemFlagExtra | int] = Field(
+        default={},
         description=dedent(
             """
             A collection of flags to modify the behavior of the item.
@@ -714,7 +714,7 @@ class Item(Entity, extra="allow"):
             "to_sql": Damage.to_sql(model_field="damage"),
         },
     )
-    spells: list[ItemSpell] = Field(
+    spells: set[ItemSpell] = Field(
         default=[],
         description=dedent(
             """
@@ -848,7 +848,7 @@ class Item(Entity, extra="allow"):
         cls,
         items: list[str | int],
         info: FieldValidationInfo,
-    ) -> list[IntFlag | int]:
+    ) -> set[IntFlag | int]:
         return IntFlagUtils.parse(cls, items, info)
 
     @field_serializer(*_intflag_fields, when_used="json")
@@ -949,12 +949,6 @@ class Item(Entity, extra="allow"):
 
         for field in Item.model_fields:
             if desired[field] != actual[field]:
-                print(
-                    f"""type={type(desired[field])}
-    field={field}
-    desire={desired[field]}
-    actual={actual[field]}""",
-                )
                 diffs[field] = {
                     "desired": desired[field],
                     "actual": actual[field],

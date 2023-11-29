@@ -267,11 +267,9 @@ class WorldDatabase:
     def commit(self) -> None:
         try:
             cursor = self._cnx.cursor()
-            for query in self.staged_inserts:
-                # print(query)
-                cursor.execute(query)
             for query in self.staged_deletes:
-                # print(query)
+                cursor.execute(query)
+            for query in self.staged_inserts:
                 cursor.execute(query)
             self._cnx.commit()
         except Exception as e:

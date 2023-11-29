@@ -48,11 +48,13 @@ def apply(
             db.add_desired(*manifest.entities)
 
         pending = db.stage()
-        # for query in db.staged_queries:
-        #     print(query)
-        # TODO: Item diff isn't working correctly because lists aren't serializable,
-        # which -- I think -- is causing older hoggerids to not work.
-        # TODO: Old hoggerids aren't being deleted
+
+        print("DELETES")
+        for query in db.staged_deletes:
+            print(query)
+        print("INSERTS")
+        for query in db.staged_inserts:
+            print(query)
 
         # Check for -y/--skip_confirmation
         response = "yes"
