@@ -1,7 +1,6 @@
-from copy import deepcopy
 from enum import Enum, IntFlag
 from textwrap import dedent
-from typing import Literal, Optional
+from typing import Hashable, Literal, Optional
 
 from mysql.connector.cursor_cext import CMySQLCursor as Cursor
 from pydantic import (
@@ -300,8 +299,8 @@ class Item(Entity, extra="allow"):
             ),
         },
     )
-    bagFamily: set[BagFamily | int] = Field(
-        default={},
+    bagFamily: list[BagFamily | int] = Field(
+        default=[],
         description=dedent(
             """
             Dictates what kind of bags this item can be placed in.
@@ -446,8 +445,8 @@ class Item(Entity, extra="allow"):
             "to_sql": EnumUtils.to_sql("bonding"),
         },
     )
-    flags: set[ItemFlag | int] = Field(
-        default={},
+    flags: list[ItemFlag | int] = Field(
+        default=[],
         description=dedent(
             """
             A collection of flags to modify the behavior of the item.
@@ -458,8 +457,8 @@ class Item(Entity, extra="allow"):
             "to_sql": IntFlagUtils.to_sql("Flags"),
         },
     )
-    flagsExtra: set[ItemFlagExtra | int] = Field(
-        default={},
+    flagsExtra: list[ItemFlagExtra | int] = Field(
+        default=[],
         description=dedent(
             """
             A collection of flags to modify the behavior of the item.
@@ -470,8 +469,8 @@ class Item(Entity, extra="allow"):
             "to_sql": IntFlagUtils.to_sql("FlagsExtra"),
         },
     )
-    flagsCustom: set[ItemFlagExtra | int] = Field(
-        default={},
+    flagsCustom: list[ItemFlagExtra | int] = Field(
+        default=[],
         description=dedent(
             """
             A collection of flags to modify the behavior of the item.
@@ -714,7 +713,7 @@ class Item(Entity, extra="allow"):
             "to_sql": Damage.to_sql(model_field="damage"),
         },
     )
-    spells: set[ItemSpell] = Field(
+    spells: list[ItemSpell] = Field(
         default=[],
         description=dedent(
             """
@@ -848,7 +847,7 @@ class Item(Entity, extra="allow"):
         cls,
         items: list[str | int],
         info: FieldValidationInfo,
-    ) -> set[IntFlag | int]:
+    ) -> list[IntFlag | int]:
         return IntFlagUtils.parse(cls, items, info)
 
     @field_serializer(*_intflag_fields, when_used="json")
@@ -948,21 +947,31 @@ class Item(Entity, extra="allow"):
         actual = vars(other)
 
         for field in Item.model_fields:
-            if desired[field] != actual[field]:
+            des = desired[field]
+            act = actual[field]
+            # We need to convert lists into an iterable where the order of
+            # its elements doesn't matter.
+            if isinstance(des, list) and isinstance(act, list):
+                des = set(des)
+                act = set(act)
+
+            if des != act:
                 diffs[field] = {
-                    "desired": desired[field],
-                    "actual": actual[field],
+                    "desired": des,
+                    "actual": act,
                 }
                 other.__setattr__(field, desired[field])
         return other, diffs
 
     def delete(self, cursor: Cursor) -> list[str]:
         return [
-            rf"DELETE FROM item_template WHERE entry={self.id};",
-            rf"""
-            DELETE FROM hoggerstate
-            WHERE hogger_identifier='{self.hogger_identifier()}';
-            """,
+            dedent(rf"DELETE FROM item_template WHERE entry={self.id};"),
+            dedent(
+                rf"""
+                DELETE FROM hoggerstate
+                WHERE hogger_identifier='{self.hogger_identifier()}';
+                """,
+            ),
         ]
 
     def insert(self, cursor: Cursor) -> list[str]:
@@ -984,9 +993,11 @@ class Item(Entity, extra="allow"):
         keys = ("(`") + ("`, `".join(args.keys())) + ("`)")
         values = str(tuple(args.values()))
         return [
-            rf"""
-            REPLACE INTO hoggerstate(entity_code, hogger_identifier, db_key)
-            VALUES (1, '{self.hogger_identifier()}', {db_key});
-            """,
-            rf"REPLACE INTO item_template{keys} VALUES {values};",
+            dedent(
+                rf"""
+                REPLACE INTO hoggerstate(entity_code, hogger_identifier, db_key)
+                VALUES (1, '{self.hogger_identifier()}', {db_key});
+                """,
+            ),
+            dedent(rf"REPLACE INTO item_template{keys} VALUES {values};"),
         ]

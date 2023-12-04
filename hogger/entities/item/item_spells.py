@@ -122,10 +122,10 @@ class ItemSpell(BaseModel):
             hogger_identifier: str,
             cursor: Cursor,
             field_type: type,
-        ) -> ItemSpell:
+        ) -> list[ItemSpell]:
             results = []
             for field_map in field_maps:
-                if sql_dict[field_map["id"]] != 0:
+                if sql_dict[field_map["id"]] > 0:
                     results.append(
                         ItemSpell._from_sql(
                             sql_dict=sql_dict,

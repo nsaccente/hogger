@@ -2,7 +2,7 @@ apiVersion: 1.0.1
 entities:
   - type: Item
     id: -1
-    name: 1-Handed Hatchet
+    name: 1-Handed Hatchets
     tag: asdf
     description: "A sparkly axe."
     itemClass: Gem
@@ -44,7 +44,7 @@ entities:
       Mana: 3
       Health: 4
       Strength: 5
-      Spirit: 6
+      Intellect: 6
       BlockRating: 7
       MeleeHitRating: 8
       MeleeCritRating: 9

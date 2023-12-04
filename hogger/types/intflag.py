@@ -66,7 +66,7 @@ class IntFlagUtils:
                                 actual=item,
                                 suggestion=suggestion,
                             )
-        return list(set(result))
+        return result
 
     def serialize(
         self,
@@ -88,7 +88,7 @@ class IntFlagUtils:
             hogger_identifier: str,
             cursor: Cursor,
             field_type: type,
-        ) -> set[IntFlag]:
+        ) -> list[IntFlag]:
             for t in get_args(get_args(field_type)[0]):
                 if issubclass(t, IntFlag):
                     IntFlagType = t
@@ -100,7 +100,7 @@ class IntFlagUtils:
                 flags = [
                     flag for flag in IntFlagType if flag in IntFlagType(sql_dict[field])
                 ]
-            return set(flags)
+            return flags
 
         return from_sql
 
@@ -120,7 +120,7 @@ class IntFlagUtils:
     def resolve(
         value: int,
         IntFlagType: type[IntFlag],
-    ) -> set[IntFlag | int]:
+    ) -> list[IntFlag | int]:
         flags = {flag.value: flag for flag in IntFlagType}
         powers = []
         i = 1
@@ -131,4 +131,4 @@ class IntFlagUtils:
                 except KeyError:
                     powers.append(i)
             i <<= 1
-        return set(powers)
+        return powers
